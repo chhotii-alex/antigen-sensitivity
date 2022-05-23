@@ -14,7 +14,7 @@ function generateColorAngles() {
         newArray.push(i);
     }
     return newArray;
-}
+} // END function generateColorAngles
 
 function getColorSchema() {
     if (!colorAngles.length) {

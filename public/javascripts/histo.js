@@ -30,6 +30,7 @@ function loadData() {
     let box = d3.select("#displaybox");
 
 displayData(
+    [
     {"label" : "Star-belly Sneetches",
     "data" : [
 {viralLoadLog: 0, negatives: 10, positives: 0},
@@ -47,9 +48,6 @@ displayData(
 {viralLoadLog: 12, negatives:  0, positives:  1},
 ],
     colors: getColorSchema()},
-box);
-
-displayData(
     {"label" : "Non-star-belly Sneetches",
       "data" : [
 {viralLoadLog: 0, negatives: 0, positives: 0},
@@ -67,20 +65,12 @@ displayData(
 {viralLoadLog: 12, negatives:  0, positives:  3},
 ],
 colors: getColorSchema()},
+],
 box);
-
 }
 
 document.getElementById("clickme").onclick = loadData;
-
-function makeXAxis(data, key, xscale){
-    const xValues = data.map( (d) => d[key] );
-    xscale.domain([xValues[0], 1+xValues[xValues.length - 1]]);
-    return d3.axisBottom(xscale)
-        .tickValues([0, 4, 8, 12])
-        .tickFormat('');
-}  // END makeXAxis()
-
+/*
 function makeYAxis(data, categories, yscale){
     const maxPValues = data.map( (d) => {
           let sum = 0;
@@ -88,14 +78,14 @@ function makeYAxis(data, categories, yscale){
           sum += 30;
           return sum;
         });
-    const maxNValues = [0,0]; 
+    const maxNValues = [0]; 
 
     let yDomain = d3.extent(maxPValues.concat(maxNValues));
     yscale.domain(yDomain);
     return d3.axisLeft(yscale)
         .ticks(3);
 }  // END makeYAxis
-
+*/
 const categories = ["negatives", "positives"];
 
 function getTotal(data) {
@@ -108,79 +98,96 @@ function getTotal(data) {
     return total;
 }
 
+const stack = d3.stack()
+        .keys(categories); 
+
 const margin = {top: 10, right: 30, bottom: 30, left: 80};
 const boxWidth = 800;
 const boxHeight = 250;
 const width = boxWidth - margin.left - margin.right;
 const height = boxHeight - margin.top - margin.bottom;
 
-function displayData(info, box) { 
-    let data = info.data;
-    let label = info.label;
-    let colorSchema = info.colors;
+function linearScale(values, width) {
+    return d3.scaleLinear()
+        .domain(d3.extent(values))
+        .range([0, width]);
+}
 
-    const stack = d3.stack()
-        .keys(categories);    
-    const stackedSeries = stack(data);
-  
-    let div = box.append("div");
-    div.append("h3").text(label);
-    let svg = div.append("svg")
+function displayData(info, box) { 
+    let firstData = info[0].data;
+    
+    // We are very much assuming that all histograms will have the same x axis.        
+    const xScale = linearScale(firstData.map( (d) => d['viralLoadLog'] ), width);
+    const barWidth = width/(firstData.length); 
+
+    // For now, assume we will use the same y axis scaling for all. This should probably change.
+    const yScale = d3.scaleLinear().range([height,0]);
+    const maxPValues = firstData.map( (d) => {
+        let sum = 0;
+        for (let key of categories) { sum += d[key]; }
+        sum += 30;
+        return sum;
+      });
+
+    let yDomain = d3.extent(maxPValues.concat([0]));
+    yScale.domain(yDomain);
+    const yAxisMaker = d3.axisLeft(yScale).ticks(3);
+      
+    let div = box.selectAll("div").data(info, d => d.label).join("div");
+    div.selectAll("h3").data(d => [d.label]).join("h3").text(d => d);
+    let svg = div.selectAll("svg").data(d => [d]).join("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom);
-    let group = svg.append("g")   // append returns a selection object
+    let group = svg.selectAll("g").data(d => [d]).join("g")
             .attr("transform", `translate(${margin.left}, ${margin.top})`);   
-                      
-    const xScale = d3.scaleLinear()
-        .range([0, width]);
-    const yScale = d3.scaleLinear().domain([0, 650]).range([height,0]);
-    const colorScale = d3.scaleOrdinal()
-        .domain(["negatives", "positives"])
-        .range([colorSchema["negatives"], colorSchema["positives"]]); 
-    const barWidth = width/(data.length); 
-        
+                             
     //Adds in the X axis with ticks
-    let ticks = group.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", `translate(0, ${height})`)
-        .call(makeXAxis(data, "viralLoadLog", xScale));
-    ticks.selectAll(".tick").append("svg:foreignObject")
+    let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
+        .classed("x-axis", true)
+        .attr("transform", `translate(0, ${height})`);
+    d3.axisBottom(xScale)
+        .tickValues([0, 4, 8, 12])
+        .tickFormat('')(xAxis);
+    xAxis.selectAll(".tick").selectAll("foreignObject").data(d => [d]).join("svg:foreignObject")
             .attr("width","2em")
             .attr("height","2em")
             .attr("x", "-1em")
             .attr("y", "0.5em")
-        .append("xhtml:div")
+        .selectAll("div").data(d => [d]).join("xhtml:div")
             .html(function(n) {return `10<sup>${n}</sup>`;});
 
     // Add X axis label:
-    group.append("text")
+    group.selectAll("text.xlabel").data(["Viral load (copies/mL)"]).join("text")
+        .classed("xlabel", true)
         .attr("text-anchor", "middle")
         .attr("x", width/2)
         .attr("y", height + margin.top + 18)
-        .text("Viral load (copies/mL)");        
+        .text(d => d);        
 
     //Adds in the Y axis
-    group.append("g")
-        .call(makeYAxis(data, categories, yScale));   
+    group.selectAll("g.yaxis").data(d => [d]).join("g")
+        .classed("yaxis", true)
+        .call(yAxisMaker);   
         
     // Y axis label:
-    group.append("text")
+    group.selectAll("text.ylabel").data(d => [d]).join("text")
+        .classed("ylabel", true)
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
         //.attr("y", -margin.left+10)
         .attr("y", -margin.left/2)
         .attr("x", -height/2)
-        .text(`${getTotal(data)} total patients`) ;   
+        .text(d => `${getTotal(d.data)} total patients`) ;   
           
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See
         https://observablehq.com/@d3/selection-join */
     const seriesGroupSelection = group
         .selectAll('g.series')
-        .data(stackedSeries, d => d.key)
+        .data(d => stack(d.data).map( f => {f["color"] = d.colors[f.key]; return f; }), d => d.key)
         .join('g');
     seriesGroupSelection.classed('series', true)
-        .style('fill', (d) => colorScale(d.key));
+        .style('fill', (d) => d.color);
   
     // For each series create a rect element for each viralLoadLog
     const rectSelection = seriesGroupSelection.selectAll('rect')

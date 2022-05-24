@@ -27,8 +27,11 @@ function getColorSchema() {
 
 function loadData() {
 
-displayData("Star-belly Sneetches",
-[
+    let box = d3.select("#displaybox");
+
+displayData(
+    {"label" : "Star-belly Sneetches",
+    "data" : [
 {viralLoadLog: 0, negatives: 10, positives: 0},
 {viralLoadLog: 1, negatives: 50, positives: 0},
 {viralLoadLog: 2, negatives: 160, positives: 0},
@@ -43,10 +46,12 @@ displayData("Star-belly Sneetches",
 {viralLoadLog: 11, negatives:  0, positives:  20},
 {viralLoadLog: 12, negatives:  0, positives:  1},
 ],
-"#displaybox");
+    colors: getColorSchema()},
+box);
 
-displayData("Non-star-belly Sneetches",
-  [
+displayData(
+    {"label" : "Non-star-belly Sneetches",
+      "data" : [
 {viralLoadLog: 0, negatives: 0, positives: 0},
 {viralLoadLog: 1, negatives: 40, positives: 5},
 {viralLoadLog: 2, negatives: 123, positives: 9},
@@ -61,7 +66,8 @@ displayData("Non-star-belly Sneetches",
 {viralLoadLog: 11, negatives:  0, positives:  12},
 {viralLoadLog: 12, negatives:  0, positives:  3},
 ],
-"#displaybox");
+colors: getColorSchema()},
+box);
 
 }
 
@@ -92,28 +98,31 @@ function makeYAxis(data, categories, yscale){
 
 const categories = ["negatives", "positives"];
 
-function displayData(label, data, boxId) { 
+function getTotal(data) {
     let total = 0;
     for (let segment of data) {
         for (let cat of categories) {
             total += segment[cat];
         }
     }
+    return total;
+}
 
-    let colorSchema = getColorSchema();
-    
+const margin = {top: 10, right: 30, bottom: 30, left: 80};
+const boxWidth = 800;
+const boxHeight = 250;
+const width = boxWidth - margin.left - margin.right;
+const height = boxHeight - margin.top - margin.bottom;
+
+function displayData(info, box) { 
+    let data = info.data;
+    let label = info.label;
+    let colorSchema = info.colors;
+
     const stack = d3.stack()
-        .keys(categories);
-    
+        .keys(categories);    
     const stackedSeries = stack(data);
   
-    let margin = {top: 10, right: 30, bottom: 30, left: 80};
-    let boxWidth = 800;
-    let boxHeight = 250;
-    let width = boxWidth - margin.left - margin.right;
-    let height = boxHeight - margin.top - margin.bottom;
-
-    let box = d3.select(boxId);
     let div = box.append("div");
     div.append("h3").text(label);
     let svg = div.append("svg")
@@ -161,7 +170,7 @@ function displayData(label, data, boxId) {
         //.attr("y", -margin.left+10)
         .attr("y", -margin.left/2)
         .attr("x", -height/2)
-        .text(`${total} total patients`) ;   
+        .text(`${getTotal(data)} total patients`) ;   
           
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See

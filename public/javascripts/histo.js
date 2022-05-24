@@ -164,18 +164,20 @@ function displayData(label, data, boxId) {
         .text(`${total} total patients`) ;   
           
     // Create a g element for each series
-    const sel = group
+    /* We can make there be transitions here, by passing functions to join(). See
+        https://observablehq.com/@d3/selection-join */
+    const seriesGroupSelection = group
         .selectAll('g.series')
-        .data(stackedSeries)
-        .join('g')
-        .classed('series', true)
+        .data(stackedSeries, d => d.key)
+        .join('g');
+    seriesGroupSelection.classed('series', true)
         .style('fill', (d) => colorScale(d.key));
   
     // For each series create a rect element for each viralLoadLog
-    sel.selectAll('rect')
-        .data((d) => d)
-        .join('rect')
-        .attr('width', barWidth)
+    const rectSelection = seriesGroupSelection.selectAll('rect')
+        .data((d) => d, d => d.data.viralLoadLog)
+        .join('rect');
+    rectSelection.attr('width', barWidth)
         .attr('y', (d) => yScale(d[1]))
         .attr('x', (d) => xScale(d.data.viralLoadLog)   )
         .attr('height', (d) => yScale(d[0]) -  yScale(d[1]));

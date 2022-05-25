@@ -338,6 +338,16 @@ router.get('/api/variables', function(req, res, next) {
     version: 0,
   };
   res.json(retval);
+});
+
+router.get('/api/assays', function(req, res, next) {
+  let retval = {
+    items: [
+      {id: 1, displayName: "Antigen test - AcmeCo."},
+      {id: 2, displayName: "Antigen test - Binax"},
+    ]
+  };
+  res.json(retval);
 })
 
 router.get('/api/data/viralloads', function(req, res, next) {
@@ -348,6 +358,6 @@ router.get('/api/data/viralloads', function(req, res, next) {
     }
   }
   res.json(phonyData);
-})
+});
 
 module.exports = router;

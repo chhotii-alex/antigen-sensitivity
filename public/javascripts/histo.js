@@ -13,13 +13,32 @@ export function loadVariableOptions(data) {
     }
 }
 
-export function doQuery(variable) {
+export function loadAssayOptions(data) {
+    let options = data.items;
+    let select = document.getElementById("antigenTest");
+    for (let item of options) {
+        let id = item.id;
+        let label = item.displayName;
+        let opt = document.createElement("option");
+        opt.value = id;
+        opt.text = label;
+        select.add(opt);
+    }
+}
+
+export function doQuery(variable, assay) {
     if (variable == "none") {
         variable = null;
     }
+    if (assay == "none") {
+        assay = null;
+    }
     let url = 'api/data/viralloads?';
     if (variable) {
-        url += `vars=${variable}`;
+        url += `vars=${variable}&`;
+    }
+    if (assay) {
+        url += `assay=${assay}&`;
     }
     fetch(url)
         .then(response => response.json())

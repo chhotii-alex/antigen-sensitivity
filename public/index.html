@@ -9,9 +9,13 @@
 <body>
   <h1>Predicted Test Performance on Population Segments</h1>
   <form>
-    <label for="variable">Select varable:</label>
+    <label for="variable">Select variable:</label>
     <select name="variable" id="variable" onchange="selectAction()">
       <option value="none" selected>-- no variable selected --</option>
+    </select>
+    <label for="antigenTest">Select test:</label>
+    <select name="antigenTest" id="antigenTest" onchange="selectAction()">
+      <option value="none" selected>-- no test selected --</option>
     </select>
   </form>
   <div id="displaybox"></div>
@@ -22,19 +26,28 @@
   </ul>
 </body>
 <script type="module">
-  import { doQuery, loadVariableOptions } from './javascripts/histo.js';
+  import { doQuery, loadVariableOptions, loadAssayOptions } from './javascripts/histo.js';
 
   function selectAction() {
     let variable = document.getElementById("variable").value;
-    doQuery(variable);
+    let assay = document.getElementById("antigenTest").value;
+    doQuery(variable, assay);
   }
 
   document.getElementById("variable").onchange = selectAction;
+  document.getElementById("antigenTest").onchange = selectAction;
 
-  let url = "/api/variables";
+  let url;
+  
+  url = "/api/variables";
   fetch(url)
         .then(response => response.json())
         .then(data => loadVariableOptions(data));
+
+  url = "/api/assays";
+  fetch(url)
+        .then(response => response.json())
+        .then(data => loadAssayOptions(data));
 
 </script>
 </html>

@@ -8,12 +8,30 @@
 
 <body>
   <h1>Predicted Test Performance on Population Segments</h1>
+  <form>
+    <label for="variable">Select varable:</label>
+    <select name="variable" id="variable" onchange="selectAction()">
+      <option value="none">-- no variable selected --</option>
+      <option value="vacc">Vaccination status</option>
+      <option value="sneetch">Sneetch type</option>
+    </select>
+  </form>
   <div id="displaybox"></div>
-  <button id="clickme">Click me!</button>
+  <hr/>
   <h3>Specification Questions:</h3>
   <ul>
     <li>Should we set the same scale on both (all) y-axes?</li>
   </ul>
 </body>
-<script type="module" src="javascripts/histo.js"></script>
+<script type="module">
+  import { doQuery } from './javascripts/histo.js';
+
+  function selectAction() {
+    let variable = document.getElementById("variable").value;
+    doQuery(variable);
+  }
+
+  document.getElementById("variable").onchange = selectAction;
+
+</script>
 </html>

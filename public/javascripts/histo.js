@@ -1,6 +1,7 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
-function doQuery() {
+export function doQuery(variable) {
+    console.log(variable);
     fetch('api/data/viralloads')
         .then(response => response.json())
         .then(data => loadData(data));
@@ -11,7 +12,6 @@ function loadData(data) {
     displayData(data, box);
 }
 
-document.getElementById("clickme").onclick = doQuery;
 const categories = ["negatives", "positives"];
 
 function getTotal(data) {

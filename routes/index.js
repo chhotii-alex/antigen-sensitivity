@@ -329,11 +329,13 @@ let phonyData2 = [
   }
 ];
 
-let counter = 0;
-
 router.get('/api/data/viralloads', function(req, res, next) {
-  ++counter;
-  let phonyData = (counter%2) ? phonyData1 : phonyData2;
+  let phonyData = phonyData1;
+  if ('vars' in req.query) {
+    if (req.query.vars == "sneetch") {
+      phonyData = phonyData2;
+    }
+  }
   res.json(phonyData);
 })
 

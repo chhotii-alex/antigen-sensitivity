@@ -1,8 +1,14 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
 export function doQuery(variable) {
-    console.log(variable);
-    fetch('api/data/viralloads')
+    if (variable == "none") {
+        variable = null;
+    }
+    let url = 'api/data/viralloads?';
+    if (variable) {
+        url += `vars=${variable}`;
+    }
+    fetch(url)
         .then(response => response.json())
         .then(data => loadData(data));
 }

@@ -304,6 +304,24 @@ router.get('/api/data/viralloads', function(req, res, next) {
     if (req.query.vars == "sneetch") {
       phonyData = phonyData2;
     }
+    else {
+      phonyData = phonyData1;
+    }
+  }
+  else {
+    phonyData = [{
+      "label" : "All Patients",
+      "data" : [],
+      "colors": getColorSchema(),
+    }];
+    for (let i = 0; i < phonyData1[0].data.length; ++i) {
+      let bin = phonyData1[0].data[i];
+      phonyData[0].data.push(
+        { "viralLoadLog" : bin.viralLoadLog,
+          "count" : bin.count + phonyData1[1].data[i].count
+        }
+      )
+    }
   }
   let f;
   if ('assay' in req.query) {

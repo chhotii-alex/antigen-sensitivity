@@ -11,9 +11,7 @@
   <form>
     <label for="variable">Select varable:</label>
     <select name="variable" id="variable" onchange="selectAction()">
-      <option value="none">-- no variable selected --</option>
-      <option value="vacc">Vaccination status</option>
-      <option value="sneetch">Sneetch type</option>
+      <option value="none" selected>-- no variable selected --</option>
     </select>
   </form>
   <div id="displaybox"></div>
@@ -24,7 +22,7 @@
   </ul>
 </body>
 <script type="module">
-  import { doQuery } from './javascripts/histo.js';
+  import { doQuery, loadVariableOptions } from './javascripts/histo.js';
 
   function selectAction() {
     let variable = document.getElementById("variable").value;
@@ -32,6 +30,11 @@
   }
 
   document.getElementById("variable").onchange = selectAction;
+
+  let url = "/api/variables";
+  fetch(url)
+        .then(response => response.json())
+        .then(data => loadVariableOptions(data));
 
 </script>
 </html>

@@ -329,6 +329,17 @@ let phonyData2 = [
   }
 ];
 
+router.get('/api/variables', function(req, res, next) {
+  let retval = {
+    items: [
+      { id: 'vacc', displayName: "Vaccination status"},
+      { id: 'sneetch', displayName: "Sneetch type"},
+    ],
+    version: 0,
+  };
+  res.json(retval);
+})
+
 router.get('/api/data/viralloads', function(req, res, next) {
   let phonyData = phonyData1;
   if ('vars' in req.query) {

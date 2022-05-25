@@ -147,12 +147,18 @@ function displayData(info, box) {
     // For each series create a rect element for each viralLoadLog
     const rectSelection = seriesGroupSelection.selectAll('rect.histbar')
         .data((d) => d, d => d.data.viralLoadLog)
-        .join('rect')
-        .classed("histbar", true);
-    rectSelection.attr('width', barWidth)
-        .attr('y', d =>  d[1])
-        .attr('x', d => xScale(d.data.viralLoadLog)   )
-        .attr('height', d => d[0] -  d[1]);
+        .join(
+            enter => enter.append("rect")
+                .classed("histbar", true)
+                .attr('width', barWidth)
+                .attr('x', d => xScale(d.data.viralLoadLog))
+                .attr('y', d =>  d[1])
+                .attr('height', d => d[0] -  d[1]),
+            update => update
+                .call(update => update.transition()
+                    .attr('y', d =>  d[1])
+                    .attr('height', d => d[0] -  d[1]))
+        );
 }
 
 doQuery();

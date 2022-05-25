@@ -45,68 +45,55 @@ let phonyData1 = [
       "data": [
           {
               "viralLoadLog": 0,
-              "negatives": 12,
-              "positives": 0
+              "count" : 12,
           },
           {
               "viralLoadLog": 1,
-              "negatives": 67,
-              "positives": 0
+              "count" : 67,
           },
           {
               "viralLoadLog": 2,
-              "negatives": 300,
-              "positives": 0
+              "count" : 300,
           },
           {
               "viralLoadLog": 3,
-              "negatives": 130,
-              "positives": 20
+              "count" : 155,
           },
           {
               "viralLoadLog": 4,
-              "negatives": 88,
-              "positives": 48
+              "count" : 120,
           },
           {
               "viralLoadLog": 5,
-              "negatives": 2,
-              "positives": 148
+              "count" : 101,
           },
           {
               "viralLoadLog": 6,
-              "negatives": 0,
-              "positives": 148
+              "count" : 39,
           },
           {
               "viralLoadLog": 7,
-              "negatives": 0,
-              "positives": 248
+              "count" : 31,
           },
           {
               "viralLoadLog": 8,
-              "negatives": 0,
-              "positives": 148
+              "count" : 20,
           },
           {
               "viralLoadLog": 9,
-              "negatives": 0,
-              "positives": 200
+              "count" : 19,
           },
           {
               "viralLoadLog": 10,
-              "negatives": 0,
-              "positives": 100
+              "count" : 10,
           },
           {
               "viralLoadLog": 11,
-              "negatives": 0,
-              "positives": 20
+              "count" : 11,
           },
           {
               "viralLoadLog": 12,
-              "negatives": 0,
-              "positives": 1
+              "count" : 0,
           }
       ],
       "colors": getColorSchema(),
@@ -116,68 +103,55 @@ let phonyData1 = [
       "data": [
           {
               "viralLoadLog": 0,
-              "negatives": 0,
-              "positives": 0
+              "count" : 0,
           },
           {
               "viralLoadLog": 1,
-              "negatives": 30,
-              "positives": 5
+              "count" : 2,
           },
           {
               "viralLoadLog": 2,
-              "negatives": 50,
-              "positives": 9
+              "count" : 12,
           },
           {
               "viralLoadLog": 3,
-              "negatives": 50,
-              "positives": 9
+              "count" : 15,
           },
           {
               "viralLoadLog": 4,
-              "negatives": 80,
-              "positives": 17
+              "count" : 45,
           },
           {
               "viralLoadLog": 5,
-              "negatives": 200,
-              "positives": 64
+              "count" : 99,
           },
           {
               "viralLoadLog": 6,
-              "negatives": 209,
-              "positives": 77
+              "count" : 203,
           },
           {
               "viralLoadLog": 7,
-              "negatives": 304,
-              "positives": 99
+              "count" : 403,
           },
           {
               "viralLoadLog": 8,
-              "negatives": 50,
-              "positives": 98
+              "count" : 298,
           },
           {
               "viralLoadLog": 9,
-              "negatives": 90,
-              "positives": 83
+              "count" : 280,
           },
           {
               "viralLoadLog": 10,
-              "negatives": 60,
-              "positives": 40
+              "count" : 123,
           },
           {
               "viralLoadLog": 11,
-              "negatives": 0,
-              "positives": 50
+              "count" : 50,
           },
           {
               "viralLoadLog": 12,
-              "negatives": 0,
-              "positives": 13
+              "count" : 13,
           }
       ],
       "colors": getColorSchema()
@@ -190,68 +164,55 @@ let phonyData2 = [
       "data": [
           {
               "viralLoadLog": 0,
-              "negatives": 10,
-              "positives": 0
+              "count" : 10,
           },
           {
               "viralLoadLog": 1,
-              "negatives": 50,
-              "positives": 0
+              "count" : 50,
           },
           {
               "viralLoadLog": 2,
-              "negatives": 160,
-              "positives": 0
+              "count" : 100,
           },
           {
               "viralLoadLog": 3,
-              "negatives": 100,
-              "positives": 20
+              "count" : 120,
           },
           {
               "viralLoadLog": 4,
-              "negatives": 10,
-              "positives": 48
+              "count" : 111,
           },
           {
               "viralLoadLog": 5,
-              "negatives": 2,
-              "positives": 148
+              "count" : 109,
           },
           {
               "viralLoadLog": 6,
-              "negatives": 0,
-              "positives": 148
+              "count" : 166,
           },
           {
               "viralLoadLog": 7,
-              "negatives": 0,
-              "positives": 248
+              "count" : 155,
           },
           {
               "viralLoadLog": 8,
-              "negatives": 0,
-              "positives": 148
+              "count" : 99,
           },
           {
               "viralLoadLog": 9,
-              "negatives": 0,
-              "positives": 200
+              "count" : 88,
           },
           {
               "viralLoadLog": 10,
-              "negatives": 0,
-              "positives": 100
+              "count" : 34,
           },
           {
               "viralLoadLog": 11,
-              "negatives": 0,
-              "positives": 20
+              "count" : 12,
           },
           {
               "viralLoadLog": 12,
-              "negatives": 0,
-              "positives": 1
+              "count" : 2,
           }
       ],
       "colors": getColorSchema(),
@@ -261,68 +222,55 @@ let phonyData2 = [
       "data": [
           {
               "viralLoadLog": 0,
-              "negatives": 0,
-              "positives": 0
+              "count" : 0,
           },
           {
               "viralLoadLog": 1,
-              "negatives": 40,
-              "positives": 5
+              "count" : 33,
           },
           {
               "viralLoadLog": 2,
-              "negatives": 123,
-              "positives": 9
+              "count" : 99,
           },
           {
               "viralLoadLog": 3,
-              "negatives": 80,
-              "positives": 9
+              "count" : 123,
           },
           {
               "viralLoadLog": 4,
-              "negatives": 8,
-              "positives": 17
+              "count" : 54,
           },
           {
               "viralLoadLog": 5,
-              "negatives": 20,
-              "positives": 64
+              "count" : 32,
           },
           {
               "viralLoadLog": 6,
-              "negatives": 20,
-              "positives": 77
+              "count" : 31,
           },
           {
               "viralLoadLog": 7,
-              "negatives": 20,
-              "positives": 99
+              "count" : 30,
           },
           {
               "viralLoadLog": 8,
-              "negatives": 10,
-              "positives": 98
+              "count" : 17,
           },
           {
               "viralLoadLog": 9,
-              "negatives": 0,
-              "positives": 83
+              "count" : 3,
           },
           {
               "viralLoadLog": 10,
-              "negatives": 0,
-              "positives": 40
+              "count" : 4,
           },
           {
               "viralLoadLog": 11,
-              "negatives": 0,
-              "positives": 12
+              "count" : 0,
           },
           {
               "viralLoadLog": 12,
-              "negatives": 0,
-              "positives": 3
+              "count" : 0,
           }
       ],
       "colors": getColorSchema()
@@ -355,6 +303,44 @@ router.get('/api/data/viralloads', function(req, res, next) {
   if ('vars' in req.query) {
     if (req.query.vars == "sneetch") {
       phonyData = phonyData2;
+    }
+  }
+  let f;
+  if ('assay' in req.query) {
+    if (req.query.assay == 1) {
+      f = (log, count) => {
+        if (log < 3) {
+          return 0;
+        }
+        else if (log > 8) {
+          return count;
+        }
+        else {
+          return Math.round(count * (log - 3) * 0.2);
+        }
+      }
+    }
+    else {
+      f = (log, count) => {
+        if (log < 2) {
+          return 0;
+        }
+        else if (log > 9) {
+          return count;
+        }
+        else {
+          return Math.round(count * (log - 2) * 0.1);
+        }
+      }
+    }
+  }
+  else {
+    f = (log, count) => 0;
+  }
+  for (let pop of phonyData) {
+    for (let bin of pop.data) {
+      bin.positives = f(bin.viralLoadLog, bin.count);
+      bin.negatives = bin.count - bin.positives;
     }
   }
   res.json(phonyData);

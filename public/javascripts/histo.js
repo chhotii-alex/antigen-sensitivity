@@ -25,51 +25,18 @@ function getColorSchema() {
             "positives" : `hsl(${angle},80%,85%)`};
 }
 
-function loadData() {
-
-    let box = d3.select("#displaybox");
-
-displayData(
-    [
-    {"label" : "Star-belly Sneetches",
-    "data" : [
-{viralLoadLog: 0, negatives: 10, positives: 0},
-{viralLoadLog: 1, negatives: 50, positives: 0},
-{viralLoadLog: 2, negatives: 160, positives: 0},
-{viralLoadLog: 3, negatives:  100, positives:  20},
-{viralLoadLog: 4, negatives:  10, positives:  48},
-{viralLoadLog: 5, negatives:  2, positives:  148},
-{viralLoadLog: 6, negatives:  0, positives:  148},
-{viralLoadLog: 7, negatives:  0, positives:  248},
-{viralLoadLog: 8, negatives:  0, positives:  148},
-{viralLoadLog: 9, negatives:  0, positives:  200},
-{viralLoadLog: 10, negatives:  0, positives:  100},
-{viralLoadLog: 11, negatives:  0, positives:  20},
-{viralLoadLog: 12, negatives:  0, positives:  1},
-],
-    colors: getColorSchema()},
-    {"label" : "Non-star-belly Sneetches",
-      "data" : [
-{viralLoadLog: 0, negatives: 0, positives: 0},
-{viralLoadLog: 1, negatives: 40, positives: 5},
-{viralLoadLog: 2, negatives: 123, positives: 9},
-{viralLoadLog: 3, negatives:  80, positives:  9},
-{viralLoadLog: 4, negatives:  8, positives:  17},
-{viralLoadLog: 5, negatives:  20, positives:  64},
-{viralLoadLog: 6, negatives:  20, positives:  77},
-{viralLoadLog: 7, negatives:  20, positives:  99},
-{viralLoadLog: 8, negatives:  10, positives:  98},
-{viralLoadLog: 9, negatives:  0, positives:  83},
-{viralLoadLog: 10, negatives:  0, positives:  40},
-{viralLoadLog: 11, negatives:  0, positives:  12},
-{viralLoadLog: 12, negatives:  0, positives:  3},
-],
-colors: getColorSchema()},
-],
-box);
+function doQuery() {
+    fetch('api/data/viralloads')
+        .then(response => response.json())
+        .then(data => loadData(data));
 }
 
-document.getElementById("clickme").onclick = loadData;
+function loadData(data) {
+    let box = d3.select("#displaybox");
+    displayData(data, box);
+}
+
+document.getElementById("clickme").onclick = doQuery();
 const categories = ["negatives", "positives"];
 
 function getTotal(data) {
@@ -197,4 +164,4 @@ function displayData(info, box) {
         .attr('height', d => d[0] -  d[1]);
 }
 
-loadData();
+doQuery();

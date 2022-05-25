@@ -1,30 +1,5 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
-let colorAngles = [];
-
-function generateColorAngles() {
-    let newArray = [];
-    for (let i = 90; i < 360; i += 180) {
-        newArray.push(i);
-    }
-    for (let i = 45; i < 360; i += 90) {
-        newArray.push(i);
-    }
-    for (let i = 22; i < 360; i += 45) {
-        newArray.push(i);
-    }
-    return newArray;
-} // END function generateColorAngles
-
-function getColorSchema() {
-    if (!colorAngles.length) {
-        colorAngles = generateColorAngles();
-    }
-    let angle = colorAngles.shift();
-    return {"negatives" : `hsl(${angle},80%,50%)`,
-            "positives" : `hsl(${angle},80%,85%)`};
-}
-
 function doQuery() {
     fetch('api/data/viralloads')
         .then(response => response.json())
@@ -36,7 +11,7 @@ function loadData(data) {
     displayData(data, box);
 }
 
-document.getElementById("clickme").onclick = doQuery();
+document.getElementById("clickme").onclick = doQuery;
 const categories = ["negatives", "positives"];
 
 function getTotal(data) {
@@ -96,13 +71,27 @@ function displayData(info, box) {
         item.yScale.domain( d3.extent(maxPValues.concat([0])) );
     }
       
-    let div = box.selectAll("div").data(info, d => d.label).join("div");
-    div.selectAll("h3").data(d => [d.label]).join("h3").text(d => d);
-    let svg = div.selectAll("svg").data(d => [d]).join("svg")
+    /* It would make sense to use d => d.label as the key function for this data
+        binding. But, I think, if we do that, we don't get re-use of the existing
+        DOM elements, and I worry about the effects on performance in that case. Also,
+        I want whiz-bang transitions, with the old bars mutating into the new bars,'
+        for which we need to re-use the existing DOM elements?
+    */
+    let div = box.selectAll("div.top").data(info).join(
+        enter => enter.append("div")
+            .classed("top", true),
+    );
+    div.selectAll("h3.drawlabel").data(d => [d.label])
+        .join("h3")
+        .classed("drawlabel", true)
+        .text(d => d);
+    let svg = div.selectAll("svg.histogram").data(d => [d]).join("svg")
+            .classed("histogram", true)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom);
-    let group = svg.selectAll("g").data(d => [d]).join("g")
-            .attr("transform", `translate(${margin.left}, ${margin.top})`);   
+    let group = svg.selectAll("g.histgroup").data(d => [d]).join("g")
+        .classed("histgroup", true)
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);   
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
@@ -116,7 +105,8 @@ function displayData(info, box) {
             .attr("height","2em")
             .attr("x", "-1em")
             .attr("y", "0.5em")
-        .selectAll("div").data(d => [d]).join("xhtml:div")
+        .selectAll("div.exponentlabel").data(d => [d]).join("xhtml:div")
+            .classed("exponentlabel", true)
             .html(function(n) {return `10<sup>${n}</sup>`;});
 
     // Add X axis label:
@@ -155,9 +145,10 @@ function displayData(info, box) {
         .style('fill', (d) => d.color);
   
     // For each series create a rect element for each viralLoadLog
-    const rectSelection = seriesGroupSelection.selectAll('rect')
+    const rectSelection = seriesGroupSelection.selectAll('rect.histbar')
         .data((d) => d, d => d.data.viralLoadLog)
-        .join('rect');
+        .join('rect')
+        .classed("histbar", true);
     rectSelection.attr('width', barWidth)
         .attr('y', d =>  d[1])
         .attr('x', d => xScale(d.data.viralLoadLog)   )

@@ -77,12 +77,24 @@ function prepareDataForStackedHistogram(info) {
     let stackedData = stack(info.data);
     stackedData.forEach( (f) => {
         f.color = info.colors[f.key];
+        f.label = info.catagories[f.key];
         f.forEach( (a) => {
             a[0] = info.yScale(a[0]);
             a[1] = info.yScale(a[1]);
         });
     });
     return stackedData;
+}
+
+function prepareLegend(info) {
+    let legend = [];
+    let catagories = Object.keys(info.catagories);
+    for (let cat of catagories) {
+        if (info.catagories[cat]) {
+            legend.push({"name" : info.catagories[cat], "color" : info.colors[cat]});
+        }
+    }
+    return legend;
 }
 
 function displayData(info, box) { 
@@ -193,8 +205,8 @@ function displayData(info, box) {
             update => update
                 .call(update => update.transition()
                     .style('fill', (d) => d.color))
-        );
-  
+        ); 
+
     // For each series create a rect element for each viralLoadLog
     const rectSelection = seriesGroupSelection.selectAll('rect.histbar')
         .data((d) => d, d => d.data.viralLoadLog)
@@ -210,6 +222,26 @@ function displayData(info, box) {
                     .attr('y', d =>  d[1])
                     .attr('height', d => d[0] -  d[1]))
         );
+
+    // Create the legend (if needed).
+    // For each series, if there's a label, make an item in the legend. 
+    const legend = group.selectAll('g.legend')
+        .data((d) => prepareLegend(d))
+        .join('g')
+        .classed('legend', true)
+        .attr("transform", (d,i) => `translate(${width-120}, ${6+i*20})`);
+    legend.selectAll('circle.legend')
+            .data(d => [d])
+            .join('circle')
+            .classed('legend', true)
+            .attr("cx",10).attr("cy",-6).attr("r", 6).style("fill", d => d.color);
+    legend.selectAll('text.legend')
+        .data(d => [d])
+        .join('text')
+        .classed('legend', true)
+        .attr("x", 16)
+        .text(d => d.name);
+  
 }
 
 doQuery();

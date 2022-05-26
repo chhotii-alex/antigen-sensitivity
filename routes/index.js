@@ -39,6 +39,9 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+/* Obviously this is going to be removed,
+  when we hook up to a data source.
+  */
 let phonyData1 = [
   {
       "label": "Vaccinated Population",

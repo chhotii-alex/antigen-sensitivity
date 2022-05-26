@@ -50,9 +50,7 @@ function loadData(data) {
     displayData(data, box);
 }
 
-const categories = ["negatives", "positives"];
-
-function getTotal(data) {
+function getTotal(data, categories) {
     let total = 0;
     for (let segment of data) {
         for (let cat of categories) {
@@ -61,9 +59,6 @@ function getTotal(data) {
     }
     return total;
 }
-
-const stack = d3.stack()
-        .keys(categories); 
 
 const margin = {top: 10, right: 30, bottom: 30, left: 80};
 const boxWidth = 800;
@@ -78,6 +73,7 @@ function linearScale(values, width) {
 }
 
 function prepareDataForStackedHistogram(info) {
+    let stack = d3.stack().keys(Object.keys(info.catagories));
     let stackedData = stack(info.data);
     stackedData.forEach( (f) => {
         f.color = info.colors[f.key];
@@ -101,7 +97,7 @@ function displayData(info, box) {
         item.yScale = d3.scaleLinear().range([height,0]);
         let  maxPValues = item.data.map( (d) => {
             let sum = 0;
-            for (let key of categories) { sum += d[key]; }
+            for (let key of Object.keys(item.catagories)) { sum += d[key]; }
             sum += 30;
             return sum;
         });
@@ -182,7 +178,7 @@ function displayData(info, box) {
         //.attr("y", -margin.left+10)
         .attr("y", -margin.left/2)
         .attr("x", -height/2)
-        .text(d => `${getTotal(d.data)} total patients`) ;   
+        .text(d => `${getTotal(d.data, Object.keys(d.catagories))} total patients`) ;   
           
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See
@@ -190,8 +186,7 @@ function displayData(info, box) {
     const seriesGroupSelection = group
         .selectAll('g.series')
         .data(d => prepareDataForStackedHistogram(d), d => d.key)
-        .join('g');
-    seriesGroupSelection.classed('series', true)
+        .join('g').classed('series', true)
         .style('fill', (d) => d.color);
   
     // For each series create a rect element for each viralLoadLog

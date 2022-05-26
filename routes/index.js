@@ -327,7 +327,10 @@ router.get('/api/data/viralloads', function(req, res, next) {
     }
   }
   let f;
+  let catagories;
   if ('assay' in req.query) {
+    catagories = {"negatives" : "Antigen negatives",
+            "positives" : "Antigen positives"};
     if (req.query.assay == 1) {
       f = (log, count) => {
         if (log < 3) {
@@ -356,6 +359,7 @@ router.get('/api/data/viralloads', function(req, res, next) {
     }
   }
   else {
+    catagories = {"negatives" : null, "positives" : null};
     f = (log, count) => 0;
   }
   for (let pop of phonyData) {
@@ -363,6 +367,7 @@ router.get('/api/data/viralloads', function(req, res, next) {
       bin.positives = f(bin.viralLoadLog, bin.count);
       bin.negatives = bin.count - bin.positives;
     }
+    pop["catagories"] = catagories;
   }
   res.json(phonyData);
 });

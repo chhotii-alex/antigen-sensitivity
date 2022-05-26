@@ -67,8 +67,11 @@ const width = boxWidth - margin.left - margin.right;
 const height = boxHeight - margin.top - margin.bottom;
 
 function linearScale(values, width) {
+    let extent = d3.extent(values);
+    extent[0] -= 0.5;
+    extent[1] += 0.5;
     return d3.scaleLinear()
-        .domain(d3.extent(values))
+        .domain(extent)
         .range([0, width]);
 }
 
@@ -100,9 +103,10 @@ function prepareLegend(info) {
 function displayData(info, box) { 
     let firstData = info[0].data;
     
-    // We are very much assuming that all histograms will have the same x axis.        
-    const xScale = linearScale(firstData.map( (d) => d['viralLoadLog'] ), width);
-    const barWidth = width/(firstData.length); 
+    // We are very much assuming that all histograms will have the same x axis.
+    const xValues = firstData.map( (d) => d['viralLoadLog']);
+    const xScale = linearScale(xValues, width);
+    const barWidth = width/(xValues.length); 
 
     // Using a different y axis scaling for each histogram.
     for (let item of info) {
@@ -142,14 +146,14 @@ function displayData(info, box) {
         .classed("region", true)
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", xScale(5))
+        .attr("width", xScale(5.5))
         .attr("height", height)
         .style("fill", "#f7f6f2");
     group.selectAll("text.f00").data(["Non-infectious", "Infectious"]).join("text")
         .classed("f00", true)
         .attr("y", "1em")
         .text(d => d)
-        .attr("x", (d, i) => 15 + i * xScale(5));
+        .attr("x", (d, i) => 15 + i * xScale(5.5));
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
@@ -201,7 +205,8 @@ function displayData(info, box) {
         .join(
             enter => enter.append('g')
                 .classed('series', true)
-                .style('fill', (d) => d.color),
+                .style('fill', (d) => d.color)
+                .style('stroke', "#000000"),
             update => update
                 .call(update => update.transition()
                     .style('fill', (d) => d.color))
@@ -214,7 +219,7 @@ function displayData(info, box) {
             enter => enter.append("rect")
                 .classed("histbar", true)
                 .attr('width', barWidth)
-                .attr('x', d => xScale(d.data.viralLoadLog))
+                .attr('x', d => xScale(d.data.viralLoadLog-0.5))
                 .attr('y', d =>  d[1])
                 .attr('height', d => d[0] -  d[1]),
             update => update

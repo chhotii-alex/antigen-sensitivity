@@ -101,6 +101,7 @@ function prepareLegend(info) {
 }
 
 function displayData(info, box) { 
+    let infectivityThreshold = 5;
     let firstData = info[0].data;
     
     // We are very much assuming that all histograms will have the same x axis.
@@ -146,14 +147,14 @@ function displayData(info, box) {
         .classed("region", true)
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", xScale(5.5))
+        .attr("width", xScale(infectivityThreshold + 0.5))
         .attr("height", height)
         .style("fill", "#f7f6f2");
     group.selectAll("text.f00").data(["Non-infectious", "Infectious"]).join("text")
         .classed("f00", true)
         .attr("y", "1em")
         .text(d => d)
-        .attr("x", (d, i) => 15 + i * xScale(5.5));
+        .attr("x", (d, i) => 15 + i * xScale(infectivityThreshold + 0.5));
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")

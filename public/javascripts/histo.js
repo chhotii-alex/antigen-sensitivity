@@ -186,8 +186,14 @@ function displayData(info, box) {
     const seriesGroupSelection = group
         .selectAll('g.series')
         .data(d => prepareDataForStackedHistogram(d), d => d.key)
-        .join('g').classed('series', true)
-        .style('fill', (d) => d.color);
+        .join(
+            enter => enter.append('g')
+                .classed('series', true)
+                .style('fill', (d) => d.color),
+            update => update
+                .call(update => update.transition()
+                    .style('fill', (d) => d.color))
+        );
   
     // For each series create a rect element for each viralLoadLog
     const rectSelection = seriesGroupSelection.selectAll('rect.histbar')

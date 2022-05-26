@@ -46,8 +46,25 @@ export function doQuery(variable, assay) {
 }
 
 function loadData(data) {
+    const infectivityThreshold = 5;
+    applyInfectivityThreshold(data, infectivityThreshold);
     let box = d3.select("#displaybox");
     displayData(data, box);
+}
+
+function applyInfectivityThreshold(data, infectivityThreshold) {
+    for (let pop of data) {
+        pop.infectivityThreshold = infectivityThreshold;
+        pop.infectiousCount = 0;
+        pop.truePositiveCount = 0;
+        for (let bin of pop.data) {
+            if (bin.viralLoadLog >= infectivityThreshold) {
+                pop.infectiousCount += bin.count;
+                pop.truePositiveCount += bin.positives;
+            }
+        }
+        pop.sensitivity = pop.truePositiveCount/pop.infectiousCount;
+    }
 }
 
 function getTotal(data, categories) {
@@ -100,8 +117,15 @@ function prepareLegend(info) {
     return legend;
 }
 
+function prepareInfectivityRegions(d) {
+    let result = [
+        {"title" : "Non-infectious", "min" : 0},
+        {"title" : "Infectious", "min" : d.infectivityThreshold},
+    ];
+    return result;
+}
+
 function displayData(info, box) { 
-    let infectivityThreshold = 5;
     let firstData = info[0].data;
     
     // We are very much assuming that all histograms will have the same x axis.
@@ -147,14 +171,17 @@ function displayData(info, box) {
         .classed("region", true)
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", xScale(infectivityThreshold + 0.5))
+        .attr("width", d => xScale(d.infectivityThreshold + 0.5))
         .attr("height", height)
         .style("fill", "#f7f6f2");
-    group.selectAll("text.f00").data(["Non-infectious", "Infectious"]).join("text")
+    let regionDefinitions = [
+        {"title" : "Non-infectious"}
+    ]
+    group.selectAll("text.f00").data(d => prepareInfectivityRegions(d)).join("text")
         .classed("f00", true)
         .attr("y", "1em")
-        .text(d => d)
-        .attr("x", (d, i) => 15 + i * xScale(infectivityThreshold + 0.5));
+        .text(d => d.title)
+        .attr("x", (d) => 15 + xScale(d.min + 0.5));
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
@@ -192,7 +219,6 @@ function displayData(info, box) {
         .classed("ylabel", true)
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
-        //.attr("y", -margin.left+10)
         .attr("y", -margin.left/2)
         .attr("x", -height/2)
         .text(d => `${getTotal(d.data, Object.keys(d.catagories))} total patients`) ;   

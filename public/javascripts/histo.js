@@ -137,6 +137,11 @@ function displayData(info, box) {
         .attr("width", xScale(5))
         .attr("height", height)
         .style("fill", "#f7f6f2");
+    group.selectAll("text.f00").data(["Non-infectious", "Infectious"]).join("text")
+        .classed("f00", true)
+        .attr("y", "1em")
+        .text(d => d)
+        .attr("x", (d, i) => 15 + i * xScale(5));
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")

@@ -130,6 +130,13 @@ function displayData(info, box) {
     let group = svg.selectAll("g.histgroup").data(d => [d]).join("g")
         .classed("histgroup", true)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);   
+    let region = group.selectAll("rect.region").data(d => [d]).join("rect")
+        .classed("region", true)
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", xScale(5))
+        .attr("height", height)
+        .style("fill", "#f7f6f2");
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")

@@ -119,8 +119,8 @@ function prepareLegend(info) {
 
 function prepareInfectivityRegions(d) {
     let result = [
-        {"title" : "Non-infectious", "min" : 0},
-        {"title" : "Infectious", "min" : d.infectivityThreshold},
+        {"title" : "Non-infectious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
+        {"title" : "Infectious", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
     ];
     return result;
 }
@@ -166,19 +166,35 @@ function displayData(info, box) {
             .attr("height", height + margin.top + margin.bottom);
     let group = svg.selectAll("g.histgroup").data(d => [d]).join("g")
         .classed("histgroup", true)
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);   
-    let region = group.selectAll("rect.region").data(d => [d]).join("rect")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+    
+    // Show regions of viral load non-ifectivity/infectivity
+    let regiong = group.selectAll("g.i_region")
+        .data(d => prepareInfectivityRegions(d))
+        .join("g")
+        .classed("i_region", true);
+    regiong.selectAll("rect.region")
+        .data(d => [d])
+        .join("rect")
         .classed("region", true)
-        .attr("x", 0)
         .attr("y", 0)
-        .attr("width", d => xScale(d.infectivityThreshold + 0.5))
         .attr("height", height)
-        .style("fill", "#f7f6f2");
-    let regionDefinitions = [
-        {"title" : "Non-infectious"}
-    ]
-    group.selectAll("text.f00").data(d => prepareInfectivityRegions(d)).join("text")
-        .classed("f00", true)
+        .attr("x", d => xScale(d.min - 0.5))
+        .attr("width", d => xScale((d.max - d.min) + 0.5))
+        .style("fill", d => d.color);
+    regiong.selectAll("line.leftedge")
+        .data(d => [d])
+        .join("line")
+        .classed("leftedge", true)
+        .attr("x1", d => xScale(d.min - 0.5))
+        .attr("y1", 0)
+        .attr("x2", d => xScale(d.min - 0.5))
+        .attr("y2", height)
+        .attr("stroke", d => (d.min==0)?null:"black");
+    regiong.selectAll("text.i_label")
+        .data(d => [d])
+        .join("text")
+        .classed("i_label", true)
         .attr("y", "1em")
         .text(d => d.title)
         .attr("x", (d) => 15 + xScale(d.min + 0.5));
@@ -273,6 +289,10 @@ function displayData(info, box) {
         .classed('legend', true)
         .attr("x", 16)
         .text(d => d.name);
+    div.selectAll("p.sensitivity").data(d => [d])
+        .join("p")
+        .classed("sensitivity", true)
+        .html(d => `${d.infectiousCount} infectious people, ${d.truePositiveCount} of whom are antigen-positive <b>= ${Math.round(100*d.sensitivity)}% sensitivity<br>`);
   
 }
 

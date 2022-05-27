@@ -63,7 +63,13 @@ function applyInfectivityThreshold(data, infectivityThreshold) {
                 pop.truePositiveCount += bin.positives;
             }
         }
-        pop.sensitivity = pop.truePositiveCount/pop.infectiousCount;
+        if (pop.truePositiveCount && pop.infectiousCount) {
+            pop.sensitivity = pop.truePositiveCount/pop.infectiousCount;
+            pop.distributionsWithSensitivityCalc = [pop];
+        }
+        else {
+            pop.distributionsWithSensitivityCalc = []
+        }
     }
 }
 
@@ -289,7 +295,9 @@ function displayData(info, box) {
         .classed('legend', true)
         .attr("x", 16)
         .text(d => d.name);
-    div.selectAll("p.sensitivity").data(d => [d])
+
+    // Show calculation of "sensitivity" (according to infectivity)    
+    div.selectAll("p.sensitivity").data(d => d.distributionsWithSensitivityCalc)
         .join("p")
         .classed("sensitivity", true)
         .html(d => `${d.infectiousCount} infectious people, ${d.truePositiveCount} of whom are antigen-positive <b>= ${Math.round(100*d.sensitivity)}% sensitivity<br>`);

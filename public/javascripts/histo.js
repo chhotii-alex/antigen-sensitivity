@@ -19,11 +19,25 @@ export function doQuery(variable, assay) {
         .then(data => loadData(data));
 }
 
+let gData = null;
+let gInfectivityThreshold;
+
+export function setInfectivityThreshold(value) {
+    gInfectivityThreshold = value;
+    if (gData) {
+        presentData();
+    }
+}
+
 function loadData(data) {
-    const infectivityThreshold = 5;
-    applyInfectivityThreshold(data, infectivityThreshold);
+    gData = data;
+    presentData();
+}
+
+function presentData() {
+    applyInfectivityThreshold(gData, gInfectivityThreshold);
     let box = d3.select("#displaybox");
-    displayData(data, box);
+    displayData(gData, box);
 }
 
 function applyInfectivityThreshold(data, infectivityThreshold) {
@@ -42,6 +56,7 @@ function applyInfectivityThreshold(data, infectivityThreshold) {
             pop.distributionsWithSensitivityCalc = [pop];
         }
         else {
+            pop.sensitivity = null;
             pop.distributionsWithSensitivityCalc = []
         }
     }
@@ -102,6 +117,7 @@ function prepareInfectivityRegions(d) {
         {"title" : "Non-infectious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
         {"title" : "Infectious", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
     ];
+    console.log(result);
     return result;
 }
 
@@ -177,7 +193,7 @@ function displayData(info, box) {
         .classed("i_label", true)
         .attr("y", "1em")
         .text(d => d.title)
-        .attr("x", (d) => 15 + xScale(d.min + 0.5));
+        .attr("x", (d) => xScale(d.min));
                              
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")

@@ -117,7 +117,6 @@ function prepareInfectivityRegions(d) {
         {"title" : "Non-infectious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
         {"title" : "Infectious", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
     ];
-    console.log(result);
     return result;
 }
 

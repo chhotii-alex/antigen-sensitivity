@@ -21,7 +21,8 @@
     </div>
   </form>
   <div id="displaybox"></div>
-  <form>
+  <button id="showMoreButton" >Show More Settings</button>
+  <form id="optional_options">
     <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
     <input type="range" min="0" max="13" value="5" class="slider" id="infectivityThreshold">
   </form>
@@ -33,6 +34,11 @@
 </body>
 <script type="module">
   import { doQuery, setInfectivityThreshold } from './javascripts/histo.js';
+
+  function toggleOptionals() {
+    document.getElementById("showMoreButton").style.display = "none";
+    document.getElementById("optional_options").style.display = "block";
+  }
 
   function loadVariableOptions(data) {
     let options = data.items;
@@ -71,6 +77,7 @@ function selectAction() {
     setInfectivityThreshold(newValue);
   }
 
+  document.getElementById("showMoreButton").onclick = toggleOptionals;
   document.getElementById("variable").onchange = selectAction;
   document.getElementById("antigenTest").onchange = selectAction;
   document.getElementById("infectivityThreshold").oninput = updateThreshold;

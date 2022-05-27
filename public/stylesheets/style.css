@@ -7,6 +7,10 @@ a {
   color: #00B7FF;
 }
 
+#optional_options {
+  display: none;
+}
+
 .selects_form {
     display: grid;
     row-gap: 6px;

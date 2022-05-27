@@ -6,3 +6,46 @@ body {
 a {
   color: #00B7FF;
 }
+
+.selects_form {
+    display: grid;
+    row-gap: 6px;
+    grid-template-columns: 10em 1fr;
+    grid-template-areas:
+      "select_label_var select_var"
+      "select_label_antigen select_antigen";
+}
+
+.select_label {
+  text-align: right;
+}
+
+.select_label_var {
+  grid-area: select_label_var;
+}
+
+.select_var {
+  grid-area: select_var;
+}
+
+.select_label_antigen {
+  grid-area: select_label_antigen;
+}
+
+.select_antigen {
+  grid-area: select_antigen;
+}
+
+@media only screen and (max-width: 600px) {
+  .selects_form {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "select_label_var"
+      "select_var"
+      "select_label_antigen"
+      "select_antigen";
+  }
+  .select_label {
+    text-align: left;
+  }
+}

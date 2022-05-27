@@ -9,15 +9,16 @@
 <body>
   <h1>Predicted Test Performance on Population Segments</h1>
   <form>
-    <label for="variable">Select variable:</label>
-    <select name="variable" id="variable" onchange="selectAction()">
-      <option value="none" selected>-- no variable selected --</option>
-    </select>
-    <p></p>
-    <label for="antigenTest">Select test:</label>
-    <select name="antigenTest" id="antigenTest" onchange="selectAction()">
-      <option value="none" selected>-- no test selected --</option>
-    </select>
+    <div class="selects_form">
+      <label class="select_label select_label_var" for="variable">Select variable:</label>
+      <select class="select_var" name="variable" id="variable" onchange="selectAction()">
+        <option value="none" selected>-- no variable selected --</option>
+      </select>
+      <label class="select_label select_label_antigen" for="antigenTest">Select test:</label>
+      <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
+        <option value="none" selected>-- no test selected --</option>
+      </select>
+    </div>
   </form>
   <div id="displaybox"></div>
   <form>

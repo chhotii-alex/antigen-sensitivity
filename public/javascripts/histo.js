@@ -1,31 +1,5 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
-export function loadVariableOptions(data) {
-    let options = data.items;
-    let select = document.getElementById("variable");
-    for (let item of options) {
-        let id = item.id;
-        let label = item.displayName;
-        let opt = document.createElement("option");
-        opt.value = id;
-        opt.text = label;
-        select.add(opt);
-    }
-}
-
-export function loadAssayOptions(data) {
-    let options = data.items;
-    let select = document.getElementById("antigenTest");
-    for (let item of options) {
-        let id = item.id;
-        let label = item.displayName;
-        let opt = document.createElement("option");
-        opt.value = id;
-        opt.text = label;
-        select.add(opt);
-    }
-}
-
 export function doQuery(variable, assay) {
     if (variable == "none") {
         variable = null;

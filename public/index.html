@@ -31,9 +31,35 @@
   </ul>
 </body>
 <script type="module">
-  import { doQuery, loadVariableOptions, loadAssayOptions } from './javascripts/histo.js';
+  import { doQuery } from './javascripts/histo.js';
 
-  function selectAction() {
+  function loadVariableOptions(data) {
+    let options = data.items;
+    let select = document.getElementById("variable");
+    for (let item of options) {
+        let id = item.id;
+        let label = item.displayName;
+        let opt = document.createElement("option");
+        opt.value = id;
+        opt.text = label;
+        select.add(opt);
+    }
+}
+
+function loadAssayOptions(data) {
+    let options = data.items;
+    let select = document.getElementById("antigenTest");
+    for (let item of options) {
+        let id = item.id;
+        let label = item.displayName;
+        let opt = document.createElement("option");
+        opt.value = id;
+        opt.text = label;
+        select.add(opt);
+    }
+}
+
+function selectAction() {
     let variable = document.getElementById("variable").value;
     let assay = document.getElementById("antigenTest").value;
     doQuery(variable, assay);

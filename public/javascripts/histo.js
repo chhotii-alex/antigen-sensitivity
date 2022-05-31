@@ -1,3 +1,9 @@
+/* 
+    TODOs:
+
+    The word "Infectious" tends to be obscured by bar(s) on the histogram.
+*/
+
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
 export function doQuery(variable, assay) {

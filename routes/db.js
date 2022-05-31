@@ -1,6 +1,6 @@
 const { credentials } = require('./config');
 
-const { Client } = require(pg);
+const { Client } = require( 'pg' );
 const { connectionString } = credentials.connectionString;
 const client = new Client({ connectionString });
 
@@ -32,21 +32,26 @@ const popPhoneyData = async client => {
     await client.query(insertStatement, ['n', 0, 's', 'y']);
 }    
 
-client.connect().then(async () => {
-    try {
-        console.log("Creating database schema if needed");
-        await client.query(createScript);
-        const recordCount = await getRecordCount(client);
-        if (recordCount < 1) {
-            console.log("populating some phoney data");
-            await popPhoneyData(client);
+client.connect()
+    .then(async () => {
+        try {
+            console.log("Creating database schema if needed");
+            await client.query(createScript);
+            const recordCount = await getRecordCount(client);
+            if (recordCount < 1) {
+                console.log("populating some phoney data");
+                await popPhoneyData(client);
+            }
         }
-    }
-    catch (err) {
-        console.log('ERROR: could not initialize database');
-        console.log(err.message);
-    }
-    finally {
-        client.end();
-    }
-})
+        catch (err) {
+            console.log('ERROR: could not initialize database');
+            console.log(err.message);
+        }
+        finally {
+            client.end();
+        }
+    })
+    .catch( err => {
+        console.log("Failed to connect to database");
+        console.log(err);
+    });

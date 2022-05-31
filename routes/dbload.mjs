@@ -39,17 +39,18 @@ const insertStatement = `
 // Add more data here    (loop)
 const popPhoneyData = async client => {
     console.log("inserting data...");
-    let sneetchTypes = {'s' : 2, 'n' : 4};
-    let bools = {'y' : 3, 'n': 7};
+    let sneetchTypes = {'s' : 1, 'n' : 2};
+    let bools = {'y' : 5, 'n': 6};
     for (let sn in sneetchTypes) {
         for (let v in bools) {
             let generator = d3.randomNormal(bools[v], sneetchTypes[sn]);
-            for (let j = 0; j < 20; ++j) {
+            for (let j = 0; j < 1000; ++j) {
                 let vl = generator();
-                if (vl > 0 && vl < 12) {
+                if (vl > 0 && vl < 13) {
                     await client.query(insertStatement, ['y', vl, sn, v]);
                 }
             }
+            console.log(`finished ${sn} ${v}`);
         }
     }
     console.log("Done!");
@@ -62,7 +63,7 @@ client.connect()
             await client.query(createScript);
             const recordCount = await getRecordCount(client);
             console.log(`Currently ${recordCount} rows in db`);
-            if (recordCount < 1000) {
+            if (recordCount < 15000) {
                 console.log("populating some phoney data");
                 await popPhoneyData(client);
             }

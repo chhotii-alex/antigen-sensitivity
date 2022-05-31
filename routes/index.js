@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const { credentials } = require('./config');
+
 /* Currently everything and the kitchen sink in this file.
   Refactor into modules, please. */
 

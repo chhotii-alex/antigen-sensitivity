@@ -1,7 +1,17 @@
-const { credentials } = require('./config');
+import credentialsModule from "./config.js";
+const connectionString = credentialsModule.credentials.connectionString;
 
-const { Client } = require( 'pg' );
-const client = new Client({ connectionString : credentials.connectionString });
+import * as d3 from "d3";
+
+console.log('using d3');
+console.log(d3.randomNormal(0.4, 0.1)());
+console.log("Using d3 again");
+console.log(d3.randomNormal(50, 10)());
+
+import pgModule from 'pg';
+const Client = pgModule.Client;
+
+const client = new Client({ connectionString });
 
 const createScript = `
     CREATE TABLE IF NOT EXISTS test_results (
@@ -28,8 +38,16 @@ const insertStatement = `
 
 // Add more data here    (loop)
 const popPhoneyData = async client => {
-    await client.query(insertStatement, ['n', 0, 's', 'y']);
-}    
+    console.log("inserting data...");
+    let sneetchTypes = ['s', 'n'];
+    let bools = ['y', 'n'];
+    for (let sn of sneetchTypes) {
+        for (let v of bools) {
+            await client.query(insertStatement, ['n', 0, sn, v]);
+        }
+    }
+    console.log("Done!");
+} 
 
 client.connect()
     .then(async () => {
@@ -37,7 +55,7 @@ client.connect()
             console.log("Creating database schema if needed");
             await client.query(createScript);
             const recordCount = await getRecordCount(client);
-            if (recordCount < 1) {
+            if (recordCount < 10) {
                 console.log("populating some phoney data");
                 await popPhoneyData(client);
             }

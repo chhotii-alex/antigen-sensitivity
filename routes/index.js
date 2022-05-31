@@ -1,7 +1,24 @@
+/*
+  TODO:
+  
+  If we are going to use any ES modules (such as d3), convert all this to .mjs? I'm using the
+  dynamic import() to get around the module-type mismatch, but there's a warning 
+  "ExperimentalWarning: The ESM module loader is experimental."
+
+*/
+
 var express = require('express');
 var router = express.Router();
 
+// Database connection stuff
+const { Pool } = require('pg');
 const { credentials } = require('./config');
+console.log(credentials);
+const { connectionString } = credentials;
+console.log(connectionString);
+const pool = new Pool({connectionString});
+
+let d3promise = import('d3');
 
 /* Currently everything and the kitchen sink in this file.
   Refactor into modules, please. */
@@ -41,247 +58,6 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-/* Obviously this is going to be removed,
-  when we hook up to a data source.
-  */
-let phonyData1 = [
-  {
-      "label": "Vaccinated Population",
-      "data": [
-          {
-              "viralLoadLog": 0,
-              "count" : 12,
-          },
-          {
-              "viralLoadLog": 1,
-              "count" : 67,
-          },
-          {
-              "viralLoadLog": 2,
-              "count" : 300,
-          },
-          {
-              "viralLoadLog": 3,
-              "count" : 155,
-          },
-          {
-              "viralLoadLog": 4,
-              "count" : 120,
-          },
-          {
-              "viralLoadLog": 5,
-              "count" : 101,
-          },
-          {
-              "viralLoadLog": 6,
-              "count" : 39,
-          },
-          {
-              "viralLoadLog": 7,
-              "count" : 31,
-          },
-          {
-              "viralLoadLog": 8,
-              "count" : 20,
-          },
-          {
-              "viralLoadLog": 9,
-              "count" : 19,
-          },
-          {
-              "viralLoadLog": 10,
-              "count" : 10,
-          },
-          {
-              "viralLoadLog": 11,
-              "count" : 11,
-          },
-          {
-              "viralLoadLog": 12,
-              "count" : 0,
-          }
-      ],
-      "colors": getColorSchema(),
-  },
-  {
-      "label": "Unvaccinated Population",
-      "data": [
-          {
-              "viralLoadLog": 0,
-              "count" : 0,
-          },
-          {
-              "viralLoadLog": 1,
-              "count" : 2,
-          },
-          {
-              "viralLoadLog": 2,
-              "count" : 12,
-          },
-          {
-              "viralLoadLog": 3,
-              "count" : 15,
-          },
-          {
-              "viralLoadLog": 4,
-              "count" : 45,
-          },
-          {
-              "viralLoadLog": 5,
-              "count" : 99,
-          },
-          {
-              "viralLoadLog": 6,
-              "count" : 203,
-          },
-          {
-              "viralLoadLog": 7,
-              "count" : 403,
-          },
-          {
-              "viralLoadLog": 8,
-              "count" : 298,
-          },
-          {
-              "viralLoadLog": 9,
-              "count" : 280,
-          },
-          {
-              "viralLoadLog": 10,
-              "count" : 123,
-          },
-          {
-              "viralLoadLog": 11,
-              "count" : 50,
-          },
-          {
-              "viralLoadLog": 12,
-              "count" : 13,
-          }
-      ],
-      "colors": getColorSchema()
-  }
-];
-
-let phonyData2 = [
-  {
-      "label": "Star-belly Sneetches",
-      "data": [
-          {
-              "viralLoadLog": 0,
-              "count" : 10,
-          },
-          {
-              "viralLoadLog": 1,
-              "count" : 50,
-          },
-          {
-              "viralLoadLog": 2,
-              "count" : 100,
-          },
-          {
-              "viralLoadLog": 3,
-              "count" : 120,
-          },
-          {
-              "viralLoadLog": 4,
-              "count" : 111,
-          },
-          {
-              "viralLoadLog": 5,
-              "count" : 109,
-          },
-          {
-              "viralLoadLog": 6,
-              "count" : 166,
-          },
-          {
-              "viralLoadLog": 7,
-              "count" : 155,
-          },
-          {
-              "viralLoadLog": 8,
-              "count" : 99,
-          },
-          {
-              "viralLoadLog": 9,
-              "count" : 88,
-          },
-          {
-              "viralLoadLog": 10,
-              "count" : 34,
-          },
-          {
-              "viralLoadLog": 11,
-              "count" : 12,
-          },
-          {
-              "viralLoadLog": 12,
-              "count" : 2,
-          }
-      ],
-      "colors": getColorSchema(),
-  },
-  {
-      "label": "Non-star-belly Sneetches",
-      "data": [
-          {
-              "viralLoadLog": 0,
-              "count" : 0,
-          },
-          {
-              "viralLoadLog": 1,
-              "count" : 33,
-          },
-          {
-              "viralLoadLog": 2,
-              "count" : 99,
-          },
-          {
-              "viralLoadLog": 3,
-              "count" : 123,
-          },
-          {
-              "viralLoadLog": 4,
-              "count" : 54,
-          },
-          {
-              "viralLoadLog": 5,
-              "count" : 32,
-          },
-          {
-              "viralLoadLog": 6,
-              "count" : 31,
-          },
-          {
-              "viralLoadLog": 7,
-              "count" : 30,
-          },
-          {
-              "viralLoadLog": 8,
-              "count" : 17,
-          },
-          {
-              "viralLoadLog": 9,
-              "count" : 3,
-          },
-          {
-              "viralLoadLog": 10,
-              "count" : 4,
-          },
-          {
-              "viralLoadLog": 11,
-              "count" : 0,
-          },
-          {
-              "viralLoadLog": 12,
-              "count" : 0,
-          }
-      ],
-      "colors": getColorSchema()
-  }
-];
-
 router.get('/api/variables', function(req, res, next) {
   let retval = {
     items: [
@@ -303,31 +79,42 @@ router.get('/api/assays', function(req, res, next) {
   res.json(retval);
 })
 
-router.get('/api/data/viralloads', function(req, res, next) {
-  let phonyData = phonyData1;
+router.get('/api/data/viralloads', async function(req, res, next) {
+  let d3 = await d3promise;
+  let bin = d3.bin().domain([0,13]).thresholds(12).value(d => d.viralloadlog);
+
+  let queries = {
+    'SELECT viralLoadLog FROM test_results WHERE positive ' : "All Patients"
+  };
   if ('vars' in req.query) {
     if (req.query.vars == "sneetch") {
-      phonyData = phonyData2;
+      let newQueries = {};
+      for (let query in queries) {
+        newQueries[`${query} AND sneetchType = 's' `] = "Star-belly Sneetches";
+        newQueries[`${query} AND sneetchType = 'n' `] = "Non-star-belly Sneetches";
+      }
+      queries = newQueries;
     }
-    else {
-      phonyData = phonyData1;
-    }
-  }
-  else {
-    phonyData = [{
-      "label" : "All Patients",
-      "data" : [],
-      "colors": getColorSchema(),
-    }];
-    for (let i = 0; i < phonyData1[0].data.length; ++i) {
-      let bin = phonyData1[0].data[i];
-      phonyData[0].data.push(
-        { "viralLoadLog" : bin.viralLoadLog,
-          "count" : bin.count + phonyData1[1].data[i].count
-        }
-      )
+    else if (req.query.vars == "vacc") {
+      let newQueries = {};
+      for (let query in queries) {
+        newQueries[`${query} AND vaccinated `] = "Vaccinated Population";
+        newQueries[`${query} AND NOT vaccinated `] = "Unvaccinated Population";
+      }
+      queries = newQueries;
     }
   }
+  let phonyData = [];
+  for (let query in queries) {
+    let { rows } = await pool.query(query);
+    let bins = bin(rows);
+    let pop = { "label" : queries[query], "colors": getColorSchema()};
+    pop["data"] = bins.map(r => {
+      return {"viralLoadLog" : r.x0, "count" : r.length};
+    });
+    phonyData.push(pop);
+  }
+ 
   let f;
   let catagories;
   if ('assay' in req.query) {
@@ -371,6 +158,7 @@ router.get('/api/data/viralloads', function(req, res, next) {
     }
     pop["catagories"] = catagories;
   }
+
   res.json(phonyData);
 });
 

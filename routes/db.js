@@ -1,8 +1,7 @@
 const { credentials } = require('./config');
 
 const { Client } = require( 'pg' );
-const { connectionString } = credentials.connectionString;
-const client = new Client({ connectionString });
+const client = new Client({ connectionString : credentials.connectionString });
 
 const createScript = `
     CREATE TABLE IF NOT EXISTS test_results (
@@ -25,7 +24,7 @@ const insertStatement = `
         viralLoadLog,
         sneetchType,
         vaccinated
-    ) VALUES ($1, $2, $3, $3)`;
+    ) VALUES ($1, $2, $3, $4)`;
 
 // Add more data here    (loop)
 const popPhoneyData = async client => {

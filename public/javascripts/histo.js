@@ -6,7 +6,7 @@
 
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
-export function doQuery(variable, assay) {
+export function doQuery(variable, assay, minDate=null, maxDate=null) {
     if (variable == "none") {
         variable = null;
     }
@@ -19,6 +19,12 @@ export function doQuery(variable, assay) {
     }
     if (assay) {
         url += `assay=${assay}&`;
+    }
+    if (minDate) {
+        url += `minDate=${minDate}&`
+    }
+    if (maxDate) {
+        url += `maxDate=${maxDate}&`
     }
     fetch(url)
         .then(response => response.json())

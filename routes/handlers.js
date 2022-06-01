@@ -39,10 +39,16 @@ exports.assays = function(req, res, next) {
   exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise;
     let bin = d3.bin().domain([0,13]).thresholds(12).value(d => d.viralloadlog);
+    let baseQuery = "SELECT viralLoadLog FROM test_results WHERE positive  ";
   
-    let queries = {
-      'SELECT viralLoadLog FROM test_results WHERE positive ' : "All Patients"
-    };
+    if ('minDate' in req.query) {
+        baseQuery += `AND collectionTime >= '${req.query.minDate}' `;
+    }
+    if ('maxDate' in req.query) {
+        baseQuery += `AND collectionTime <= '${req.query.maxDate}' `;
+    }
+    let queries = {};
+    queries[baseQuery] = "All Patients";
     if ('vars' in req.query) {
       if (req.query.vars == "sneetch") {
         let newQueries = {};

@@ -19,7 +19,8 @@ const createScript = `
         positive boolean,
         viralLoadLog real,
         sneetchType char(1) NULL,
-        vaccinated boolean
+        vaccinated boolean,
+        collectionTime timestamp with time zone
     );
 `;
 
@@ -33,8 +34,9 @@ const insertStatement = `
         positive, 
         viralLoadLog,
         sneetchType,
-        vaccinated
-    ) VALUES ($1, $2, $3, $4)`;
+        vaccinated,
+        collectionTime
+    ) VALUES ($1, $2, $3, $4, $5)`;
 
 // Add more data here    (loop)
 const popPhoneyData = async client => {
@@ -44,10 +46,13 @@ const popPhoneyData = async client => {
     for (let sn in sneetchTypes) {
         for (let v in bools) {
             let generator = d3.randomNormal(bools[v], sneetchTypes[sn]);
-            for (let j = 0; j < 1000; ++j) {
+            for (let j = 0; j < 4; ++j) {
                 let vl = generator();
                 if (vl > 0 && vl < 13) {
-                    await client.query(insertStatement, ['y', vl, sn, v]);
+                    let secs = Math.round(Math.random() * 69356866200 + 1584676800000);
+                    let date = new Date(secs);
+                    let dateStr = date.toISOString();
+                    await client.query(insertStatement, ['y', vl, sn, v, dateStr]);
                 }
             }
             console.log(`finished ${sn} ${v}`);
@@ -63,7 +68,7 @@ client.connect()
             await client.query(createScript);
             const recordCount = await getRecordCount(client);
             console.log(`Currently ${recordCount} rows in db`);
-            if (recordCount < 15000) {
+            if (recordCount < 16000) {
                 console.log("populating some phoney data");
                 await popPhoneyData(client);
             }

@@ -8,6 +8,8 @@ const pool = new Pool({connectionString});
 
 let d3promise = import('d3');
 
+const { sanitizeDateInput } = require('./util');
+
 const colors  = require('./colors');
 const assays = require('./antigenTests');
 
@@ -42,10 +44,16 @@ exports.assays = function(req, res, next) {
     let baseQuery = "SELECT viralLoadLog FROM test_results WHERE positive  ";
   
     if ('minDate' in req.query) {
-        baseQuery += `AND collectionTime >= '${req.query.minDate}' `;
+        let minDate = sanitizeDateInput(req.query.minDate);
+        if (minDate) {
+            baseQuery += `AND collectionTime >= '${minDate}' `;
+        }
     }
     if ('maxDate' in req.query) {
-        baseQuery += `AND collectionTime <= '${req.query.maxDate}' `;
+        let maxDate = sanitizeDateInput(req.query.maxDate);
+        if (maxDate) {
+            baseQuery += `AND collectionTime <= '${maxDate}' `;
+        }
     }
     let queries = {};
     queries[baseQuery] = "All Patients";

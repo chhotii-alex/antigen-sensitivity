@@ -61,8 +61,7 @@ const popPhoneyData = async client => {
     console.log("Done!");
 } 
 
-client.connect()
-    .then(async () => {
+const dbSetup = async () => {
         try {
             console.log("Creating database schema if needed");
             await client.query(createScript);
@@ -80,8 +79,13 @@ client.connect()
         finally {
             client.end();
         }
-    })
-    .catch( err => {
-        console.log("Failed to connect to database");
-        console.log(err);
-    });
+    }
+
+try {
+    await client.connect();
+    await dbSetup();
+}
+catch (err) {
+    console.log("Failed to connect to database");
+    console.log(err);
+}

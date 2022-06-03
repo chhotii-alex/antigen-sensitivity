@@ -1,6 +1,6 @@
 // Database connection stuff
 const { Pool } = require('pg');
-const { credentials } = require('./config');
+const { credentials } = require('./config.cjs');
 console.log(credentials);
 const { connectionString } = credentials;
 console.log(connectionString);
@@ -8,10 +8,10 @@ const pool = new Pool({connectionString});
 
 let d3promise = import('d3');
 
-const { sanitizeDateInput } = require('./util');
+const { sanitizeDateInput } = require('./util.cjs');
 
-const colors  = require('./colors');
-const assays = require('./antigenTests');
+const colors  = require('./colors.cjs');
+const assays = require('./antigenTests.cjs');
 
 exports.home = function(req, res, next) {
     res.render('index');

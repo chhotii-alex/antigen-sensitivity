@@ -10,7 +10,7 @@
 var express = require('express');
 var router = express.Router();
 
-const handlers = require('./handlers');
+const handlers = require('./handlers.cjs');
 
 /* Currently everything and the kitchen sink in this file.
   Refactor into modules, please. */

@@ -25,24 +25,15 @@
     <input type="date" id="maxDate" name="maxDate" />
   </form>
   <div id="displaybox"></div>
-  <button id="showMoreButton" >Show More Settings</button>
-  <form id="optional_options">
+  <details>
+    <summary>Show More Settings</summary>
     <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
     <input type="range" min="0" max="13" value="5" class="slider" id="infectivityThreshold">
-  </form>
+  </details>
   <hr/>
-  <h3>Specification Questions:</h3>
-  <ul>
-    <li>Should we set the same scale on both (all) y-axes?</li>
-  </ul>
 </body>
 <script type="module">
   import { doQuery, setInfectivityThreshold } from './javascripts/histo.js';
-
-  function toggleOptionals() {
-    document.getElementById("showMoreButton").style.display = "none";
-    document.getElementById("optional_options").style.display = "block";
-  }
 
   function loadVariableOptions(data) {
     let options = data.items;
@@ -83,7 +74,6 @@ function selectAction() {
     setInfectivityThreshold(newValue);
   }
 
-  document.getElementById("showMoreButton").onclick = toggleOptionals;
   document.getElementById("variable").onchange = selectAction;
   document.getElementById("antigenTest").onchange = selectAction;
   document.getElementById("minDate").onchange = selectAction;

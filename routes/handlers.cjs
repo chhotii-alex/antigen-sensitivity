@@ -21,7 +21,7 @@ exports.vars = function(req, res, next) {
     let retval = {
       items: [
         { id: 'vacc', displayName: "Vaccination status"},
-        { id: 'sneetch', displayName: "Sneetch type"},
+        { id: 'sneetch', displayName: "Placeholder variable 2"},
       ],
       version: 0,
     };
@@ -32,7 +32,7 @@ exports.assays = function(req, res, next) {
     let retval = {
       items: [
         {id: 1, displayName: "Antigen test - AcmeCo."},
-        {id: 2, displayName: "Antigen test - Binax"},
+        {id: 2, displayName: "Antigen test - Placeholder Vendor 2"},
       ]
     };
     res.json(retval);
@@ -61,8 +61,8 @@ exports.assays = function(req, res, next) {
       if (req.query.vars == "sneetch") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND sneetchType = 's' `] = "Star-belly Sneetches";
-          newQueries[`${query} AND sneetchType = 'n' `] = "Non-star-belly Sneetches";
+          newQueries[`${query} AND sneetchType = 's' `] = "Group A";
+          newQueries[`${query} AND sneetchType = 'n' `] = "Group B";
         }
         queries = newQueries;
       }

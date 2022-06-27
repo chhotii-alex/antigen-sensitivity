@@ -36,7 +36,7 @@ class AcmeAssay extends Assay {
     }
 }
 
-class BinaxAssay extends AcmeAssay {
+class OtherAssay extends AcmeAssay {
     positiveCount(log, count) {
         if (log < 2) {
             return 0;
@@ -58,6 +58,6 @@ exports.assayForIdentifier = function(id) {
         return new AcmeAssay();
     }
     else if (id == 2) {
-        return new BinaxAssay();
+        return new OtherAssay();
     }
 }

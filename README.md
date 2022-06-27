@@ -7,11 +7,13 @@
 - Fix that the word "Infectious" tends to get obscured (trivial)
 - Use our *real* *actual* database schema. Depends on progress of shovel.
 - Put in some actual antigen tests and their actual sensitivity(vl) functions. Depends on Ramy having some time available to explain this.
+- Implment Download
 - Header, footer; sidebar maybe? Links to textual information? Waiting for specifications for this.
 
 # Nice to do:
 - Make layout of query controls nice, not messy.
 - Make web page style consistent with Arnaout Lab website.
+- Allow CORS to open up API
 
 # Extra credit:
 - drop-down list of variants' date ranges (according to covarients.org data for Massachusetts), populates date range fields

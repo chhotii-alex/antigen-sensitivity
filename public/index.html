@@ -19,10 +19,11 @@
         <option value="none" selected>-- no test selected --</option>
       </select>
     </div>
+    <!-- 
     <label for="minDate">From date:</label>
     <input type="date" id="minDate" name="minDate" />
     <label for="maxDate">to date:</label>
-    <input type="date" id="maxDate" name="maxDate" />
+    <input type="date" id="maxDate" name="maxDate" /> -->
   </form>
   <div id="displaybox"></div>
   <details>
@@ -64,8 +65,14 @@ function loadAssayOptions(data) {
 function selectAction() {
     let variable = document.getElementById("variable").value;
     let assay = document.getElementById("antigenTest").value;
-    let minDate = document.getElementById("minDate").value;
-    let maxDate = document.getElementById("maxDate").value;
+    let minDate = null;
+    let maxDate = null;
+    if (minDateAvail()) {
+      minDate = document.getElementById("minDate").value;
+    }
+    if (maxDateAvail()) {
+      maxDate = document.getElementById("maxDate").value;
+    }
     doQuery(variable, assay, minDate, maxDate);
   }
 
@@ -74,10 +81,22 @@ function selectAction() {
     setInfectivityThreshold(newValue);
   }
 
+  function minDateAvail() {
+    return document.getElementById("minDate") != null;
+  }
+
+  function maxDateAvail() {
+    return document.getElementById("maxDate") != null;
+  }
+
   document.getElementById("variable").onchange = selectAction;
   document.getElementById("antigenTest").onchange = selectAction;
-  document.getElementById("minDate").onchange = selectAction;
-  document.getElementById("maxDate").onchange = selectAction;
+  if (minDateAvail()) {
+    document.getElementById("minDate").onchange = selectAction;
+  }
+  if (maxDateAvail()) {
+    document.getElementById("maxDate").onchange = selectAction;
+  }
   document.getElementById("infectivityThreshold").oninput = updateThreshold;
 
   setInfectivityThreshold(document.getElementById("infectivityThreshold").value);

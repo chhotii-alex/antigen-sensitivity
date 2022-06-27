@@ -84,7 +84,7 @@ function getTotal(data, categories) {
     return total;
 }
 
-const margin = {top: 10, right: 30, bottom: 30, left: 80};
+const margin = {top: 10, right: 30, bottom: 40, left: 80};
 const boxWidth = 530;
 const boxHeight = 250;
 const width = boxWidth - margin.left - margin.right;
@@ -227,7 +227,7 @@ function displayData(info, box) {
         .classed("xlabel", true)
         .attr("text-anchor", "middle")
         .attr("x", width/2)
-        .attr("y", height + margin.top + 18)
+        .attr("y", height + margin.top + 24)
         .text(d => d);        
 
     //Adds in the Y axis

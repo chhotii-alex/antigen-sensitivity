@@ -124,6 +124,19 @@ function prepareLegend(info) {
     return legend;
 }
 
+let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
+
+function componseAnnotationOnMean(d) {
+    let value = d.mean;
+    if (!value) {
+        return "";
+    }
+    value = parseFloat(value);
+    let str = numberFormatter.format(value);
+
+    return `mean viral load: ${str} copies/mL`;
+}
+
 function prepareInfectivityRegions(d) {
     let result = [
         {"title" : "Non-infectious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
@@ -163,9 +176,13 @@ function displayData(info, box) {
         enter => enter.append("div")
             .classed("top", true),
     );
-    div.selectAll("h3.drawlabel").data(d => [d.label])
-        .join("h3")
+    div.selectAll("span.drawlabel").data(d => [d.label])
+        .join("span")
         .classed("drawlabel", true)
+        .text(d => d);
+    div.selectAll("span.notemean").data(d => [componseAnnotationOnMean(d)])
+        .join("span")
+        .classed("notemean", true)
         .text(d => d);
     let svg = div.selectAll("svg.histogram").data(d => [d]).join("svg")
             .classed("histogram", true)

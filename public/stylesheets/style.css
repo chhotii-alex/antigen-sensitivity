@@ -58,11 +58,11 @@ select {
 
 div.top {
   display: grid;
-  grid-template-columns: 1fr 20em;
+  grid-template-columns: 20em 1fr 20em;
   grid-template-areas:
-    "drawlabel drawlabel"
-    "histogram nothing"
-    "histogram sensitivity";
+    "drawlabel notemean notemean"
+    "histogram histogram nothing"
+    "histogram histogram sensitivity";
   padding: 1em;
   margin: auto;
   max-width: 800px;
@@ -70,6 +70,12 @@ div.top {
 
 .drawlabel {
   grid-area: drawlabel;
+  font-weight: bold;
+  font-size: large;
+}
+
+.notemean {
+  grid-area: notemean;
 }
 
 .histogram {

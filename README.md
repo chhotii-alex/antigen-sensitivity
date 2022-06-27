@@ -6,10 +6,11 @@
 - HTML page title (trivial).
 - Use our *real* *actual* database schema. Depends on progress of shovel.
 - Put in some actual antigen tests and their actual sensitivity(vl) functions. Depends on Ramy having some time available to explain this.
-- Implment Download
+- Implment Download (just bin summaries 'til new IRB)
 - Header, footer; sidebar maybe? Links to textual information? Waiting for specifications for this.
 
 # Nice to do:
+- Revisit media queries i.e. iPhone layout
 - Make layout of query controls nice, not messy.
 - Make web page style consistent with Arnaout Lab website.
 - Allow CORS to open up API

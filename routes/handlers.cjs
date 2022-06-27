@@ -38,8 +38,10 @@ exports.assays = function(req, res, next) {
     res.json(retval);
   }  
 
+  /* TODO: I think we will be saving the viral load, NOT the log10 of the
+  viral load; adjust query, and do a log10 before binning the numbers. */
   exports.datafetch = async function(req, res, next) {
-    let d3 = await d3promise;
+    let d3 = await d3promise; // hack for importing the wrong kind of module
     let bin = d3.bin().domain([0,13]).thresholds(12).value(d => d.viralloadlog);
     let baseQuery = "SELECT viralLoadLog FROM test_results WHERE positive  ";
   
@@ -79,7 +81,8 @@ exports.assays = function(req, res, next) {
     for (let query in queries) {
       let { rows } = await pool.query(query);
       let bins = bin(rows);
-      let pop = { "label" : queries[query], "colors": colors.getColorSchema()};
+      let mean = calculateMeanFromLogValues(rows);
+      let pop = { "label" : queries[query], "colors": colors.getColorSchema(), "mean" : mean};
       pop["data"] = bins.map(r => {
         return {"viralLoadLog" : r.x0, "count" : r.length};
       });
@@ -96,4 +99,16 @@ exports.assays = function(req, res, next) {
     }
   
     res.json(phonyData);
+  }
+
+  /* Messy that I'm hard-coding the property name, but this will be going away. */
+  function calculateMeanFromLogValues(values) {
+    let count = 0;
+    let total = 0;
+    for (let val of values) {
+      count += 1;
+      let actual = Math.pow(10, parseFloat(val["viralloadlog"]));
+      total += actual;
+    }
+    return total/count;
   }

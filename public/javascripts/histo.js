@@ -85,7 +85,7 @@ function getTotal(data, categories) {
 }
 
 const margin = {top: 10, right: 30, bottom: 30, left: 80};
-const boxWidth = 800;
+const boxWidth = 530;
 const boxHeight = 250;
 const width = boxWidth - margin.left - margin.right;
 const height = boxHeight - margin.top - margin.bottom;

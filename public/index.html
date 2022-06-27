@@ -26,10 +26,12 @@
     <input type="date" id="maxDate" name="maxDate" /> -->
   </form>
   <div id="displaybox"></div>
-  <details>
+  <details id="moresettings">
     <summary>Show More Settings</summary>
-    <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
-    <input type="range" min="0" max="13" value="5" class="slider" id="infectivityThreshold">
+    <div class="indent">
+      <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
+      <input type="range" min="0" max="13" value="5" class="slider" id="infectivityThreshold">
+    </div>
   </details>
   <hr/>
 </body>

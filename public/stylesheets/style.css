@@ -18,7 +18,18 @@ select {
     grid-template-areas:
       "select_label_var select_var nothing"
       "select_label_antigen select_antigen nothing";
-    margin: 6px;
+    margin: auto;
+    max-width: 800px;   /* I have this matching div.top */
+
+}
+
+#moresettings {
+  margin: auto;
+  max-width: 800px;   /* I have this matching div.top */
+}
+
+.indent {
+  margin-left: 1em;
 }
 
 .select_label {
@@ -47,14 +58,14 @@ select {
 
 div.top {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 20em;
   grid-template-areas:
     "drawlabel drawlabel"
     "histogram nothing"
     "histogram sensitivity";
-  border: 1px  solid gray;
   padding: 1em;
-  margin: 0.5em;
+  margin: auto;
+  max-width: 800px;
 }
 
 .drawlabel {
@@ -67,7 +78,7 @@ div.top {
 
 .sensitivity {
   grid-area: sensitivity;
-  padding: 1em;
+  padding-bottom: 1em;
 }
 
 @media only screen and (max-width: 600px) {

@@ -14,10 +14,10 @@ select {
 .selects_form {
     display: grid;
     row-gap: 6px;
-    grid-template-columns: 10em 1fr;
+    grid-template-columns: 10em 20em 1fr;
     grid-template-areas:
-      "select_label_var select_var"
-      "select_label_antigen select_antigen";
+      "select_label_var select_var nothing"
+      "select_label_antigen select_antigen nothing";
     margin: 6px;
 }
 
@@ -41,6 +41,35 @@ select {
   grid-area: select_antigen;
 }
 
+#displaybox {
+  padding-left: 3em;
+}
+
+div.top {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas:
+    "drawlabel drawlabel"
+    "histogram nothing"
+    "histogram sensitivity";
+  border: 1px  solid gray;
+  padding: 1em;
+  margin: 0.5em;
+}
+
+.drawlabel {
+  grid-area: drawlabel;
+}
+
+.histogram {
+  grid-area: histogram;
+}
+
+.sensitivity {
+  grid-area: sensitivity;
+  padding: 1em;
+}
+
 @media only screen and (max-width: 600px) {
   .selects_form {
     grid-template-columns: 1fr;
@@ -54,3 +83,4 @@ select {
     text-align: left;
   }
 }
+

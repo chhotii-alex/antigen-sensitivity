@@ -301,8 +301,15 @@ function displayData(info, box) {
     div.selectAll("p.sensitivity").data(d => d.distributionsWithSensitivityCalc)
         .join("p")
         .classed("sensitivity", true)
-        .html(d => `${d.infectiousCount} infectious people, ${d.truePositiveCount} of whom are antigen-positive <b>= ${Math.round(100*d.sensitivity)}% sensitivity<br>`);
+        .html(d => markupForSensitivity(d));
   
+}
+
+function markupForSensitivity(d) {
+    let ic = d.infectiousCount;
+    let pc = d.truePositiveCount;
+    let pr = Math.round(100*d.sensitivity);
+    return `${ic} infectious people,<br>${pc} of whom are antigen-positive<br><b>= ${pr}% sensitivity</b>`;
 }
 
 doQuery();

@@ -146,7 +146,7 @@ function displayData(info, box) {
         let  maxPValues = item.data.map( (d) => {
             let sum = 0;
             for (let key of Object.keys(item.catagories)) { sum += d[key]; }
-            sum += 30;
+            sum *= 1.1; /* Give headroom for "Infectious"/"Non-infectious" strings. Tweak if any relevant sizes change. */
             return sum;
         });
 

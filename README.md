@@ -4,7 +4,6 @@
 
 # MUST DO items:
 - HTML page title (trivial).
-- Fix that the word "Infectious" tends to get obscured (trivial)
 - Use our *real* *actual* database schema. Depends on progress of shovel.
 - Put in some actual antigen tests and their actual sensitivity(vl) functions. Depends on Ramy having some time available to explain this.
 - Implment Download

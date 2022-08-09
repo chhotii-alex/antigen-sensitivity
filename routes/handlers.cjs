@@ -1,10 +1,13 @@
 // Database connection stuff
 const { Pool } = require('pg');
 const { credentials } = require('./config.cjs');
-console.log(credentials);
-const { connectionString } = credentials;
-console.log(connectionString);
-const pool = new Pool({connectionString});
+
+const { host, port, dbname, connect_timeout, user, password } = credentials;
+const pool = new Pool({user: user,
+    password: password,
+    database: dbname, 
+    host: host,
+    port: port});
 
 let d3promise = import('d3');
 
@@ -13,15 +16,18 @@ const { sanitizeDateInput } = require('./util.cjs');
 const colors  = require('./colors.cjs');
 const assays = require('./antigenTests.cjs');
 
+console.log("handlers blah blah...")
+
 exports.home = function(req, res, next) {
+    console.log("home page");
     res.render('index');
   }
 
 exports.vars = function(req, res, next) {
     let retval = {
       items: [
-        { id: 'vacc', displayName: "Vaccination status"},
-        { id: 'sneetch', displayName: "Placeholder variable 2"},
+        { id: 'vacc', displayName: "Patient Location"},
+        { id: 'sneetch', displayName: "Sex"},
       ],
       version: 0,
     };
@@ -43,18 +49,18 @@ exports.assays = function(req, res, next) {
   exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let bin = d3.bin().domain([0,13]).thresholds(12).value(d => d.viralloadlog);
-    let baseQuery = "SELECT viralLoadLog FROM test_results WHERE positive  ";
+    let baseQuery = "SELECT log(viral_load) viralloadlog FROM covidtestresults WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 ";
   
     if ('minDate' in req.query) {
         let minDate = sanitizeDateInput(req.query.minDate);
         if (minDate) {
-            baseQuery += `AND collectionTime >= '${minDate}' `;
+            baseQuery += `AND collection_when >= '${minDate}' `;
         }
     }
     if ('maxDate' in req.query) {
         let maxDate = sanitizeDateInput(req.query.maxDate);
         if (maxDate) {
-            baseQuery += `AND collectionTime <= '${maxDate}' `;
+            baseQuery += `AND collection_when <= '${maxDate}' `;
         }
     }
     let queries = {};
@@ -63,16 +69,16 @@ exports.assays = function(req, res, next) {
       if (req.query.vars == "sneetch") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND sneetchType = 's' `] = "Group A";
-          newQueries[`${query} AND sneetchType = 'n' `] = "Group B";
+          newQueries[`${query} AND sex = 'F' `] = "Female";
+          newQueries[`${query} AND sex = 'M' `] = "Male";
         }
         queries = newQueries;
       }
       else if (req.query.vars == "vacc") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND vaccinated `] = "Vaccinated Population";
-          newQueries[`${query} AND NOT vaccinated `] = "Unvaccinated Population";
+          newQueries[`${query} AND patient_location = 'INPATIENT' `] = "Inpatients";
+          newQueries[`${query} AND patient_location = 'OUTPATIENT' `] = "Outpatients";
         }
         queries = newQueries;
       }

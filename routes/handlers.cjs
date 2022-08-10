@@ -26,8 +26,9 @@ exports.home = function(req, res, next) {
 exports.vars = function(req, res, next) {
     let retval = {
       items: [
-        { id: 'vacc', displayName: "Patient Location"},
-        { id: 'sneetch', displayName: "Sex"},
+        { id: 'loc', displayName: "Patient Location"},
+        { id: 'sex', displayName: "Sex"},
+	{ id: 'age', displayName: "Age"},
       ],
       version: 0,
     };
@@ -66,7 +67,7 @@ exports.assays = function(req, res, next) {
     let queries = {};
     queries[baseQuery] = "All Patients";
     if ('vars' in req.query) {
-      if (req.query.vars == "sneetch") {
+      if (req.query.vars == "sex") {
         let newQueries = {};
         for (let query in queries) {
           newQueries[`${query} AND sex = 'F' `] = "Female";
@@ -74,11 +75,23 @@ exports.assays = function(req, res, next) {
         }
         queries = newQueries;
       }
-      else if (req.query.vars == "vacc") {
+      else if (req.query.vars == "loc") {
         let newQueries = {};
         for (let query in queries) {
           newQueries[`${query} AND patient_location = 'INPATIENT' `] = "Inpatients";
           newQueries[`${query} AND patient_location = 'OUTPATIENT' `] = "Outpatients";
+	  newQueries[`${query} AND patient_location = 'EMERGENCY UNIT' `] = "Emergency";
+	  newQueries[`${query} AND patient_location = 'INSTITUTIONAL' `] = "Institutional";
+	  newQueries[`${query} AND patient_location = 'INTER-LAB' `] = "Inter-lab";
+        }
+        queries = newQueries;
+      }
+      if (req.query.vars == "age") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND age < 30 `] = "Young (<30)";
+          newQueries[`${query} AND age >= 30 AND age < 60 `] = "Middle (30 - 59)";
+          newQueries[`${query} AND age >= 60 `] = "Old (60+)";
         }
         queries = newQueries;
       }

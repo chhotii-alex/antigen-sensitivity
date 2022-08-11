@@ -29,6 +29,8 @@ exports.vars = function(req, res, next) {
         { id: 'loc', displayName: "Patient Location"},
         { id: 'sex', displayName: "Sex"},
 	{ id: 'age', displayName: "Age"},
+	{ id: 'vax', displayName: "Vaccination Status"},
+	{ id: 'var', displayName: "Presumed Variant"},
       ],
       version: 0,
     };
@@ -86,12 +88,30 @@ exports.assays = function(req, res, next) {
         }
         queries = newQueries;
       }
-      if (req.query.vars == "age") {
+      else if (req.query.vars == "age") {
         let newQueries = {};
         for (let query in queries) {
           newQueries[`${query} AND age < 30 `] = "Young (<30)";
           newQueries[`${query} AND age >= 30 AND age < 60 `] = "Middle (30 - 59)";
           newQueries[`${query} AND age >= 60 `] = "Old (60+)";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "vax") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND vax_count > 0 `] = "Vaccinated";
+          newQueries[`${query} AND vax_count = 0 `] = "Unvaccinated";
+          newQueries[`${query} AND vax_count is null `] = "Unknown";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "var") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND collection_when > '2022-01-03' `] = "Omicron";
+          newQueries[`${query} AND collection_when > '2021-07-07' AND collection_when < '2021-12-06' `] = "Delta";
+          newQueries[`${query} AND collection_when < '2021-06-07' `] = "Early Variants";
         }
         queries = newQueries;
       }

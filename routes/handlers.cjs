@@ -31,6 +31,7 @@ exports.vars = function(req, res, next) {
 	{ id: 'age', displayName: "Age"},
 	{ id: 'vax', displayName: "Vaccination Status"},
 	{ id: 'var', displayName: "Presumed Variant"},
+	{ id: 'eth', displayName: "Race/Ethnicity"},
       ],
       version: 0,
     };
@@ -51,7 +52,7 @@ exports.assays = function(req, res, next) {
   viral load; adjust query, and do a log10 before binning the numbers. */
   exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise; // hack for importing the wrong kind of module
-    let bin = d3.bin().domain([0,13]).thresholds(12).value(d => d.viralloadlog);
+    let bin = d3.bin().domain([0,13]).thresholds(24).value(d => d.viralloadlog);
     let baseQuery = "SELECT log(viral_load) viralloadlog FROM covidtestresults WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 ";
   
     if ('minDate' in req.query) {
@@ -112,6 +113,18 @@ exports.assays = function(req, res, next) {
           newQueries[`${query} AND collection_when > '2022-01-03' `] = "Omicron";
           newQueries[`${query} AND collection_when > '2021-07-07' AND collection_when < '2021-12-06' `] = "Delta";
           newQueries[`${query} AND collection_when < '2021-06-07' `] = "Early Variants";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "eth") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND ethnicity = 'WH' `] = "White";
+          newQueries[`${query} AND ethnicity = 'BL' `] = "Black";
+          newQueries[`${query} AND ethnicity = 'AS' `] = "Asian/Pacific";
+          newQueries[`${query} AND ethnicity = 'HS' `] = "Hispanic";
+          newQueries[`${query} AND ethnicity = 'NA' `] = "Native American";
+          newQueries[`${query} AND ethnicity is NULL `] = "Unknown/Other";
         }
         queries = newQueries;
       }

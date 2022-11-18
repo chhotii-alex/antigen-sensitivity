@@ -35,6 +35,7 @@ exports.vars = function(req, res, next) {
 	{ id: 'preg', displayName: "Pregnancy Status"},
 	{ id: 'outcome', displayName: "Outcome"},
 	{ id: 'ses', displayName: "Socio-economic Status"},
+	{ id: 'vitals', displayName: "Vital Signs Presentation"},
       ],
       version: 0,
     };
@@ -92,6 +93,29 @@ exports.assays = function(req, res, next) {
         }
         queries = newQueries;
       }
+      else if (req.query.vars == "vitals") {
+        let newQueries = {};
+        for (let query in queries) {
+	  let sick = ` systolic < 90 OR
+	      diastolic < 60 OR
+	      heartrate > 100 OR
+	      resprate > 18 OR
+	      temperature > 99.1 OR
+	      o2 < 95
+	  `;
+	  let well = ` (systolic >= 90 OR systolic IS NULL) AND
+	      (diastolic >= 60 OR diastolic IS NULL) AND
+	      (heartrate <= 100 OR heartrate IS NULL) AND
+	      (resprate <= 18 OR resprate IS NULL) AND
+	      (temperature <= 99.1 OR temperature IS NULL) AND
+	      (o2 >= 95 OR o2 IS NULL) AND
+	      COALESCE(systolic, diastolic, heartrate, resprate, temperature, o2) IS NOT NULL
+	  `
+          newQueries[`${query} AND (${sick}) `] = "Sick Appearing";
+          newQueries[`${query} AND (${well}) `] = "Well Appearing";
+        }
+        queries = newQueries;
+      }
       else if (req.query.vars == "age") {
         let newQueries = {};
         for (let query in queries) {
@@ -104,13 +128,11 @@ exports.assays = function(req, res, next) {
       else if (req.query.vars == "ses") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND sesbin = 0 `] = "ZCTA Median Household Income < $26,000";
-          newQueries[`${query} AND sesbin = 1 `] = "ZCTA Median Household Income $26,000 to $52,000";
+          newQueries[`${query} AND sesbin = 1 `] = "ZCTA Median Household Income < $52,000";
           newQueries[`${query} AND sesbin = 2 `] = "ZCTA Median Household Income $52,000 to $78,000";
           newQueries[`${query} AND sesbin = 3 `] = "ZCTA Median Household Income $78,000 to $104,000";
           newQueries[`${query} AND sesbin = 4 `] = "ZCTA Median Household Income $104,000 to $130,000";
-          newQueries[`${query} AND sesbin = 5 `] = "ZCTA Median Household Income $130,000 to $156,000";
-          newQueries[`${query} AND sesbin = 6 `] = "ZCTA Median Household Income > $156,000";
+          newQueries[`${query} AND sesbin = 5 `] = "ZCTA Median Household Income > $130,000";
         }
         queries = newQueries;
       }

@@ -5,6 +5,8 @@
 * You need node and npm to run this. On a Mac, try `brew install node`
 * Current development is with node version 19.1.0. Check the node version using `node -v`
 * `cd` into the `antigen-sensitivity` directory, and install/update dependencies using `npm install`
+* Find out the IP address of where the database is running, and the password for the `webapp` db logit
+* Edit `template.credentials.any.json` and save as `credentials.development.json` or `credentials.production.json`
 
 ## TO-DO list, sort-of catagorized and sort-of sorted:
 

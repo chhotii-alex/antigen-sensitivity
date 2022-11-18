@@ -23,6 +23,17 @@ exports.home = function(req, res, next) {
     res.render('index');
   }
 
+function andWhere(queryParts, cond) {
+  baseQuery = queryParts["base"];
+  joins = queryParts["joins"];
+  whereClause = queryParts["where"];
+  whereClause = `${whereClause} AND ${cond} `;
+  return { "base" : baseQuery,
+           "joins" : joins,
+	   "where" : whereClause };
+}
+  
+
 exports.vars = function(req, res, next) {
     let retval = {
       items: [
@@ -38,6 +49,8 @@ exports.vars = function(req, res, next) {
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
 	{ id: 'bmi', displayName: "Body Mass Index"},
 	{ id: 'smoke', displayName: "Smoking Status"},
+	{ id: 'MI', displayName: "Myocardial infarct"},
+	{ id: 'CHF', displayName: "Congestive heart failure"},
       ],
       version: 0,
     };
@@ -54,19 +67,20 @@ exports.assays = function(req, res, next) {
     res.json(retval);
   }  
 
-  /* TODO: I think we will be saving the viral load, NOT the log10 of the
-  viral load; adjust query, and do a log10 before binning the numbers. */
-  exports.datafetch = async function(req, res, next) {
+/* TODO: I think we will be saving the viral load, NOT the log10 of the
+viral load; adjust query, and do a log10 before binning the numbers. */
+exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let bin = d3.bin().domain([0,13]).thresholds(24).value(d => d.viralloadlog);
     let baseQuery = `SELECT log(viral_load) viralloadlog
-          FROM covidtestresults
-	  WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 `;
+          FROM covidtestresults `
+    let joins = ` `
+    let whereClause =` WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 `;
   
     if ('minDate' in req.query) {
         let minDate = sanitizeDateInput(req.query.minDate);
         if (minDate) {
-            baseQuery += `AND collection_when >= '${minDate}' `;
+            whereClause += `AND collection_when >= '${minDate}' `;
         }
     }
     if ('maxDate' in req.query) {
@@ -76,49 +90,54 @@ exports.assays = function(req, res, next) {
         }
     }
     let queries = {};
-    queries[baseQuery] = "All Patients";
+    queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
     if ('vars' in req.query) {
       if (req.query.vars == "sex") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND sex = 'F' `] = "Female";
-          newQueries[`${query} AND sex = 'M' `] = "Male";
+	  queryParts = queries[query]
+	  newQueries["Female"] = andWhere(queryParts, "sex = 'F'");
+	  newQueries["Male"] = andWhere(queryParts, "sex = 'M'");
         }
         queries = newQueries;
-      }
+      }      
       else if (req.query.vars == "loc") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND patient_location = 'INPATIENT' `] = "Inpatients";
-          newQueries[`${query} AND patient_location = 'OUTPATIENT' `] = "Outpatients";
-	  newQueries[`${query} AND patient_location = 'EMERGENCY UNIT' `] = "Emergency";
-	  newQueries[`${query} AND patient_location = 'INSTITUTIONAL' `] = "Institutional";
-	  newQueries[`${query} AND patient_location = 'INTER-LAB' `] = "Inter-lab";
+	  queryParts = queries[query];
+          newQueries["Inpatients"] = andWhere(queryParts, ` patient_location = 'INPATIENT' `);
+          newQueries["Outpatients"] = andWhere(queryParts, ` patient_location = 'OUTPATIENT' `);
+	  newQueries["Emergency"] = andWhere(queryParts, ` patient_location = 'EMERGENCY UNIT' `);
+	  newQueries["Institutional"] = andWhere(queryParts, ` patient_location = 'INSTITUTIONAL' `);
+	  newQueries["Inter-lab"] = andWhere(queryParts, `patient_location = 'INTER-LAB' `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "bmi") {
         let newQueries = {};
         for (let query in queries) {
-	  newQueries[`${query} AND bmi < 18.5 AND age > 17`] = "Underweight";
-	  newQueries[`${query} AND bmi >= 18.5 AND bmi < 25 AND age > 17`] = "Healthy Weight";
-	  newQueries[`${query} AND bmi >= 25 AND bmi < 30 AND age > 17`] = "Overweight";
-	  newQueries[`${query} AND bmi >= 30 AND age > 17`] = "Obese";
+	  queryParts = queries[query];	
+	  newQueries["Underweight"] = andWhere(queryParts, ` bmi < 18.5 AND age > 17`);
+	  newQueries["Healthy Weight"] = andWhere(queryParts, ` bmi >= 18.5 AND bmi < 25 AND age > 17`);
+	  newQueries["Overweight"] = andWhere(queryParts, ` bmi >= 25 AND bmi < 30 AND age > 17`);
+	  newQueries["Obese"] = andWhere(queryParts, `bmi >= 30 AND age > 17`);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "smoke") {
         let newQueries = {};
         for (let query in queries) {
-	  newQueries[`${query} AND tobacco_status = 'current' `] = "Current Smoker";
-	  newQueries[`${query} AND tobacco_status = 'former' `] = "Former Smoker";
-	  newQueries[`${query} AND tobacco_status = 'never' `] = "Never Smoked";
+	  queryParts = queries[query];	
+	  newQueries["Current Smoker"] = andWhere(queryParts, ` tobacco_status = 'current' `);
+	  newQueries["Former Smoker"] = andWhere(queryParts, ` tobacco_status = 'former' `);
+	  newQueries["Never Smoked"] = andWhere(queryParts, ` tobacco_status = 'never' `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "vitals") {
         let newQueries = {};
         for (let query in queries) {
+	  queryParts = queries[query];	
 	  let sick = ` systolic < 90 OR
 	      diastolic < 60 OR
 	      heartrate > 100 OR
@@ -134,87 +153,101 @@ exports.assays = function(req, res, next) {
 	      (o2 >= 95 OR o2 IS NULL) AND
 	      COALESCE(systolic, diastolic, heartrate, resprate, temperature, o2) IS NOT NULL
 	  `
-          newQueries[`${query} AND (${sick}) `] = "Sick Appearing";
-          newQueries[`${query} AND (${well}) `] = "Well Appearing";
+          newQueries["Sick Appearing"] = andWhere(queryParts, sick);
+          newQueries["Well Appearing"] = andWhere(queryParts, well);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "age") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND age < 30 `] = "Young (<30)";
-          newQueries[`${query} AND age >= 30 AND age < 60 `] = "Middle (30 - 59)";
-          newQueries[`${query} AND age >= 60 `] = "Old (60+)";
+	  queryParts = queries[query];
+          newQueries["Young (<30)"] = andWhere(queryParts, ` age < 30 `);
+          newQueries["Middle (30 - 59)"] = andWhere(queryParts, `age >= 30 AND age < 60 `);
+          newQueries["Old (60+)"] = andWhere(queryParts, ` age >= 60 `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "ses") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND sesbin = 1 `] = "ZCTA Median Household Income < $52,000";
-          newQueries[`${query} AND sesbin = 2 `] = "ZCTA Median Household Income $52,000 to $78,000";
-          newQueries[`${query} AND sesbin = 3 `] = "ZCTA Median Household Income $78,000 to $104,000";
-          newQueries[`${query} AND sesbin = 4 `] = "ZCTA Median Household Income $104,000 to $130,000";
-          newQueries[`${query} AND sesbin = 5 `] = "ZCTA Median Household Income > $130,000";
+	  queryParts = queries[query];	
+          newQueries["ZCTA Median Household Income < $52,000"] = andWhere(queryParts, ` sesbin = 1 `);
+          newQueries["ZCTA Median Household Income $52,000 to $78,000"] = andWhere(queryParts, `sesbin = 2 `);
+          newQueries["ZCTA Median Household Income $78,000 to $104,000"] = andWhere(queryParts, ` sesbin = 3 `);
+          newQueries["ZCTA Median Household Income $104,000 to $130,000"] = andWhere(queryParts, ` sesbin = 4 `);
+          newQueries["ZCTA Median Household Income > $130,000"] = andWhere(queryParts, ` sesbin = 5 `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "vax") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND vax_count > 0 `] = "Vaccinated";
-          newQueries[`${query} AND vax_count = 0 `] = "Unvaccinated";
-          newQueries[`${query} AND vax_count is null `] = "Unknown";
+	  queryParts = queries[query];	
+          newQueries["Vaccinated"] = andWhere(queryParts, ` vax_count > 0 `);
+          newQueries["Unvaccinated"] = andWhere(queryParts, ` vax_count = 0 `);
+          newQueries["Unknown"] = andWhere(queryParts, ` vax_count is null `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "var") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND collection_when > '2022-01-03' `] = "Omicron";
-          newQueries[`${query} AND collection_when > '2021-07-07' AND collection_when < '2021-12-06' `] = "Delta";
-          newQueries[`${query} AND collection_when < '2021-06-07' `] = "Early Variants";
+	  queryParts = queries[query];	
+          newQueries["Omicron"] = andWhere(queryParts, ` collection_when > '2022-01-03' `);
+          newQueries["Delta"] = andWhere(queryParts, `collection_when > '2021-07-07' AND collection_when < '2021-12-06' `);
+          newQueries["Early Variants"] = andWhere(queryParts, ` collection_when < '2021-06-07' `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "eth") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND ethnicity = 'WH' `] = "White";
-          newQueries[`${query} AND ethnicity = 'BL' `] = "Black";
-          newQueries[`${query} AND ethnicity = 'AS' `] = "Asian/Pacific";
-          newQueries[`${query} AND ethnicity = 'HS' `] = "Hispanic";
-          newQueries[`${query} AND ethnicity = 'NA' `] = "Native American";
-          newQueries[`${query} AND ethnicity is NULL `] = "Unknown/Other";
+	  queryParts = queries[query];	
+          newQueries["White"] = andWhere(queryParts, ` ethnicity = 'WH' `);
+          newQueries["Black"] = andWhere(queryParts, ` ethnicity = 'BL' `);
+          newQueries["Asian/Pacific"] = andWhere(queryParts, ` ethnicity = 'AS' `);
+          newQueries["Hispanic"] = andWhere(queryParts, `ethnicity = 'HS' `);
+          newQueries["Native American"] = andWhere(queryParts, ` ethnicity = 'NA' `);
+          newQueries["Unknown/Other"] = andWhere(queryParts, ` ethnicity is NULL `);
 	}
         queries = newQueries;
       }
       else if (req.query.vars == "preg") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND pregnancy_status = 'Y' `] = "Pregnant";
-          newQueries[`${query} AND pregnancy_status = 'P' `] = "Puerperium";
+	  queryParts = queries[query];	
+          newQueries["Pregnant"] = andWhere(queryParts, ` pregnancy_status = 'Y' `);
+          newQueries["Puerperium"] = andWhere(queryParts, ` pregnancy_status = 'P' `);
         }
         queries = newQueries;
       }
       else if (req.query.vars == "outcome") {
         let newQueries = {};
         for (let query in queries) {
-          newQueries[`${query} AND outcome = 'D' `] = "Died of COVID";
-          newQueries[`${query} AND outcome = 'C' `] = "Died, COVID contributing";
-          newQueries[`${query} AND outcome IS NULL `] = "Survived";
+	  queryParts = queries[query];	
+          newQueries["Died of COVID"] = andWhere(queryParts, ` outcome = 'D' `);
+          newQueries["Died, COVID contributing"] = andWhere(queryParts, ` outcome = 'C' `);
+          newQueries["Survived"] = andWhere(queryParts, ` outcome IS NULL `);
         }
         queries = newQueries;
       }
+
     }
     let phonyData = [];
-    for (let query in queries) {
+    for (let label in queries) {
+      queryParts = queries[label];
+      baseQuery = queryParts["base"];
+      joins = queryParts["joins"];
+      whereClause = queryParts["where"];
+      query = ` ${baseQuery} ${joins} ${whereClause} `;
+      //console.log(query);
       let { rows } = await pool.query(query);
       let bins = bin(rows);
       //let mean_val = calculateMeanFromLogValues(rows);
       // Use geometric mean, not straight-up mean:
       let mean_val = Math.pow(10, mean(rows))
-      let pop = { "label" : queries[query], "colors": colors.getColorSchema(), "mean" : mean_val};
+      let pop = { "label" : label, "colors": colors.getColorSchema(), "mean" : mean_val};
       pop["data"] = bins.map(r => {
         return {"viralLoadLog" : r.x0, "count" : r.length};
       });

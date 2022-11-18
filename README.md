@@ -5,6 +5,15 @@
 * You need node and npm to run this. On a Mac, try `brew install node`
 * Current development is with node version 19.1.0. Check the node version using `node -v`
 * `cd` into the `antigen-sensitivity` directory, and install/update dependencies using `npm install`
+* Find out the IP address of where the database is running, and the password for the `webapp` db logit
+* `cd` into the `routes` directory
+* Edit `template.credentials.any.json` and save as `credentials.development.json` or `credentials.production.json`
+* `cd ..`
+* `npm start`
+
+By default this will run on port 82, but that can be changed.
+Try `http://localhost:82/` in a browser on the same machine; you should get the webapp. For this to be available from
+other machines, the firewall has to accept incoming connections.
 
 ## TO-DO list, sort-of catagorized and sort-of sorted:
 

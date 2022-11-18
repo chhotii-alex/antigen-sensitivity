@@ -37,6 +37,7 @@ exports.vars = function(req, res, next) {
 	{ id: 'ses', displayName: "Socio-economic Status"},
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
 	{ id: 'bmi', displayName: "Body Mass Index"},
+	{ id: 'smoke', displayName: "Smoking Status"},
       ],
       version: 0,
     };
@@ -101,6 +102,15 @@ exports.assays = function(req, res, next) {
 	  newQueries[`${query} AND bmi >= 18.5 AND bmi < 25 AND age > 17`] = "Healthy Weight";
 	  newQueries[`${query} AND bmi >= 25 AND bmi < 30 AND age > 17`] = "Overweight";
 	  newQueries[`${query} AND bmi >= 30 AND age > 17`] = "Obese";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "smoke") {
+        let newQueries = {};
+        for (let query in queries) {
+	  newQueries[`${query} AND tobacco_status = 'current' `] = "Current Smoker";
+	  newQueries[`${query} AND tobacco_status = 'former' `] = "Former Smoker";
+	  newQueries[`${query} AND tobacco_status = 'never' `] = "Never Smoked";
         }
         queries = newQueries;
       }

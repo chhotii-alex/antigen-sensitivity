@@ -33,10 +33,10 @@ function andWhere(queryParts, cond) {
 	   "where" : whereClause };
 }
   
+comorbidities = {};
 
-exports.vars = function(req, res, next) {
-    let retval = {
-      items: [
+exports.vars = async function(req, res, next) {
+    let items = [
         { id: 'loc', displayName: "Patient Location"},
         { id: 'sex', displayName: "Sex"},
 	{ id: 'age', displayName: "Age"},
@@ -49,9 +49,18 @@ exports.vars = function(req, res, next) {
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
 	{ id: 'bmi', displayName: "Body Mass Index"},
 	{ id: 'smoke', displayName: "Smoking Status"},
-	{ id: 'MI', displayName: "Myocardial infarct"},
-	{ id: 'CHF', displayName: "Congestive heart failure"},
-      ],
+      ];
+      
+    query = " SELECT tag, description from ComorbidityRef";
+    let { rows } = await pool.query(query);
+    for (const elem of rows) {
+      tag = elem.tag.trim();
+      descr = elem.description;
+      comorbidities[tag] = descr;
+      items.push( {"id":tag, "displayName": descr});
+    }
+    let retval = {
+      items: items, 
       version: 0,
     };
     res.json(retval);
@@ -92,7 +101,23 @@ exports.datafetch = async function(req, res, next) {
     let queries = {};
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
     if ('vars' in req.query) {
-      if (req.query.vars == "sex") {
+      if (req.query.vars in comorbidities) {
+        tag = req.query.vars;
+	descr = comorbidities[tag];
+        let newQueries = {};
+        for (let query in queries) {
+	  queryParts = queries[query]
+	  baseQuery = queryParts["base"];
+  	  joins = queryParts["joins"];
+  	  whereClause = queryParts["where"];
+	  tableAbbrev = `c_${tag}`;
+	  joins = joins + ` INNER JOIN Comorbidity ${tableAbbrev} ON covidtestresults.id = ${tableAbbrev}.result_id `;
+	  whereClause = whereClause + ` and ${tableAbbrev}.tag = '${tag}'`;
+	  newQueries[descr] = {"base" : baseQuery, "joins" : joins, "where" : whereClause };
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "sex") {
         let newQueries = {};
         for (let query in queries) {
 	  queryParts = queries[query]
@@ -241,7 +266,7 @@ exports.datafetch = async function(req, res, next) {
       joins = queryParts["joins"];
       whereClause = queryParts["where"];
       query = ` ${baseQuery} ${joins} ${whereClause} `;
-      //console.log(query);
+      console.log(query);
       let { rows } = await pool.query(query);
       let bins = bin(rows);
       //let mean_val = calculateMeanFromLogValues(rows);

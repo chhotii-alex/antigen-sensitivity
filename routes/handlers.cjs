@@ -16,7 +16,7 @@ const { sanitizeDateInput } = require('./util.cjs');
 const colors  = require('./colors.cjs');
 const assays = require('./antigenTests.cjs');
 
-console.log("handlers blah blah...")
+console.log("webapp routes launching...")
 
 exports.home = function(req, res, next) {
     console.log("home page");
@@ -31,6 +31,9 @@ exports.vars = function(req, res, next) {
 	{ id: 'age', displayName: "Age"},
 	{ id: 'vax', displayName: "Vaccination Status"},
 	{ id: 'var', displayName: "Presumed Variant"},
+	{ id: 'preg', displayName: "Pregnancy Status"},
+	{ id: 'outcome', displayName: "Outcome"},
+	{ id: 'ses', displayName: "Socio-economic Status"},
       ],
       version: 0,
     };
@@ -97,6 +100,19 @@ exports.assays = function(req, res, next) {
         }
         queries = newQueries;
       }
+      else if (req.query.vars == "ses") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND sesbin = 0 `] = "ZCTA Median Household Income < $26,000";
+          newQueries[`${query} AND sesbin = 1 `] = "ZCTA Median Household Income $26,000 to $52,000";
+          newQueries[`${query} AND sesbin = 2 `] = "ZCTA Median Household Income $52,000 to $78,000";
+          newQueries[`${query} AND sesbin = 3 `] = "ZCTA Median Household Income $78,000 to $104,000";
+          newQueries[`${query} AND sesbin = 4 `] = "ZCTA Median Household Income $104,000 to $130,000";
+          newQueries[`${query} AND sesbin = 5 `] = "ZCTA Median Household Income $130,000 to $156,000";
+          newQueries[`${query} AND sesbin = 6 `] = "ZCTA Median Household Income > $156,000";
+        }
+        queries = newQueries;
+      }
       else if (req.query.vars == "vax") {
         let newQueries = {};
         for (let query in queries) {
@@ -112,6 +128,23 @@ exports.assays = function(req, res, next) {
           newQueries[`${query} AND collection_when > '2022-01-03' `] = "Omicron";
           newQueries[`${query} AND collection_when > '2021-07-07' AND collection_when < '2021-12-06' `] = "Delta";
           newQueries[`${query} AND collection_when < '2021-06-07' `] = "Early Variants";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "preg") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND pregnancy_status = 'Y' `] = "Pregnant";
+          newQueries[`${query} AND pregnancy_status = 'P' `] = "Puerperium";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "outcome") {
+        let newQueries = {};
+        for (let query in queries) {
+          newQueries[`${query} AND outcome = 'D' `] = "Died of COVID";
+          newQueries[`${query} AND outcome = 'C' `] = "Died, COVID contributing";
+          newQueries[`${query} AND outcome IS NULL `] = "Survived";
         }
         queries = newQueries;
       }

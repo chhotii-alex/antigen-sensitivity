@@ -142,6 +142,8 @@ exports.assays = function(req, res, next) {
           newQueries[`${query} AND ethnicity = 'NA' `] = "Native American";
           newQueries[`${query} AND ethnicity is NULL `] = "Unknown/Other";
 	}
+        queries = newQueries;
+      }
       else if (req.query.vars == "preg") {
         let newQueries = {};
         for (let query in queries) {

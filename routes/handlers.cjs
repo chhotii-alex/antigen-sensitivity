@@ -36,6 +36,7 @@ exports.vars = function(req, res, next) {
 	{ id: 'outcome', displayName: "Outcome"},
 	{ id: 'ses', displayName: "Socio-economic Status"},
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
+	{ id: 'bmi', displayName: "Body Mass Index"},
       ],
       version: 0,
     };
@@ -90,6 +91,16 @@ exports.assays = function(req, res, next) {
 	  newQueries[`${query} AND patient_location = 'EMERGENCY UNIT' `] = "Emergency";
 	  newQueries[`${query} AND patient_location = 'INSTITUTIONAL' `] = "Institutional";
 	  newQueries[`${query} AND patient_location = 'INTER-LAB' `] = "Inter-lab";
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "bmi") {
+        let newQueries = {};
+        for (let query in queries) {
+	  newQueries[`${query} AND bmi < 18.5 AND age > 17`] = "Underweight";
+	  newQueries[`${query} AND bmi >= 18.5 AND bmi < 25 AND age > 17`] = "Healthy Weight";
+	  newQueries[`${query} AND bmi >= 25 AND bmi < 30 AND age > 17`] = "Overweight";
+	  newQueries[`${query} AND bmi >= 30 AND age > 17`] = "Obese";
         }
         queries = newQueries;
       }

@@ -59,7 +59,9 @@ exports.assays = function(req, res, next) {
   exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let bin = d3.bin().domain([0,13]).thresholds(24).value(d => d.viralloadlog);
-    let baseQuery = "SELECT log(viral_load) viralloadlog FROM covidtestresults WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 ";
+    let baseQuery = `SELECT log(viral_load) viralloadlog
+          FROM covidtestresults
+	  WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 `;
   
     if ('minDate' in req.query) {
         let minDate = sanitizeDateInput(req.query.minDate);
@@ -209,8 +211,10 @@ exports.assays = function(req, res, next) {
     for (let query in queries) {
       let { rows } = await pool.query(query);
       let bins = bin(rows);
-      let mean = calculateMeanFromLogValues(rows);
-      let pop = { "label" : queries[query], "colors": colors.getColorSchema(), "mean" : mean};
+      //let mean_val = calculateMeanFromLogValues(rows);
+      // Use geometric mean, not straight-up mean:
+      let mean_val = Math.pow(10, mean(rows))
+      let pop = { "label" : queries[query], "colors": colors.getColorSchema(), "mean" : mean_val};
       pop["data"] = bins.map(r => {
         return {"viralLoadLog" : r.x0, "count" : r.length};
       });
@@ -240,3 +244,15 @@ exports.assays = function(req, res, next) {
     }
     return total/count;
   }
+
+  function mean(values) {
+    let count = 0;
+    let total = 0;
+    for (let val of values) {
+      count += 1;
+      let num = parseFloat(val["viralloadlog"]);
+      total += num;
+    }
+    return total/count;
+  }
+  

@@ -1,5 +1,11 @@
 # antigen-sensitivity
 
+## HOW-TO
+
+* You need node and npm to run this. On a Mac, try `brew install node`
+* Current development is with node version 19.1.0. Check the node version using `node -v`
+* `cd` into the `antigen-sensitivity` directory, and install/update dependencies using `npm install`
+
 ## TO-DO list, sort-of catagorized and sort-of sorted:
 
 # MUST DO items:

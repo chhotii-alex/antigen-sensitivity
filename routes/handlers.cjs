@@ -47,6 +47,7 @@ exports.vars = async function(req, res, next) {
 	{ id: 'outcome', displayName: "Outcome"},
 	{ id: 'ses', displayName: "Socio-economic Status"},
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
+	{ id: 'remd', displayName: "Remdesivir" },
 	{ id: 'bmi', displayName: "Body Mass Index"},
 	{ id: 'smoke', displayName: "Smoking Status"},
       ];
@@ -135,6 +136,14 @@ exports.datafetch = async function(req, res, next) {
 	  newQueries["Emergency"] = andWhere(queryParts, ` patient_location = 'EMERGENCY UNIT' `);
 	  newQueries["Institutional"] = andWhere(queryParts, ` patient_location = 'INSTITUTIONAL' `);
 	  newQueries["Inter-lab"] = andWhere(queryParts, `patient_location = 'INTER-LAB' `);
+        }
+        queries = newQueries;
+      }
+      else if (req.query.vars == "remd") {
+        let newQueries = {};
+        for (let query in queries) {
+	  queryParts = queries[query];
+          newQueries["Inpatients"] = andWhere(queryParts, ` remdesivir `);
         }
         queries = newQueries;
       }

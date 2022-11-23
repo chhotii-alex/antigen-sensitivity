@@ -143,7 +143,7 @@ exports.datafetch = async function(req, res, next) {
         let newQueries = {};
         for (let query in queries) {
 	  queryParts = queries[query];
-          newQueries["Inpatients"] = andWhere(queryParts, ` remdesivir `);
+          newQueries["Remdesivir"] = andWhere(queryParts, ` remdesivir `);
         }
         queries = newQueries;
       }
@@ -172,12 +172,12 @@ exports.datafetch = async function(req, res, next) {
         let newQueries = {};
         for (let query in queries) {
 	  queryParts = queries[query];	
-	  let sick = ` systolic < 90 OR
+	  let sick = ` ( systolic < 90 OR
 	      diastolic < 60 OR
 	      heartrate > 100 OR
 	      resprate > 18 OR
 	      temperature > 99.1 OR
-	      o2 < 95
+	      o2 < 95 )
 	  `;
 	  let well = ` (systolic >= 90 OR systolic IS NULL) AND
 	      (diastolic >= 60 OR diastolic IS NULL) AND

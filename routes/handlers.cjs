@@ -32,9 +32,9 @@ function andWhere(queryParts, cond) {
            "joins" : joins,
 	   "where" : whereClause };
 }
-  
-comorbidities = {};
 
+lookups = {}
+  
 exports.vars = async function(req, res, next) {
     let items = [
         { id: 'loc', displayName: "Patient Location"},
@@ -47,19 +47,23 @@ exports.vars = async function(req, res, next) {
 	{ id: 'outcome', displayName: "Outcome"},
 	{ id: 'ses', displayName: "Socio-economic Status"},
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
-	{ id: 'remd', displayName: "Remdesivir" },
 	{ id: 'bmi', displayName: "Body Mass Index"},
 	{ id: 'smoke', displayName: "Smoking Status"},
       ];
-      
-    query = " SELECT tag, description from ComorbidityRef";
-    let { rows } = await pool.query(query);
-    for (const elem of rows) {
-      tag = elem.tag.trim();
-      descr = elem.description;
-      comorbidities[tag] = descr;
-      items.push( {"id":tag, "displayName": descr});
+
+    for (const refTable of ["TreatmentRef", "ComorbidityRef"]) {
+        query = ` SELECT tag, description from ${refTable}`;
+	lookup = {};
+        let { rows } = await pool.query(query);
+        for (const elem of rows) {
+           tag = elem.tag.trim();
+           descr = elem.description;
+	   lookup[tag] = descr;
+           items.push( {"id":tag, "displayName": descr});
+        }
+	lookups[refTable] = lookup;
     }
+
     let retval = {
       items: items, 
       version: 0,
@@ -102,23 +106,27 @@ exports.datafetch = async function(req, res, next) {
     let queries = {};
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
     if ('vars' in req.query) {
-      if (req.query.vars in comorbidities) {
-        tag = req.query.vars;
-	descr = comorbidities[tag];
-        let newQueries = {};
-        for (let query in queries) {
-	  queryParts = queries[query]
-	  baseQuery = queryParts["base"];
-  	  joins = queryParts["joins"];
-  	  whereClause = queryParts["where"];
-	  tableAbbrev = `c_${tag}`;
-	  joins = joins + ` INNER JOIN Comorbidity ${tableAbbrev} ON covidtestresults.id = ${tableAbbrev}.result_id `;
-	  whereClause = whereClause + ` and ${tableAbbrev}.tag = '${tag}'`;
-	  newQueries[descr] = {"base" : baseQuery, "joins" : joins, "where" : whereClause };
+      for (const refTable of ["TreatmentRef", "ComorbidityRef"]) { 
+        if (req.query.vars in lookups[refTable]) {
+	  table = refTable.replace('Ref', '')
+          tag = req.query.vars;
+          descr = lookups[refTable][tag];
+          let newQueries = {};
+          for (let query in queries) {
+	    queryParts = queries[query]
+	    baseQuery = queryParts["base"];
+  	    joins = queryParts["joins"];
+  	    whereClause = queryParts["where"];
+	    tableAbbrev = `c_${tag}`;
+	    joins = joins + ` INNER JOIN ${table} ${tableAbbrev} ON covidtestresults.id = ${tableAbbrev}.result_id `;
+            whereClause = whereClause + ` and ${tableAbbrev}.tag = '${tag}'`;
+	    newQueries[descr] = {"base" : baseQuery, "joins" : joins, "where" : whereClause };
+	  }
+          queries = newQueries;
         }
-        queries = newQueries;
       }
-      else if (req.query.vars == "sex") {
+      // TODO: arch whereby we do not keep search if tag found above
+      if (req.query.vars == "sex") {
         let newQueries = {};
         for (let query in queries) {
 	  queryParts = queries[query]
@@ -136,14 +144,6 @@ exports.datafetch = async function(req, res, next) {
 	  newQueries["Emergency"] = andWhere(queryParts, ` patient_location = 'EMERGENCY UNIT' `);
 	  newQueries["Institutional"] = andWhere(queryParts, ` patient_location = 'INSTITUTIONAL' `);
 	  newQueries["Inter-lab"] = andWhere(queryParts, `patient_location = 'INTER-LAB' `);
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "remd") {
-        let newQueries = {};
-        for (let query in queries) {
-	  queryParts = queries[query];
-          newQueries["Remdesivir"] = andWhere(queryParts, ` remdesivir `);
         }
         queries = newQueries;
       }

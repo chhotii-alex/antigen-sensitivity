@@ -269,6 +269,7 @@ exports.datafetch = async function(req, res, next) {
 
     }
     let phonyData = [];
+    let index = 0;
     for (let label in queries) {
       queryParts = queries[label];
       baseQuery = queryParts["base"];
@@ -281,7 +282,7 @@ exports.datafetch = async function(req, res, next) {
       //let mean_val = calculateMeanFromLogValues(rows);
       // Use geometric mean, not straight-up mean:
       let mean_val = Math.pow(10, mean(rows))
-      let pop = { "label" : label, "colors": colors.getColorSchema(), "mean" : mean_val};
+      let pop = { "label" : label, "colors": colors.getColorSchema(index++), "mean" : mean_val};
       pop["data"] = bins.map(r => {
         return {"viralLoadLog" : r.x0, "count" : r.length};
       });

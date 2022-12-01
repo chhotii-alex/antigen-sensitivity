@@ -253,6 +253,7 @@ exports.datafetch = async function(req, res, next) {
 	  queryParts = queries[query];	
           newQueries["Pregnant"] = andWhere(queryParts, ` pregnancy_status = 'Y' `);
           newQueries["Puerperium"] = andWhere(queryParts, ` pregnancy_status = 'P' `);
+	  newQueries["Not Pregnant"] = andWhere(queryParts, ` pregnancy_status = '-' `);
         }
         queries = newQueries;
       }

@@ -37,21 +37,24 @@ lookups = {}
   
 exports.vars = async function(req, res, next) {
     let items = [
-        { id: 'loc', displayName: "Patient Location"},
         { id: 'sex', displayName: "Sex"},
 	{ id: 'age', displayName: "Age"},
+	{ id: 'eth', displayName: "Race/Ethnicity"},
+	{ id: 'ses', displayName: "Socio-economic Status"},
+        { id: 'loc', displayName: "Patient Location"},
 	{ id: 'vax', displayName: "Vaccination Status"},
 	{ id: 'var', displayName: "Presumed Variant"},
-	{ id: 'eth', displayName: "Race/Ethnicity"},
-	{ id: 'preg', displayName: "Pregnancy Status"},
-	{ id: 'outcome', displayName: "Outcome"},
-	{ id: 'ses', displayName: "Socio-economic Status"},
 	{ id: 'vitals', displayName: "Vital Signs Presentation"},
+	{ id: 'outcome', displayName: "Outcome"},
+	{ id: 'preg', displayName: "Pregnancy Status"},
 	{ id: 'bmi', displayName: "Body Mass Index"},
 	{ id: 'smoke', displayName: "Smoking Status"},
       ];
 
-    for (const refTable of ["TreatmentRef", "ComorbidityRef"]) {
+    tables = {"Treatments" : "TreatmentRef", "Comorbidities" : "ComorbidityRef" }
+
+    for (const cat in tables) {
+        const refTable = tables[cat];
         query = ` SELECT tag, description from ${refTable}`;
 	lookup = {};
         let { rows } = await pool.query(query);
@@ -59,7 +62,7 @@ exports.vars = async function(req, res, next) {
            tag = elem.tag.trim();
            descr = elem.description;
 	   lookup[tag] = descr;
-           items.push( {"id":tag, "displayName": descr});
+           items.push( {"id":tag, "displayName":descr, "category":cat});
         }
 	lookups[refTable] = lookup;
     }

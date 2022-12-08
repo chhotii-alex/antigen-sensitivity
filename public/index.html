@@ -39,15 +39,25 @@
   import { doQuery, setInfectivityThreshold } from './javascripts/histo.js';
 
   function loadVariableOptions(data) {
+    let prevCat = null;
     let options = data.items;
-    let select = document.getElementById("variable");
+  let select = document.getElementById("variable");
+  let currentLeaf = select;
     for (let item of options) {
         let id = item.id;
         let label = item.displayName;
+        let category = item.category;
+        if (category && category != prevCat) {
+            let group = document.createElement("optgroup");
+            group.label=category;
+            select.add(group);
+            currentLeaf = group;
+            prevCat = category;
+         }
         let opt = document.createElement("option");
         opt.value = id;
         opt.text = label;
-        select.add(opt);
+        currentLeaf.appendChild(opt);
     }
 }
 

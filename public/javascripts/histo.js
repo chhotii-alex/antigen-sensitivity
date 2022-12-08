@@ -4,7 +4,8 @@
     The word "Infectious" tends to be obscured by bar(s) on the histogram.
 */
 
-import * as d3 from "https://cdn.skypack.dev/d3@7";
+import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
+//import * as d3 from "https://cdn.skypack.dev/d3@7.6";
 
 export function doQuery(variable, assay, minDate=null, maxDate=null) {
     if (variable == "none") {

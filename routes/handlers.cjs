@@ -33,8 +33,50 @@ function andWhere(queryParts, cond) {
 	   "where" : whereClause };
 }
 
-lookups = {}
+let comorbidities = null;
+
+async function getComorbidities() {
+  if (!comorbidities) {
+       query = "SELECT tag, description, grouping, on_by_default from ComorbidityRef order by grouping, sort_key";
+       let currentGrouping = null;
+       let { rows } = await pool.query(query);
+       comorbidities = [];
+       for (const elem of rows) {
+           tag = elem.tag.trim();
+           descr = elem.description;
+	   grouping = elem.grouping;
+	   onByDefault = elem.on_by_default;
+	   if (currentGrouping == null || currentGrouping.name != grouping) {
+	      currentGrouping = { "name" : grouping, subdivisions : [] };
+	      comorbidities.push(currentGrouping);
+	   }
+	   currentGrouping.subdivisions.push({ "tag" : tag, "descr" : descr, "onByDefault" : onByDefault } );
+        }
+  }
+  return comorbidities;
+}
+
+let treatments = null;
+let treatmentLookup = null;
   
+async function getTreatments() {
+  if (!treatments) {
+        query = " SELECT tag, description from TreatmentRef order by sort_key";
+       let { rows } = await pool.query(query);
+       treatments = [];
+       treatmentLookup = {};
+       for (const elem of rows) {
+           tag = elem.tag.trim();
+           descr = elem.description;
+	   treatments.push( { "tag":tag,
+	   		    "name":descr,
+			  });
+           treatmentLookup[tag] = descr;
+        }
+  }
+  return treatments;
+}
+
 exports.vars = async function(req, res, next) {
     let items = [
         { id: 'sex', displayName: "Sex"},
@@ -51,20 +93,16 @@ exports.vars = async function(req, res, next) {
 	{ id: 'smoke', displayName: "Smoking Status"},
       ];
 
-    tables = {"Treatments" : "TreatmentRef", "Comorbidities" : "ComorbidityRef" }
+    const comorbid = await getComorbidities();
+    for (const grouping of comorbid) {
+        items.push( { "id":grouping.subdivisions[0].tag, "displayName":grouping.name,
+	    "category":"Comorbidities",
+	    "subdivisions":grouping.subdivisions} );
+    }
 
-    for (const cat in tables) {
-        const refTable = tables[cat];
-        query = ` SELECT tag, description from ${refTable}`;
-	lookup = {};
-        let { rows } = await pool.query(query);
-        for (const elem of rows) {
-           tag = elem.tag.trim();
-           descr = elem.description;
-	   lookup[tag] = descr;
-           items.push( {"id":tag, "displayName":descr, "category":cat});
-        }
-	lookups[refTable] = lookup;
+    const treat = await getTreatments();
+    for (const t of treat) {
+        items.push( { "id":t.tag, "displayName":t.name, "category":"Treatments"} );
     }
 
     let retval = {
@@ -108,26 +146,59 @@ exports.datafetch = async function(req, res, next) {
     }
     let queries = {};
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
+    if ('comorbid' in req.query) {
+         if ((typeof req.query.comorbid) == 'string') {
+	    tags = [req.query.comorbid];
+	 }
+	 else {
+	    tags = req.query.comorbid;
+	 }
+	 descr = "to-do get appropriate description";
+	 let newQueries = {};
+	 for (let query in queries) {
+	   queryParts = queries[query];
+	   baseQuery = queryParts["base"];
+	   joins = queryParts["joins"];
+	   whereClause = queryParts["where"];
+	   orClause = "AND (";
+	   first = true;
+	   for (const tag of tags) {
+	     tableAbbrev = `c_${tag}`;
+	     joins += `
+	           LEFT OUTER JOIN Comorbidity ${tableAbbrev} on covidtestresults.id = ${tableAbbrev}.result_id
+	                    and (${tableAbbrev}.tag = '${tag}' OR ${tableAbbrev}.tag IS NULL)
+	       `;
+	     if (first) {
+	       first = false;
+	     }
+	     else {
+	       orClause += " OR ";
+	     }
+	     orClause += ` ${tableAbbrev}.tag IS NOT NULL `;
+	   }
+	   orClause += ")";
+	   whereClause += orClause;
+	   newQueries[descr] = {"base" : baseQuery, "joins" : joins, "where" : whereClause };
+	 }
+	 queries = newQueries;
+    }
     if ('vars' in req.query) {
-      for (const refTable of ["TreatmentRef", "ComorbidityRef"]) { 
-        if (req.query.vars in lookups[refTable]) {
-	  table = refTable.replace('Ref', '')
-          tag = req.query.vars;
-          descr = lookups[refTable][tag];
+      if (req.query.vars in treatmentLookup) {
+         tag = req.query.vars;
+	 descr = treatmentLookup[tag];
           let newQueries = {};
           for (let query in queries) {
-	    queryParts = queries[query]
+	    queryParts = queries[query];
 	    baseQuery = queryParts["base"];
   	    joins = queryParts["joins"];
   	    whereClause = queryParts["where"];
 	    tableAbbrev = `c_${tag}`;
-	    joins = joins + ` INNER JOIN ${table} ${tableAbbrev} ON covidtestresults.id = ${tableAbbrev}.result_id `;
-            whereClause = whereClause + ` and ${tableAbbrev}.tag = '${tag}'`;
+	    joins = joins + ` INNER JOIN Treatment ${tableAbbrev} ON covidtestresults.id = ${tableAbbrev}.result_id `;
+            whereClause = whereClause + ` and ${tableAbbrev}.tag = '${tag}' `;
 	    newQueries[descr] = {"base" : baseQuery, "joins" : joins, "where" : whereClause };
 	  }
           queries = newQueries;
         }
-      }
       // TODO: arch whereby we do not keep search if tag found above
       if (req.query.vars == "sex") {
         let newQueries = {};

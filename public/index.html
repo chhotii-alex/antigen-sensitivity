@@ -10,14 +10,19 @@
   <h1>Predicted Test Performance on Population Segments</h1>
   <form>
     <div class="selects_form">
-      <label class="select_label select_label_var" for="variable">Select variable:</label>
-      <select class="select_var" name="variable" id="variable" onchange="selectAction()">
-        <option value="none" selected>-- no variable selected --</option>
-      </select>
-      <label class="select_label select_label_antigen" for="antigenTest">Select test:</label>
-      <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
-        <option value="none" selected>-- no test selected --</option>
-      </select>
+      <fieldset class="select_var">
+        <legend class="select_label select_label_var" >Select variable:</legend>
+        <select class="select_var" name="variable" id="variable" onchange="selectAction()">
+          <option value="none" selected>-- no variable selected --</option>
+        </select>
+        <div id="checkboxes"></div>
+      </fieldset>
+      <fieldset class="select_antigen">
+        <legend class="select_label select_label_antigen" >Select test:</legend>
+        <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
+          <option value="none" selected>-- no test selected --</option>
+        </select>
+      </fieldset>
     </div>
     <!-- 
     <label for="minDate">From date:</label>
@@ -36,94 +41,18 @@
   <hr/>
 </body>
 <script type="module">
-  import { doQuery, setInfectivityThreshold } from './javascripts/histo.js';
-
-  function loadVariableOptions(data) {
-    let prevCat = null;
-    let options = data.items;
-  let select = document.getElementById("variable");
-  let currentLeaf = select;
-    for (let item of options) {
-        let id = item.id;
-        let label = item.displayName;
-        let category = item.category;
-        if (category && category != prevCat) {
-            let group = document.createElement("optgroup");
-            group.label=category;
-            select.add(group);
-            currentLeaf = group;
-            prevCat = category;
-         }
-        let opt = document.createElement("option");
-        opt.value = id;
-        opt.text = label;
-        currentLeaf.appendChild(opt);
-    }
-}
-
-function loadAssayOptions(data) {
-    let options = data.items;
-    let select = document.getElementById("antigenTest");
-    for (let item of options) {
-        let id = item.id;
-        let label = item.displayName;
-        let opt = document.createElement("option");
-        opt.value = id;
-        opt.text = label;
-        select.add(opt);
-    }
-}
-
-function selectAction() {
-    let variable = document.getElementById("variable").value;
-    let assay = document.getElementById("antigenTest").value;
-    let minDate = null;
-    let maxDate = null;
-    if (minDateAvail()) {
-      minDate = document.getElementById("minDate").value;
-    }
-    if (maxDateAvail()) {
-      maxDate = document.getElementById("maxDate").value;
-    }
-    doQuery(variable, assay, minDate, maxDate);
-  }
+  import { doQuery,
+	   setInfectivityThreshold,
+	   displayCheckboxes } from './javascripts/histo.js';
 
   function updateThreshold(event) {
     let newValue = event.target.value;
     setInfectivityThreshold(newValue);
   }
 
-  function minDateAvail() {
-    return document.getElementById("minDate") != null;
-  }
-
-  function maxDateAvail() {
-    return document.getElementById("maxDate") != null;
-  }
-
-  document.getElementById("variable").onchange = selectAction;
-  document.getElementById("antigenTest").onchange = selectAction;
-  if (minDateAvail()) {
-    document.getElementById("minDate").onchange = selectAction;
-  }
-  if (maxDateAvail()) {
-    document.getElementById("maxDate").onchange = selectAction;
-  }
   document.getElementById("infectivityThreshold").oninput = updateThreshold;
 
   setInfectivityThreshold(document.getElementById("infectivityThreshold").value);
-
-  let url;
-  
-  url = "/api/variables";
-  fetch(url)
-        .then(response => response.json())
-        .then(data => loadVariableOptions(data));
-
-  url = "/api/assays";
-  fetch(url)
-        .then(response => response.json())
-        .then(data => loadAssayOptions(data));
 
 </script>
 </html>

@@ -14,10 +14,9 @@ select {
 .selects_form {
     display: grid;
     row-gap: 6px;
-    grid-template-columns: 10em 20em 1fr;
+    grid-template-columns: 30em 30em 1fr;
     grid-template-areas:
-      "select_label_var select_var nothing"
-      "select_label_antigen select_antigen nothing";
+      "select_var select_antigen nothing";
     margin: auto;
     max-width: 800px;   /* I have this matching div.top */
 
@@ -33,7 +32,7 @@ select {
 }
 
 .select_label {
-  text-align: right;
+  text-align: left;
 }
 
 .select_label_var {
@@ -91,9 +90,7 @@ div.top {
   .selects_form {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "select_label_var"
       "select_var"
-      "select_label_antigen"
       "select_antigen";
   }
   .select_label {

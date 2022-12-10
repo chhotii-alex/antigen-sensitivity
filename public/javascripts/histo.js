@@ -7,7 +7,109 @@
 import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
 //import * as d3 from "https://cdn.skypack.dev/d3@7.6";
 
-export function doQuery(variable, assay, minDate=null, maxDate=null) {
+  let checkboxes = {};
+
+  function loadVariableOptions(data) {
+    let prevCat = null;
+    let options = data.items;
+  let select = document.getElementById("variable");
+  let currentLeaf = select;
+    for (let item of options) {
+        let id = item.id;
+        let label = item.displayName;
+        let category = item.category;
+        if (category && category != prevCat) {
+            let group = document.createElement("optgroup");
+            group.label=category;
+            select.add(group);
+            currentLeaf = group;
+            prevCat = category;
+         }
+        let opt = document.createElement("option");
+        opt.value = id;
+        opt.text = label;
+        if (item.subdivisions) {
+	    checkboxes[id] = item.subdivisions;
+        }
+        currentLeaf.appendChild(opt);
+    }
+}
+
+function loadAssayOptions(data) {
+    let options = data.items;
+    let select = document.getElementById("antigenTest");
+    for (let item of options) {
+        let id = item.id;
+        let label = item.displayName;
+        let opt = document.createElement("option");
+        opt.value = id;
+        opt.text = label;
+        select.add(opt);
+    }
+}
+
+function selectAction() {
+    let variable = document.getElementById("variable").value;
+
+    let assay = document.getElementById("antigenTest").value;
+    let minDate = null;
+    let maxDate = null;
+    if (minDateAvail()) {
+      minDate = document.getElementById("minDate").value;
+    }
+    if (maxDateAvail()) {
+      maxDate = document.getElementById("maxDate").value;
+    }
+    displayCheckboxes(checkboxes[variable]);
+    let variables = [];
+    let comorbidities = [];
+    if (variable == "none") {
+    }
+    else if (checkboxes[variable]) {
+	for (const c of checkboxes[variable]) {
+	    if (c.onByDefault) {
+		comorbidities.push(c.tag);
+	    }
+	}
+    }
+    else {
+	variables.push(variable);
+    }
+	
+    doQuery(variables, comorbidities, assay, minDate, maxDate);
+  }
+
+  function minDateAvail() {
+    return document.getElementById("minDate") != null;
+  }
+
+  function maxDateAvail() {
+    return document.getElementById("maxDate") != null;
+  }
+
+  document.getElementById("variable").onchange = selectAction;
+  document.getElementById("antigenTest").onchange = selectAction;
+  if (minDateAvail()) {
+    document.getElementById("minDate").onchange = selectAction;
+  }
+  if (maxDateAvail()) {
+    document.getElementById("maxDate").onchange = selectAction;
+  }
+
+  let url;
+  
+  url = "/api/variables";
+  fetch(url)
+        .then(response => response.json())
+        .then(data => loadVariableOptions(data));
+
+  url = "/api/assays";
+  fetch(url)
+        .then(response => response.json())
+        .then(data => loadAssayOptions(data));
+
+
+export function doQuery(variables, comorbidities, assay, minDate=null, maxDate=null) {
     if (variable == "none") {
         variable = null;
     }
@@ -15,8 +117,15 @@ export function doQuery(variable, assay, minDate=null, maxDate=null) {
         assay = null;
     }
     let url = 'api/data/viralloads?';
-    if (variable) {
-        url += `vars=${variable}&`;
+    if (variables) {
+	for (const variable of variables) {
+            url += `vars=${variable}&`;
+	}
+    }
+    if (comorbidities) {
+	for (const comorbid of comorbidities) {
+	    url += `comorbid=${comorbid}&`
+	}
     }
     if (assay) {
         url += `assay=${assay}&`;
@@ -329,5 +438,54 @@ function markupForSensitivity(d) {
     let pr = Math.round(100*d.sensitivity);
     return `${ic} infectious people,<br>${pc} of whom are antigen-positive<br><b>= ${pr}% sensitivity</b>`;
 }
+
+export function displayCheckboxes(subdivisions) {
+    let box = d3.select("#checkboxes");
+
+    if (!subdivisions) {
+	subdivisions = [];
+    }
+    if (subdivisions.length < 2) {
+	subdivisions = [];
+    }
+    let div = box.selectAll("div").data(subdivisions).join(
+	enter => enter.append("div"),
+    );
+    div.selectAll("input").data(d => [d]).join("input")
+        .attr("id", d => d.tag)
+        .attr("type", "checkbox")
+        .property("checked", d => d.onByDefault)
+        .on('change', function() {
+	    updateQuery();
+	});
+    div.selectAll("label").data(d => [d]).join("label")
+        .text(d => d.descr)
+        .attr("for", d => d.tag);
+}
+
+/* Called when a checkbox is clicked
+   TODO: DRY: this repeats a lot of code from selectAction in the html file
+  */
+function updateQuery() {
+    let variable = document.getElementById("variable").value;
+
+    let assay = document.getElementById("antigenTest").value;
+    let minDate = null;
+    let maxDate = null;
+    if (document.getElementById("minDate") != null) {
+      minDate = document.getElementById("minDate").value;
+    }
+    if (document.getElementById("maxDate") != null) {
+      maxDate = document.getElementById("maxDate").value;
+    }
+    let comorbidities = [];
+    for (const c of checkboxes[variable]) {
+	if (document.getElementById(c.tag).checked) {
+	    comorbidities.push(c.tag);
+	}
+    }
+    doQuery([], comorbidities, assay, minDate, maxDate);
+}
+  
 
 doQuery();

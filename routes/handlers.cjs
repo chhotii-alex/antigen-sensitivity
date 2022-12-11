@@ -158,7 +158,6 @@ exports.datafetch = async function(req, res, next) {
 	 else {
 	    tags = req.query.comorbid;
 	 }
-	 descr = "to-do get appropriate description";
 	 let newQueries = {};
 	 for (let query in queries) {
 	   queryParts = queries[query];
@@ -168,10 +167,18 @@ exports.datafetch = async function(req, res, next) {
 	   orClause = "AND (";
 	   first = true;
 	   if (tags.length < 1) {
+	   	 descr = "nothing selected";
 	       whereClause += ' AND true = false ';
 	   }
 	   else {
    	     for (const tag of tags) {
+	       for (const grouping of await getComorbidities()) {
+	          for (const sub of grouping.subdivisions) {
+		     if (tag == sub.tag) {
+		        descr = grouping.name;
+		     }
+		   }
+	       }
 	       tableAbbrev = `c_${tag}`;
 	       joins += `
 	           LEFT OUTER JOIN Comorbidity ${tableAbbrev} on covidtestresults.id = ${tableAbbrev}.result_id

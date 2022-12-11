@@ -109,7 +109,7 @@ function selectAction() {
         .then(data => loadAssayOptions(data));
 
 
-export function doQuery(variables, comorbidities, assay, minDate=null, maxDate=null) {
+export function doQuery(variables, comorbidities=null, assay=null, minDate=null, maxDate=null) {
     if (variable == "none") {
         variable = null;
     }
@@ -122,9 +122,14 @@ export function doQuery(variables, comorbidities, assay, minDate=null, maxDate=n
             url += `vars=${variable}&`;
 	}
     }
-    if (comorbidities) {
-	for (const comorbid of comorbidities) {
-	    url += `comorbid=${comorbid}&`
+    if (comorbidities != null) {
+	if (comorbidities.length > 0) {
+            for (const comorbid of comorbidities) {
+	        url += `comorbid=${comorbid}&`
+	    }
+	}
+	else {
+	    url += "comorbid=nothing";
 	}
     }
     if (assay) {

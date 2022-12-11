@@ -148,7 +148,12 @@ exports.datafetch = async function(req, res, next) {
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
     if ('comorbid' in req.query) {
          if ((typeof req.query.comorbid) == 'string') {
-	    tags = [req.query.comorbid];
+	    if (req.query.comorbid == "nothing") {
+	      tags = [];
+	    }
+	    else {
+              tags = [req.query.comorbid];
+	    }
 	 }
 	 else {
 	    tags = req.query.comorbid;
@@ -162,22 +167,27 @@ exports.datafetch = async function(req, res, next) {
 	   whereClause = queryParts["where"];
 	   orClause = "AND (";
 	   first = true;
-	   for (const tag of tags) {
-	     tableAbbrev = `c_${tag}`;
-	     joins += `
+	   if (tags.length < 1) {
+	       whereClause += ' AND true = false ';
+	   }
+	   else {
+   	     for (const tag of tags) {
+	       tableAbbrev = `c_${tag}`;
+	       joins += `
 	           LEFT OUTER JOIN Comorbidity ${tableAbbrev} on covidtestresults.id = ${tableAbbrev}.result_id
 	                    and (${tableAbbrev}.tag = '${tag}' OR ${tableAbbrev}.tag IS NULL)
 	       `;
-	     if (first) {
-	       first = false;
+	       if (first) {
+	         first = false;
+	       }
+	       else {
+	         orClause += " OR ";
+	       }
+	       orClause += ` ${tableAbbrev}.tag IS NOT NULL `;
 	     }
-	     else {
-	       orClause += " OR ";
-	     }
-	     orClause += ` ${tableAbbrev}.tag IS NOT NULL `;
+	     orClause += ")";
+	     whereClause += orClause;
 	   }
-	   orClause += ")";
-	   whereClause += orClause;
 	   newQueries[descr] = {"base" : baseQuery, "joins" : joins, "where" : whereClause };
 	 }
 	 queries = newQueries;

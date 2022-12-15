@@ -62,10 +62,11 @@ function selectAction() {
     }
     displayCheckboxes(checkboxes[variable]);
     let variables = [];
-    let comorbidities = [];
+    let comorbidities = null;
     if (variable == "none") {
     }
-    else if (checkboxes[variable]) {
+    else if (checkboxes[variable]) {  // Will be true if variable is a comorbidity category
+	comorbidities = [];
 	for (const c of checkboxes[variable]) {
 	    if (c.onByDefault) {
 		comorbidities.push(c.tag);

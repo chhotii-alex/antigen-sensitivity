@@ -130,6 +130,7 @@ exports.datafetch = async function(req, res, next) {
     let baseQuery = `SELECT log(viral_load) viralloadlog
           FROM covidtestresults `
     let joins = ` `
+    // TODO: how many results does this upper limit trim off? Do we believe this upper limit?
     let whereClause =` WHERE is_positive AND viral_load IS NOT NULL AND viral_load < 1000000000000 `;
   
     if ('minDate' in req.query) {

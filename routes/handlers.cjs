@@ -91,6 +91,7 @@ exports.vars = async function(req, res, next) {
 	{ id: 'preg', displayName: "Pregnancy Status"},
 	{ id: 'bmi', displayName: "Body Mass Index"},
 	{ id: 'smoke', displayName: "Smoking Status"},
+	{ id: 'immuno', displayName: "Immunosuppressed"},
       ];
 
     const comorbid = await getComorbidities();
@@ -249,6 +250,14 @@ exports.datafetch = async function(req, res, next) {
 	  newQueries["Obese"] = andWhere(queryParts, `bmi >= 30 AND age > 17`);
         }
         queries = newQueries;
+      }
+      else if (req.query.vars == "immuno") {
+        let newQueries = {};
+	for (let query in queries) {
+	  queryParts = queries[query];
+	  newQueries["Immunosuppressed"] = andWhere(queryParts, ` immuno `);
+	}
+	queries = newQueries;
       }
       else if (req.query.vars == "smoke") {
         let newQueries = {};

@@ -270,9 +270,12 @@ function displayData(info, box) {
     // We are very much assuming that all histograms will have the same x axis.
     const xValues = firstData.map( (d) => d['viralLoadLog']);
     const xScale = linearScale(xValues, width);
-    const barWidth = width/(xValues.length); 
+    const barWidth = width/(xValues.length);
 
-    // Using a different y axis scaling for each histogram.
+    let yScalesIndependent = true;
+
+    let allValues = [0];
+
     for (let item of info) {
         item.yScale = d3.scaleLinear().range([height,0]);
         let  maxPValues = item.data.map( (d) => {
@@ -281,8 +284,17 @@ function displayData(info, box) {
             sum *= 1.1; /* Give headroom for "Infectious"/"Non-infectious" strings. Tweak if any relevant sizes change. */
             return sum;
         });
+	allValues = allValues.concat(maxPValues);
 
-        item.yScale.domain( d3.extent(maxPValues.concat([0])) );
+	if (yScalesIndependent) {
+	    // Using a different y axis scaling for each histogram.
+	    item.yScale.domain( d3.extent(maxPValues.concat([0])) );
+	}
+    }
+    if (!yScalesIndependent) {
+	for (let item of info) {
+	    item.yScale.domain( d3.extent(allValues));
+	}
     }
       
     /* It would make sense to use d => d.label as the key function for this data

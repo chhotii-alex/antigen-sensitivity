@@ -126,6 +126,7 @@ exports.assays = function(req, res, next) {
 /* TODO: I think we will be saving the viral load, NOT the log10 of the
 viral load; adjust query, and do a log10 before binning the numbers. */
 exports.datafetch = async function(req, res, next) {
+    let absoluteCounts = true;
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let bin = d3.bin().domain([0,13]).thresholds(24).value(d => d.viralloadlog);
     let baseQuery = `SELECT log(viral_load) viralloadlog
@@ -145,6 +146,9 @@ exports.datafetch = async function(req, res, next) {
         if (maxDate) {
             baseQuery += `AND collection_when <= '${maxDate}' `;
         }
+    }
+    if ('percent' in req.query) {
+       absoluteCounts = false;
     }
     let queries = {};
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
@@ -383,10 +387,18 @@ exports.datafetch = async function(req, res, next) {
       //let mean_val = calculateMeanFromLogValues(rows);
       // Use geometric mean, not straight-up mean:
       let mean_val = Math.pow(10, mean(rows))
-      let pop = { "label" : label, "colors": colors.getColorSchema(index++), "mean" : mean_val};
+      let pop = {
+              "absoluteCounts" : absoluteCounts,
+              "label" : label,
+              "colors": colors.getColorSchema(index++),
+	      "mean" : mean_val};
+      let denom = 1;
+      if (!absoluteCounts) {
+        denom = d3.sum(bins, r => r.length);
+      }
       pop["data"] = bins.map(r => {
-        return {"viralLoadLog" : r.x0, "count" : r.length};
-      });
+         	     return {"viralLoadLog" : r.x0, "count" : (r.length/denom) };
+         });
       phonyData.push(pop);
     }
    

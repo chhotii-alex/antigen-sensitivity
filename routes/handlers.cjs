@@ -236,7 +236,6 @@ exports.datafetch = async function(req, res, next) {
           newQueries["Outpatients"] = andWhere(queryParts, ` patient_location = 'OUTPATIENT' `);
 	  newQueries["Emergency"] = andWhere(queryParts, ` patient_location = 'EMERGENCY UNIT' `);
 	  newQueries["Institutional"] = andWhere(queryParts, ` patient_location = 'INSTITUTIONAL' `);
-	  newQueries["Inter-lab"] = andWhere(queryParts, `patient_location = 'INTER-LAB' `);
         }
         queries = newQueries;
       }

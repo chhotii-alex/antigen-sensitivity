@@ -197,7 +197,8 @@ function getTotal(data, categories) {
             total += segment[cat];
         }
     }
-    return total;
+    let str = numberFormatter.format(total);
+    return str;
 }
 
 const margin = {top: 10, right: 30, bottom: 40, left: 80};

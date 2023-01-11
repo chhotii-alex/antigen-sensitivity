@@ -126,7 +126,6 @@ exports.assays = function(req, res, next) {
 /* TODO: I think we will be saving the viral load, NOT the log10 of the
 viral load; adjust query, and do a log10 before binning the numbers. */
 exports.datafetch = async function(req, res, next) {
-    let absoluteCounts = true;
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let bin = d3.bin().domain([0,13]).thresholds(24).value(d => d.viralloadlog);
     let baseQuery = `SELECT log(viral_load) viralloadlog
@@ -147,8 +146,13 @@ exports.datafetch = async function(req, res, next) {
             baseQuery += `AND collection_when <= '${maxDate}' `;
         }
     }
-    if ('percent' in req.query) {
+    let absoluteCounts = true;
+    if ('scale_percent' in req.query) {
        absoluteCounts = false;
+    }
+    let scaleIndependent = true;
+    if ('scale_shared' in req.query) {
+       scaleIndependent = false;
     }
     let queries = {};
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
@@ -389,6 +393,7 @@ exports.datafetch = async function(req, res, next) {
       let mean_val = Math.pow(10, mean(rows))
       let pop = {
               "absoluteCounts" : absoluteCounts,
+	      "scaleIndependent" : scaleIndependent,
               "label" : label,
               "colors": colors.getColorSchema(index++),
 	      "mean" : mean_val};

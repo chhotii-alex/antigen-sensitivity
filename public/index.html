@@ -34,6 +34,15 @@
   <details id="moresettings">
     <summary>Show More Settings</summary>
     <div class="indent">
+      Scaling on y axes:
+      <input type="radio" id="scale_absolute" name="y_scale" value="scale_absolute" checked="checked">
+      <label for="scale_absolute">Counts&mdash;Independent</label>
+      <input type="radio" id="scale_shared" name="y_scale" value="scale_shared">
+      <label for="scale_shared">Counts&mdash;Shared</label>
+      <input type="radio" id="scale_percent" name="y_scale" value="scale_percent">
+      <label for="scale_percent">Percentage</label>      
+    </div>
+    <div class="indent">
       <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
       <input type="range" min="0" max="13" value="5" class="slider" id="infectivityThreshold">
     </div>
@@ -41,18 +50,21 @@
   <hr/>
 </body>
 <script type="module">
-  import { doQuery,
-	   setInfectivityThreshold,
-	   displayCheckboxes } from './javascripts/histo.js';
+  import { updateQuery, setInfectivityThreshold } from './javascripts/histo.js';
 
   function updateThreshold(event) {
     let newValue = event.target.value;
     setInfectivityThreshold(newValue);
   }
-
   document.getElementById("infectivityThreshold").oninput = updateThreshold;
-
   setInfectivityThreshold(document.getElementById("infectivityThreshold").value);
+
+  function updateScaleOption(event) {
+      updateQuery();
+  }
+  document.getElementById("scale_absolute").onchange = updateScaleOption;
+  document.getElementById("scale_shared").onchange = updateScaleOption;
+  document.getElementById("scale_percent").onchange = updateScaleOption;
 
 </script>
 </html>

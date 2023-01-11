@@ -50,7 +50,13 @@ function loadAssayOptions(data) {
 
 function selectAction() {
     let variable = document.getElementById("variable").value;
+    displayCheckboxes(checkboxes[variable]);
+    updateQuery();
+}
 
+/* Called directly when a checkbox is clicked */
+export function updateQuery() {
+    let variable = document.getElementById("variable").value;
     let assay = document.getElementById("antigenTest").value;
     let minDate = null;
     let maxDate = null;
@@ -60,7 +66,6 @@ function selectAction() {
     if (maxDateAvail()) {
       maxDate = document.getElementById("maxDate").value;
     }
-    displayCheckboxes(checkboxes[variable]);
     let variables = [];
     let comorbidities = null;
     if (variable == "none") {
@@ -68,7 +73,7 @@ function selectAction() {
     else if (checkboxes[variable]) {  // Will be true if variable is a comorbidity category
 	comorbidities = [];
 	for (const c of checkboxes[variable]) {
-	    if (c.onByDefault) {
+	    if (document.getElementById(c.tag).checked) {
 		comorbidities.push(c.tag);
 	    }
 	}
@@ -76,8 +81,10 @@ function selectAction() {
     else {
 	variables.push(variable);
     }
+    let y_scale = Array.from(document.getElementsByName("y_scale")).find(radio =>
+	radio.checked).value;
 	
-    doQuery(variables, comorbidities, assay, minDate, maxDate);
+    doQuery(variables, comorbidities, assay, minDate, maxDate, y_scale);
   }
 
   function minDateAvail() {
@@ -110,10 +117,8 @@ function selectAction() {
         .then(data => loadAssayOptions(data));
 
 
-export function doQuery(variables, comorbidities=null, assay=null, minDate=null, maxDate=null) {
-    if (variable == "none") {
-        variable = null;
-    }
+export function doQuery(variables, comorbidities=null, assay=null, minDate=null, maxDate=null,
+			y_scale=null) {
     if (assay == "none") {
         assay = null;
     }
@@ -141,6 +146,9 @@ export function doQuery(variables, comorbidities=null, assay=null, minDate=null,
     }
     if (maxDate) {
         url += `maxDate=${maxDate}&`
+    }
+    if (y_scale) {
+	url += `${y_scale}&`;
     }
     fetch(url)
         .then(response => response.json())
@@ -266,13 +274,12 @@ function displayData(info, box) {
     let firstData = info[0].data;
 
     let absoluteCounts = info[0].absoluteCounts;
+    let yScalesIndependent = info[0].scaleIndependent;
     
     // We are very much assuming that all histograms will have the same x axis.
     const xValues = firstData.map( (d) => d['viralLoadLog']);
     const xScale = linearScale(xValues, width);
     const barWidth = width/(xValues.length);
-
-    let yScalesIndependent = true;
 
     let allValues = [0];
 
@@ -490,29 +497,4 @@ export function displayCheckboxes(subdivisions) {
         .attr("for", d => d.tag);
 }
 
-/* Called when a checkbox is clicked
-   TODO: DRY: this repeats a lot of code from selectAction in the html file
-  */
-function updateQuery() {
-    let variable = document.getElementById("variable").value;
-
-    let assay = document.getElementById("antigenTest").value;
-    let minDate = null;
-    let maxDate = null;
-    if (document.getElementById("minDate") != null) {
-      minDate = document.getElementById("minDate").value;
-    }
-    if (document.getElementById("maxDate") != null) {
-      maxDate = document.getElementById("maxDate").value;
-    }
-    let comorbidities = [];
-    for (const c of checkboxes[variable]) {
-	if (document.getElementById(c.tag).checked) {
-	    comorbidities.push(c.tag);
-	}
-    }
-    doQuery([], comorbidities, assay, minDate, maxDate);
-}
-  
-
-doQuery();
+doQuery([]);

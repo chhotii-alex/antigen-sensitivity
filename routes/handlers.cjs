@@ -441,4 +441,72 @@ exports.datafetch = async function(req, res, next) {
     }
     return total/count;
   }
+
+async function getTagsRef(table) {
+  let query = `SELECT tag from ${table}`;
+  let { rows } = await pool.query(query);
+  return rows.map(r => r.tag.trim());
+}
+
+async function getJoins(table) {
+  comorbidityTags = await getTagsRef(table);
+  comorbidityColumns = comorbidityTags.map(c => `(${c}.tag IS NOT NULL) as "${c}"`);
+  comorbidityJoins = comorbidityTags.map(
+     c => `LEFT OUTER JOIN Comorbidity ${c} on ${c}.result_id = r.id
+          AND (${c}.tag = '${c}' ) `);
+  return {
+  	 "tags": comorbidityTags,
+  	 "columns": comorbidityColumns,
+	 "joins": comorbidityJoins};
+}
+
+exports.dataset = async function(req, res, next) {
+  let columns = ["patient_id", "specimen_id", "print_key",
+     "patient_location", "ct_value", "viral_load", "age", "sex", "ethnicity",
+     "sesbin", "vax_count", "vax_days", "pregnancy_status", "outcome",
+     "systolic", "diastolic", "o2", "heartrate", "resprate", "temperature",
+     "bmi", "smoker", "tobacco_status", "tobacco_freq", "tobacco_amount", "pack_years",
+     "immuno"];
+  let headers = [...columns];
+  columns.push("TO_CHAR(DATE_TRUNC('month', collection_when::TIMESTAMP), 'Mon YYYY') as date");
+  headers.push("date");
+  let joins = [];
+
+  for (const table of ['ComorbidityRef', 'TreatmentRef']) {
+    a = await getJoins(table);
+    tags = a["tags"]; tagColumns = a["columns"]; tagJoins = a["joins"];
+
+    columns = columns.concat(tagColumns);
+    headers = headers.concat(tags);
+    joins = joins.concat(tagJoins);
+  }
+
+  let limit = '';
+
+  let query = `SELECT ${columns.join(',\n       ')} 
+      from CovidTestResults r
+      ${joins.join('\n')}
+      where is_positive and viral_load is not null ${limit};`;
+
+   console.log(query)
+
+  let data = "";
+  for (const header of headers) {
+     data += header;
+     data += "\t";
+  }
+  data += "\r";
+  let { rows } = await pool.query(query);
+  for (const row of rows) {
+     for (const header of headers) {
+         if (row[header] != null) {
+           data += row[header];
+	 }
+	 data += "\t";
+     }
+     data += "\r";
+  }
   
+  res.attachment("viralloads.csv");
+  res.status(200).send(data);
+}

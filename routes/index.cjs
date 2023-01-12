@@ -26,4 +26,6 @@ router.get('/api/assays', handlers.assays)
 
 router.get('/api/data/viralloads', handlers.datafetch);
 
+router.get('/dataset', handlers.dataset);
+
 module.exports = router;

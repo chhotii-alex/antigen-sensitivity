@@ -7,7 +7,11 @@
 import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
 //import * as d3 from "https://cdn.skypack.dev/d3@7.6";
 
-  let checkboxes = {};
+/*  The comorbidityCategories lookup will have an entry for every item in the drop-down in the
+    "Comorbidities" category. Some of these have subdivisions, and thus have checkboxes,
+    and some don't. 
+*/
+let comorbidityCategories = {};
 
   function loadVariableOptions(data) {
     let prevCat = null;
@@ -18,9 +22,9 @@ import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/
         let id = item.id;
         let label = item.displayName;
         let category = item.category;
-        if (category && category != prevCat) {
+        if (category && (category != prevCat)) {
             let group = document.createElement("optgroup");
-            group.label=category;
+            group.label = category;
             select.add(group);
             currentLeaf = group;
             prevCat = category;
@@ -28,10 +32,10 @@ import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/
         let opt = document.createElement("option");
         opt.value = id;
         opt.text = label;
-        if (item.subdivisions) {
-	    checkboxes[id] = item.subdivisions;
-        }
         currentLeaf.appendChild(opt);
+        if (item.subdivisions) {
+	    comorbidityCategories[id] = item.subdivisions;
+        }
     }
 }
 
@@ -50,7 +54,7 @@ function loadAssayOptions(data) {
 
 function selectAction() {
     let variable = document.getElementById("variable").value;
-    displayCheckboxes(checkboxes[variable]);
+    displayCheckboxes(comorbidityCategories[variable]);
     updateQuery();
 }
 
@@ -70,11 +74,16 @@ export function updateQuery() {
     let comorbidities = null;
     if (variable == "none") {
     }
-    else if (checkboxes[variable]) {  // Will be true if variable is a comorbidity category
+    else if (comorbidityCategories[variable]) {  // Will be true if variable is a comorbidity category
 	comorbidities = [];
-	for (const c of checkboxes[variable]) {
-	    if (document.getElementById(c.tag).checked) {
-		comorbidities.push(c.tag);
+	if (comorbidityCategories[variable].length == 1) {
+	    comorbidities.push(variable);
+	}
+	else {
+	    for (const c of comorbidityCategories[variable]) {
+		if (document.getElementById(c.tag).checked) {
+		    comorbidities.push(c.tag);
+		}
 	    }
 	}
     }

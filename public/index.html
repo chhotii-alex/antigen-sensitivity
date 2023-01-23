@@ -49,7 +49,7 @@
   <hr/>
 </body>
 <script type="module">
-  import { updateQuery, setInfectivityThreshold } from './javascripts/histo.js';
+  import { setInfectivityThreshold, presentData } from './javascripts/histo.js';
 
   function updateThreshold(event) {
     let newValue = event.target.value;
@@ -59,7 +59,7 @@
   setInfectivityThreshold(document.getElementById("infectivityThreshold").value);
 
   function updateScaleOption(event) {
-      updateQuery();
+      presentData();
   }
   document.getElementById("scale_absolute").onchange = updateScaleOption;
   document.getElementById("scale_shared").onchange = updateScaleOption;

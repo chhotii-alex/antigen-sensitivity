@@ -90,10 +90,7 @@ export function updateQuery() {
     else {
 	variables.push(variable);
     }
-    let y_scale = Array.from(document.getElementsByName("y_scale")).find(radio =>
-	radio.checked).value;
-	
-    doQuery(variables, comorbidities, assay, minDate, maxDate, y_scale);
+    doQuery(variables, comorbidities, assay, minDate, maxDate);
   }
 
   function minDateAvail() {
@@ -126,8 +123,7 @@ export function updateQuery() {
         .then(data => loadAssayOptions(data));
 
 
-export function doQuery(variables, comorbidities=null, assay=null, minDate=null, maxDate=null,
-			y_scale=null) {
+export function doQuery(variables, comorbidities=null, assay=null, minDate=null, maxDate=null) {
     if (assay == "none") {
         assay = null;
     }
@@ -156,9 +152,6 @@ export function doQuery(variables, comorbidities=null, assay=null, minDate=null,
     if (maxDate) {
         url += `maxDate=${maxDate}&`
     }
-    if (y_scale) {
-	url += `${y_scale}&`;
-    }
     fetch(url)
         .then(response => response.json())
         .then(data => loadData(data));
@@ -179,10 +172,12 @@ function loadData(data) {
     presentData();
 }
 
-function presentData() {
+export function presentData() {
     applyInfectivityThreshold(gData, gInfectivityThreshold);
     let box = d3.select("#displaybox");
-    displayData(gData, box);
+    if (gData) {
+	displayData(gData, box);
+    }
 }
 
 function applyInfectivityThreshold(data, infectivityThreshold) {
@@ -280,10 +275,15 @@ function prepareInfectivityRegions(d) {
 }
 
 function displayData(info, box) { 
+    let y_scale = Array.from(document.getElementsByName("y_scale")).find(radio =>
+	radio.checked).value;
+    let yScalesIndependent = true;
+    if (y_scale == 'scale_shared') {
+	yScalesIndependent = false;
+    }
+    
     let firstData = info[0].data;
 
-    let yScalesIndependent = info[0].scaleIndependent;
-    
     // We are very much assuming that all histograms will have the same x axis.
     const xValues = firstData.map( (d) => d['viralLoadLog']);
     const xScale = linearScale(xValues, width);

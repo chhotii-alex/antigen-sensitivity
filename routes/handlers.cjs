@@ -146,10 +146,6 @@ exports.datafetch = async function(req, res, next) {
             baseQuery += `AND collection_when <= '${maxDate}' `;
         }
     }
-    let scaleIndependent = true;
-    if ('scale_shared' in req.query) {
-       scaleIndependent = false;
-    }
     let queries = {};
     queries["All Patients"] = {"base":baseQuery, "joins":joins, "where":whereClause}
     if ('comorbid' in req.query) {
@@ -388,7 +384,6 @@ exports.datafetch = async function(req, res, next) {
       // Use geometric mean, not straight-up mean:
       let mean_val = Math.pow(10, mean(rows))
       let pop = {
-	      "scaleIndependent" : scaleIndependent,
               "label" : label,
               "colors": colors.getColorSchema(index++),
 	      "mean" : mean_val};

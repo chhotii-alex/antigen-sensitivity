@@ -40,8 +40,6 @@
       <label for="scale_absolute">Counts&mdash;Independent</label>
       <input type="radio" id="scale_shared" name="y_scale" value="scale_shared">
       <label for="scale_shared">Counts&mdash;Shared</label>
-      <input type="radio" id="scale_percent" name="y_scale" value="scale_percent">
-      <label for="scale_percent">Percentage</label>      
     </div>
     <div class="indent">
       <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
@@ -65,7 +63,6 @@
   }
   document.getElementById("scale_absolute").onchange = updateScaleOption;
   document.getElementById("scale_shared").onchange = updateScaleOption;
-  document.getElementById("scale_percent").onchange = updateScaleOption;
 
 </script>
 </html>

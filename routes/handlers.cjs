@@ -146,10 +146,6 @@ exports.datafetch = async function(req, res, next) {
             baseQuery += `AND collection_when <= '${maxDate}' `;
         }
     }
-    let absoluteCounts = true;
-    if ('scale_percent' in req.query) {
-       absoluteCounts = false;
-    }
     let scaleIndependent = true;
     if ('scale_shared' in req.query) {
        scaleIndependent = false;
@@ -392,17 +388,12 @@ exports.datafetch = async function(req, res, next) {
       // Use geometric mean, not straight-up mean:
       let mean_val = Math.pow(10, mean(rows))
       let pop = {
-              "absoluteCounts" : absoluteCounts,
 	      "scaleIndependent" : scaleIndependent,
               "label" : label,
               "colors": colors.getColorSchema(index++),
 	      "mean" : mean_val};
-      let denom = 1;
-      if (!absoluteCounts) {
-        denom = d3.sum(bins, r => r.length);
-      }
       pop["data"] = bins.map(r => {
-         	     return {"viralLoadLog" : r.x0, "count" : (r.length/denom) };
+         	     return {"viralLoadLog" : r.x0, "count" : r.length };
          });
       phonyData.push(pop);
     }

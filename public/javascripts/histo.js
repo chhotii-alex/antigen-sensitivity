@@ -282,7 +282,6 @@ function prepareInfectivityRegions(d) {
 function displayData(info, box) { 
     let firstData = info[0].data;
 
-    let absoluteCounts = info[0].absoluteCounts;
     let yScalesIndependent = info[0].scaleIndependent;
     
     // We are very much assuming that all histograms will have the same x axis.
@@ -395,9 +394,6 @@ function displayData(info, box) {
         .text(d => d);        
 
     let yTickFormat = "d";
-    if (!absoluteCounts) {
-	yTickFormat = "p";
-    }
     //Adds in the Y axis
     group.selectAll("g.yaxis").data(d => [d]).join("g")
         .classed("yaxis", true)
@@ -405,7 +401,6 @@ function displayData(info, box) {
             d3.select(this).call( d3.axisLeft(d.yScale).ticks(3, yTickFormat) )
         });
 
-    if (absoluteCounts) {
         // Y axis label:
       group.selectAll("text.ylabel").data(d => [d]).join("text")
         .classed("ylabel", true)
@@ -414,7 +409,6 @@ function displayData(info, box) {
         .attr("y", -margin.left/2)
         .attr("x", -height/2)
             .text(d => `${getTotal(d.data, Object.keys(d.catagories))} total patients`) ;
-    }
           
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See

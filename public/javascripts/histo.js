@@ -13,30 +13,74 @@ import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/
 */
 let comorbidityCategories = {};
 
-  function loadVariableOptions(data) {
-    let prevCat = null;
+function createCheckbox(id, displayName, parentNode, labelClass) {
+    let checky = document.createElement("input");
+    checky.setAttribute("type", "checkbox");
+    checky.setAttribute("id", id);
+    checky.setAttribute("value", id);
+    checky.setAttribute("name", id);
+    let label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.setAttribute("class", labelClass);
+    parentNode.appendChild(checky);
+    parentNode.appendChild(label);
+    label.appendChild(new Text(displayName));
+    parentNode.appendChild(document.createElement("br"));
+    return checky;
+}
+
+let variables = {};
+let variableValues = {};
+
+function loadVariableOptions(data) {
     let options = data.items;
-  let select = document.getElementById("variable");
-  let currentLeaf = select;
+    let div = document.getElementById("select_var_checks");
     for (let item of options) {
-        let id = item.id;
-        let label = item.displayName;
-        let category = item.category;
-        if (category && (category != prevCat)) {
-            let group = document.createElement("optgroup");
-            group.label = category;
-            select.add(group);
-            currentLeaf = group;
-            prevCat = category;
-         }
-        let opt = document.createElement("option");
-        opt.value = id;
-        opt.text = label;
-        currentLeaf.appendChild(opt);
-        if (item.subdivisions) {
-	    comorbidityCategories[id] = item.subdivisions;
-        }
+	variables[item.id] = [];
+	let checky = createCheckbox(item.id, item.displayName, div, "variablename");
+	checky.addEventListener('click', updateVariables);
+	let splits = item.splits;
+	for (let subItem of splits) {
+	    variables[item.id].push(subItem.value);
+	    variableValues[subItem.value] = item.id;
+	    checky = createCheckbox(subItem.value, subItem.valueDisplayName, div, "valuename");
+	    checky.addEventListener('click', updateVariables);
+	}
     }
+}
+
+function updateVariables(e) {
+    let variable = e.target.value;
+    let state = e.target.checked;
+    if (variables[variable]) {
+	// this is a variable (for example, sex)
+	for (let value of variables[variable]) {
+	    document.getElementById(value).checked = state;
+	}
+    }
+    else {
+	let value = e.target.value;
+	let variable = variableValues[value];
+	// this is a value for a variable (for example, male)
+	if (state) {
+	    document.getElementById(variable).checked = true;
+	}
+	else {
+	// If we turn off the last checkbox for a variable, uncheck the variable
+	    // Look up the variable for which this is a value
+	    let anyOn = false;
+	    for (let anyValue of variables[variable]) {
+		if (document.getElementById(anyValue).checked) {
+		    anyOn = true;
+		    break
+		}
+	    }
+	    if (!anyOn) {
+		document.getElementById(variable).checked = false;
+	    }
+	}
+    }
+    updateQuery();
 }
 
 function loadAssayOptions(data) {
@@ -52,15 +96,8 @@ function loadAssayOptions(data) {
     }
 }
 
-function selectAction() {
-    let variable = document.getElementById("variable").value;
-    displayCheckboxes(comorbidityCategories[variable]);
-    updateQuery();
-}
-
 /* Called directly when a checkbox is clicked */
 export function updateQuery() {
-    let variable = document.getElementById("variable").value;
     let assay = document.getElementById("antigenTest").value;
     let minDate = null;
     let maxDate = null;
@@ -70,27 +107,7 @@ export function updateQuery() {
     if (maxDateAvail()) {
       maxDate = document.getElementById("maxDate").value;
     }
-    let variables = [];
-    let comorbidities = null;
-    if (variable == "none") {
-    }
-    else if (comorbidityCategories[variable]) {  // Will be true if variable is a comorbidity category
-	comorbidities = [];
-	if (comorbidityCategories[variable].length == 1) {
-	    comorbidities.push(variable);
-	}
-	else {
-	    for (const c of comorbidityCategories[variable]) {
-		if (document.getElementById(c.tag).checked) {
-		    comorbidities.push(c.tag);
-		}
-	    }
-	}
-    }
-    else {
-	variables.push(variable);
-    }
-    doQuery(variables, comorbidities, assay, minDate, maxDate);
+    doQuery(assay, minDate, maxDate);
   }
 
   function minDateAvail() {
@@ -101,13 +118,12 @@ export function updateQuery() {
     return document.getElementById("maxDate") != null;
   }
 
-  document.getElementById("variable").onchange = selectAction;
-  document.getElementById("antigenTest").onchange = selectAction;
+  document.getElementById("antigenTest").onchange = updateQuery;
   if (minDateAvail()) {
-    document.getElementById("minDate").onchange = selectAction;
+    document.getElementById("minDate").onchange = updateQuery;
   }
   if (maxDateAvail()) {
-    document.getElementById("maxDate").onchange = selectAction;
+    document.getElementById("maxDate").onchange = updateQuery;
   }
 
   let url;
@@ -123,26 +139,20 @@ export function updateQuery() {
         .then(data => loadAssayOptions(data));
 
 
-export function doQuery(variables, comorbidities=null, assay=null, minDate=null, maxDate=null) {
+export function doQuery(assay=null, minDate=null, maxDate=null) {
     if (assay == "none") {
         assay = null;
     }
     let url = 'api/data/viralloads?';
-    if (variables) {
-	for (const variable of variables) {
-            url += `vars=${variable}&`;
-	}
-    }
-    if (comorbidities != null) {
-	if (comorbidities.length > 0) {
-            for (const comorbid of comorbidities) {
-	        url += `comorbid=${comorbid}&`
+
+    for (let variable in variables) {
+	for (let value of variables[variable]) {
+	    if (document.getElementById(value).checked) {
+		url += `${variable}[]=${value}&`;
 	    }
 	}
-	else {
-	    url += "comorbid=nothing";
-	}
     }
+    
     if (assay) {
         url += `assay=${assay}&`;
     }
@@ -500,4 +510,4 @@ export function displayCheckboxes(subdivisions) {
         .attr("for", d => d.tag);
 }
 
-doQuery([]);
+doQuery();

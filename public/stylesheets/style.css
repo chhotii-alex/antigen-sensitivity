@@ -5,6 +5,38 @@ body {
 
 h1 {
   text-align: center;
+  font-weight: 900;
+}
+h3 {
+    text-align: center;
+}
+
+.intro {
+    margin-right: 150px;
+    margin-left: 150px;
+}
+
+.webapp {
+    display: grid;
+    grid-template-columns: 1fr 2fr;  /* TODO: adjust widths */
+    grid-template-areas:
+	"settings output";
+    /* TODO: margin?
+    margin-right: 150px;
+    margin-left: 150px;     */
+}
+
+/*  Assign the class settings to the grid area settings. etc. */
+.settings {
+  grid-area: settings;
+}
+.output {
+  grid-area: output;
+}
+
+
+fieldset {
+    border: none;
 }
 
 select {
@@ -12,14 +44,21 @@ select {
 }
 
 .selects_form {
-    display: grid;
-    row-gap: 6px;
-    grid-template-columns: 30em 30em 1fr;
-    grid-template-areas:
-      "select_var select_antigen nothing";
-    margin: auto;
-    max-width: 800px;   /* I have this matching div.top */
+    /* Silly style for now, just until layout pinned down */
+  border-style: dashed;
+  border-color: green;
+}
 
+legend {
+    font-weight: bold;
+}
+
+.variablename {
+    font-weight: bold;
+}
+
+.valuename {
+    margin-left: 1em;
 }
 
 #moresettings {
@@ -52,7 +91,9 @@ select {
 }
 
 #displaybox {
-  padding-left: 3em;
+    /* Silly style for now, just until layout pinned down */
+  border-style: dotted;
+  border-color: blue;
 }
 
 div.top {

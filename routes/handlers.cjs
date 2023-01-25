@@ -97,37 +97,63 @@ async function getTreatments() {
   return treatments;
 }
 
+let splits = new Map();
+
+class PatientSplit {
+   constructor(variable, variableDisplayName){
+      this.variable = variable;
+      this.variableDisplayName = variableDisplayName;
+      this.splits = [];
+   };
+   addSplit(splitSpecifier) {
+      this.splits.push(splitSpecifier);
+   };
+}
+
+class PatientSplitSpecifier {
+   constructor(row) {
+      let variable = row.variable;
+      let split = splits.get(variable);
+      if (!split) {
+         let variableDisplayName = row.variabledisplayname;
+         split = new PatientSplit(variable, variableDisplayName);
+	 splits.set(variable, split);
+      }
+      split.addSplit(this);
+      this.value = row.value;
+      this.valueDisplayName = row.valuedisplayname;
+      this.noun = row.noun;
+      this.modifier = row.modifier;
+      this.adjective = row.adjective;
+      this.whereClause = row.whereclause;
+   };
+}
+
+let cachedVars = null;
+
 exports.vars = async function(req, res, next) {
-    let items = [
-        { id: 'sex', displayName: "Sex"},
-	{ id: 'age', displayName: "Age"},
-	{ id: 'eth', displayName: "Race/Ethnicity"},
-	{ id: 'ses', displayName: "Socio-economic Status"},
-        { id: 'loc', displayName: "Patient Location"},
-	{ id: 'vax', displayName: "Vaccination Status"},
-	{ id: 'var', displayName: "Presumed Variant"},
-	{ id: 'vitals', displayName: "Vital Signs Presentation"},
-	{ id: 'outcome', displayName: "Outcome"},
-	{ id: 'preg', displayName: "Pregnancy Status"},
-	{ id: 'bmi', displayName: "Body Mass Index"},
-	{ id: 'smoke', displayName: "Smoking Status"},
-	{ id: 'immuno', displayName: "Immunosuppressed"},
-      ];
-
-    const comorbid = await getComorbidities();
-    for (const grouping of comorbid) {
-        items.push( { "id":grouping.subdivisions[0].tag, "displayName":grouping.name,
-	    "category":"Comorbidities",
-	    "subdivisions":grouping.subdivisions} );
+    if (!cachedVars) {
+       query = `SELECT variable, variableDisplayName,
+          value, valueDisplayName, noun, adjective, modifier, whereClause
+            FROM UIVars ORDER BY sort`;
+       let {rows} = await pool.query(query);
+       for (const row of rows) {
+           new PatientSplitSpecifier(row);
+       }
+       let items = [];
+       splits.forEach( (split, variable, map) => {
+          let divisions = [];
+          for (const spec of split.splits) {
+	     divisions.push({"value":spec.value, "valueDisplayName":spec.valueDisplayName});
+	  }
+	  items.push({id : split.variable,
+	        displayName : split.variableDisplayName,
+		splits:divisions});
+       });
+       cachedVars = items;
     }
-
-    const treat = await getTreatments();
-    for (const t of treat) {
-        items.push( { "id":t.tag, "displayName":t.name, "category":"Treatments"} );
-    }
-
     let retval = {
-      items: items, 
+      items: cachedVars, 
       version: 0,
     };
     res.json(retval);
@@ -135,10 +161,6 @@ exports.vars = async function(req, res, next) {
 
 class PatientSetDescription {
     constructor(baseObj = null, noun = null, adjective = null, modifier = null) {
-       console.log("Base:", baseObj, (typeof baseObj));
-       if (baseObj) {
-              console.log(baseObj.adjectives);
-       }
        if (baseObj) {
              this.noun = baseObj.noun;
 	     this.adjectives = baseObj.getAdjectives().slice();
@@ -158,7 +180,6 @@ class PatientSetDescription {
       if (modifier) {
           this.addModifier(modifier);
       }
-      console.log("Adjectives: ", this.adjectives, this.getAdjectives());
     };
     toString() {
         let adj = stringJoin(" ", this.adjectives);
@@ -215,12 +236,10 @@ function makeNewQueries(queries, updaterList) {
     for (let label of queries.getLabels()) {
         queryParts = queries.queries[label];
 	oldSet = queries.descriptions[label];
-	for (let updaters of updaterList) {
-	    descriptionUpdater = updaters[0];
-	    queryUpdater = updaters[1];
-	    let newSet = new PatientSetDescription(oldSet, descriptionUpdater.noun,
-	             descriptionUpdater.adjective, descriptionUpdater.modifier);
-            let newQueryParts = queryUpdater(queryParts);
+	for (let updater of updaterList) {
+	    let newSet = new PatientSetDescription(oldSet, updater.noun,
+	        updater.adjective, updater.modifier);
+            let newQueryParts = andWhere(queryParts, updater.whereClause);
 	    newQueries.addQuery(newSet, newQueryParts);
 	}
     }
@@ -254,6 +273,14 @@ exports.datafetch = async function(req, res, next) {
 
     queries.addQuery(new PatientSetDescription(),
           {"base":baseQuery, "joins":joins, "where":whereClause});
+    for (const variable in req.query) {
+       if (splits.get(variable)) {
+          let values = req.query[variable];
+           let groupsToFetch = splits.get(variable).splits.filter(
+	      spec => values.indexOf(spec.value) >= 0 );
+           queries = makeNewQueries(queries, groupsToFetch);
+       }
+    }
     if ('comorbid' in req.query) {
          if ((typeof req.query.comorbid) == 'string') {
 	    if (req.query.comorbid == "nothing") {
@@ -301,8 +328,8 @@ exports.datafetch = async function(req, res, next) {
 	 }
 	 queries = newQueries;
     }
-    if ('vars' in req.query) {
-      if (req.query.vars in treatmentLookup) {
+    if (false) { 
+      if (treatmentLookup && req.query.vars in treatmentLookup) {
          tag = req.query.vars;
 	 descr = `treated with ${treatmentLookup[tag]}`;
           let newQueries = new QuerySet();
@@ -321,204 +348,6 @@ exports.datafetch = async function(req, res, next) {
 	  }
           queries = newQueries;
         }
-      // TODO: arch whereby we do not keep search if tag found above
-      if (req.query.vars == "sex") {
-        queries = makeNewQueries(queries, [
-	       [{"noun":"females"}, q => andWhere(q, "sex = 'F'")],
-	       [{"noun":"males"}, q => andWhere(q, "sex = 'M'")],
-	    ]);
-      }      
-      else if (req.query.vars == "loc") {
-        queries = makeNewQueries(queries, [
-	       [{"modifier":"in inpatient settings"},
-	             q => andWhere(q, ` patient_location = 'INPATIENT' `)],
-	       [{"modifier":"in outpatients settings"},
-	            q => andWhere(q, ` patient_location = 'OUTPATIENT' `)],
-	       [{"modifier":"in the Emergency Department"},
-	           q => andWhere(q, ` patient_location = 'EMERGENCY UNIT' `)],
-	       [{"modifier": "at other instituions"},
-	           q => andWhere(queryParts, ` patient_location = 'INSTITUTIONAL' `)],
-	     ]);
-      }
-      else if (req.query.vars == "bmi") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-	   oldSet = queries.descriptions[query];
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Underweight"),
-	     andWhere(queryParts, ` bmi < 18.5 AND age > 17`));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Healthy Weight"),
-	      andWhere(queryParts, ` bmi >= 18.5 AND bmi < 25 AND age > 17`));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Overweight"),
-	        andWhere(queryParts, ` bmi >= 25 AND bmi < 30 AND age > 17`));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Obese"),
-	      andWhere(queryParts, `bmi >= 30 AND age > 17`));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "immuno") {
-        let newQueries = new QuerySet();
-	for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];
-	   oldSet = queries.descriptions[query];
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Immunosuppressed"),
-	      andWhere(queryParts, ` immuno `));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Immunocompetent"),
-	      andWhere(queryParts, ` NOT immuno `));
-	}
-	queries = newQueries;
-      }
-      else if (req.query.vars == "smoke") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-	   oldSet = queries.descriptions[query];
-	  newQueries.addQuery(new PatientSetDescription(oldSet, "Current Smokers"),
-	     andWhere(queryParts, ` tobacco_status = 'current' `));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, "Former Smokers"),
-	        andWhere(queryParts, ` tobacco_status = 'former' `));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, null, "who never smoked"),
-	    andWhere(queryParts, ` tobacco_status = 'never' `));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "vitals") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-	   oldSet = queries.descriptions[query];
-	  let sick = ` ( systolic < 90 OR
-	      diastolic < 60 OR
-	      heartrate > 100 OR
-	      resprate > 18 OR
-	      temperature > 99.1 OR
-	      o2 < 95 )
-	  `;
-	  let well = ` (systolic >= 90 OR systolic IS NULL) AND
-	      (diastolic >= 60 OR diastolic IS NULL) AND
-	      (heartrate <= 100 OR heartrate IS NULL) AND
-	      (resprate <= 18 OR resprate IS NULL) AND
-	      (temperature <= 99.1 OR temperature IS NULL) AND
-	      (o2 >= 95 OR o2 IS NULL) AND
-	      COALESCE(systolic, diastolic, heartrate, resprate, temperature, o2) IS NOT NULL
-	  `
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Sick Appearing"),
-	     andWhere(queryParts, sick));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Well Appearing"),
-	     andWhere(queryParts, well));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "age") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];
-	  oldSet = queries.descriptions[query];
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "young (<30 y.o.)"),
-	  			  andWhere(queryParts, ` age < 30 `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "30 - 59 y.o."),
-	      andWhere(queryParts, `age >= 30 AND age < 60 `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "old (60+ y.o.)"),
-	     andWhere(queryParts, ` age >= 60 `));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "ses") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];
-	  oldSet = queries.descriptions[query];
-	  let sesbins = { 1 : "< $52,000",
-	                 2 : "$52,000 to $78,000",
-			 3 : "$78,000 to $104,000",
-			 4 : "$104,000 to $130,000",
-			 5 : "> $130,000",
-			};
-	  for (let b in sesbins) {
-	      let qKey = `from ZCTAs with Median Household Income ${sesbins[b]}`;
-	      newQueries.addQuery(new PatientSetDescription(oldSet, null, null, qKey),
-	          andWhere(queryParts, ` sesbin = ${b} `));
-	  }
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "vax") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-	  oldSet = queries.descriptions[query];
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Vaccinated"),
-	     andWhere(queryParts, ` vax_count > 0 `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Unvaccinated"),
-	     andWhere(queryParts, ` vax_count = 0 `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, null,
-	      "having unknown vaccination status"),
-	      andWhere(queryParts, ` vax_count is null `));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "var") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-	  oldSet = queries.descriptions[query];
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Omicron era"),
-	      andWhere(queryParts, ` collection_when > '2022-01-03' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Delta era"),
-	    andWhere(queryParts, `collection_when > '2021-07-07' AND collection_when < '2021-12-06' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Early Variant era"),
-	     andWhere(queryParts, ` collection_when < '2021-06-07' `));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "eth") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];
-	  oldSet = queries.descriptions[query];
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "White"),
-	      andWhere(queryParts, ` ethnicity = 'WH' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Black"),
-	  			  andWhere(queryParts, ` ethnicity = 'BL' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Asian/Pacific"),
-	     andWhere(queryParts, ` ethnicity = 'AS' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Hispanic"),
-	        andWhere(queryParts, `ethnicity = 'HS' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Native American"),
-	       andWhere(queryParts, ` ethnicity = 'NA' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Unknown/Other"),
-	           andWhere(queryParts, ` ethnicity is NULL `));
-	}
-        queries = newQueries;
-      }
-      else if (req.query.vars == "preg") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-	  oldSet = queries.descriptions[query];
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Pregnant"),
-	      andWhere(queryParts, ` pregnancy_status = 'Y' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, "Puerperium"),
-	       andWhere(queryParts, ` pregnancy_status = 'P' `));
-	  newQueries.addQuery(new PatientSetDescription(oldSet, null, "Non-pregnant"),
-	     andWhere(queryParts, ` pregnancy_status = '-' `));
-        }
-        queries = newQueries;
-      }
-      else if (req.query.vars == "outcome") {
-        let newQueries = new QuerySet();
-        for (let query of queries.getLabels()) {
-	  queryParts = queries.queries[query];	
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, null, "who died of COVID"),
-	     andWhere(queryParts, ` outcome = 'D' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, null, "who died, COVID contributing"),
-	        andWhere(queryParts, ` outcome = 'C' `));
-          newQueries.addQuery(new PatientSetDescription(oldSet, null, null, "who survived"),
-	      andWhere(queryParts, ` outcome IS NULL `));
-        }
-        queries = newQueries;
-      }
-
     }
     let phonyData = [];
     let index = 0;
@@ -527,7 +356,8 @@ exports.datafetch = async function(req, res, next) {
       baseQuery = queryParts["base"];
       joins = queryParts["joins"];
       whereClause = queryParts["where"];
-      query = ` ${baseQuery} ${joins} ${whereClause} `;
+      query = `${baseQuery} ${joins} ${whereClause}`;
+      query = query.trim(); 
       console.log(query);
       let { rows } = await pool.query(query);
       let bins = bin(rows);

@@ -7,31 +7,39 @@
 </head>
 
 <body>
-  <a href="dataset" download> Download De-identified Dataset </a>
-  <h1>Predicted Test Performance on Population Segments</h1>
-  <form>
-    <div class="selects_form">
-      <fieldset class="select_var">
-        <legend class="select_label select_label_var" >Select variable:</legend>
-        <select class="select_var" name="variable" id="variable" onchange="selectAction()">
-          <option value="none" selected>-- no variable selected --</option>
-        </select>
-        <div id="checkboxes"></div>
-      </fieldset>
-      <fieldset class="select_antigen">
-        <legend class="select_label select_label_antigen" >Select test:</legend>
-        <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
-          <option value="none" selected>-- no test selected --</option>
-        </select>
-      </fieldset>
+  <h1>SARS-CoV-2 Viral Loads and Test Performance by Group</h1>
+  <h3>How viral loads vary across groups and predict antigen-test sensitivity</h3>
+  <p class="intro" >
+    COVID-19 test results are usually reported simply as "positive" or "negative". However,
+    the amount of virus a person sheds&mdash;the viral load&mdash;can very. We estimated viral
+    load for every patient who had a positive PCR test at our hospital from 2020-2023 so you can
+    see how viral loads vary&mdash;or don't&mdash;across age, sex, and so on.
+  </p>
+  <div class="webapp" >
+    <form class="settings">
+      <div class="selects_form">
+        <fieldset class="select_antigen">
+          <legend class="select_label select_label_antigen" >Test</legend>
+          <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
+            <option value="none" selected>-- no test selected --</option>
+          </select>
+        </fieldset>
+	<fieldset>
+	  <legend>Limit of Detection (LOD)</legend>
+	  <input type="range" min="0" max="12" value="5" class="slider" id="lod_slider">
+	</fieldset>
+        <fieldset class="select_var">
+          <legend class="select_label select_label_var" >Group</legend>
+	  <div id="select_var_checks">
+	  </div>
+        </fieldset>
+      </div>
+    </form>
+    <div class="output">
+      <div id="displaybox"></div>
+      <a href="dataset" download> Download De-identified Dataset </a>
     </div>
-    <!-- 
-    <label for="minDate">From date:</label>
-    <input type="date" id="minDate" name="minDate" />
-    <label for="maxDate">to date:</label>
-    <input type="date" id="maxDate" name="maxDate" /> -->
-  </form>
-  <div id="displaybox"></div>
+  </div>
   <details id="moresettings">
     <summary>Show More Settings</summary>
     <div class="indent">

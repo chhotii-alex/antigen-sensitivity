@@ -18,7 +18,7 @@ h3 {
 
 .webapp {
     display: grid;
-    grid-template-columns: 1fr 2fr;  /* TODO: adjust widths */
+    grid-template-columns: fit-content(300px) 1fr;  /* TODO: adjust widths */
     grid-template-areas:
 	"settings output";
     /* TODO: margin?
@@ -43,12 +43,6 @@ select {
   margin: 4px;
 }
 
-.selects_form {
-    /* Silly style for now, just until layout pinned down */
-  border-style: dashed;
-  border-color: green;
-}
-
 legend {
     font-weight: bold;
 }
@@ -59,6 +53,33 @@ legend {
 
 .valuename {
     margin-left: 1em;
+}
+
+.conclusiontext {
+    font-weight: bold;
+    text-align: center;
+}
+
+.pvalue {
+    color: grey;
+    font-weight: normal;
+}
+
+.savebuttons {
+    display: grid;
+    grid-template-columns: 1fr fit-content(300px) fit-content(300px);
+    grid-template-areas:
+	"none download download";
+}
+
+.download {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    margin: 4px 6px;
+    background-color: #0099ff;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
 }
 
 #moresettings {
@@ -88,12 +109,6 @@ legend {
 
 .select_antigen {
   grid-area: select_antigen;
-}
-
-#displaybox {
-    /* Silly style for now, just until layout pinned down */
-  border-style: dotted;
-  border-color: blue;
 }
 
 .drawlabel {

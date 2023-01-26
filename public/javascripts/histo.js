@@ -7,6 +7,18 @@
 import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
 //import * as d3 from "https://cdn.skypack.dev/d3@7.6";
 
+function expo(x) {
+  return Number.parseFloat(x).toExponential(1);
+}
+
+function formatPValue(p) {
+    let s = expo(p);
+    const r = /(\d\.\d)e([+-]\d+)/
+    const match = s.match(r);
+    if (!match) return "";
+    return `<em>p</em>=${match[1]}x10<sup>${match[2]}</sup>`;
+}
+
 /*  The comorbidityCategories lookup will have an entry for every item in the drop-down in the
     "Comorbidities" category. Some of these have subdivisions, and thus have checkboxes,
     and some don't. 
@@ -187,7 +199,26 @@ export function presentData() {
     if (gData) {
 	displayData(gData, d3.select("#displaybox"));
 	displayComparisons(gData, d3.select("#comparisons"));
+	displayCommentary(gData);
     }
+}
+
+function displayCommentary(items) {
+    let text = "Data is from ";
+    for (let i = 0; i < items.length; ++i) {
+	let item = items[i];
+	if (i > 0) {
+	    if (items.length > 2) {
+		text += ', ';
+	    }
+	    if ((i+1) == items.length) {
+		text += " and ";
+	    }
+	}
+	text += `${item.count} ${item.label.trim()}`;
+    }
+    text += " from the Beth Israel Deaconess Medical Center.";
+    document.getElementById("commentary").innerHTML = text;
 }
 
 function applyInfectivityThreshold(data, infectivityThreshold) {
@@ -224,10 +255,6 @@ function getTotal(data, categories) {
 }
 
 const margin = {top: 10, right: 30, bottom: 40, left: 80};
-const boxWidth = 530;
-const boxHeight = 250;
-const width = boxWidth - margin.left - margin.right;
-const height = boxHeight - margin.top - margin.bottom;
 
 function linearScale(values, width) {
     let extent = d3.extent(values);
@@ -267,8 +294,8 @@ function componseAnnotationOnMean(d) {
 
 function prepareInfectivityRegions(d) {
     let result = [
-        {"title" : "Non-infectious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
-        {"title" : "Infectious", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
+        {"title" : "Non-contagious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
+        {"title" : "Contagious", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
     ];
     return result;
 }
@@ -321,20 +348,19 @@ function displayComparisons(info, box) {
         .classed("group2noun", true)
         .text(d =>  d.label2)
         .style('color', (d) => d.color2);
-    conclusiontext.selectAll("span.p_prefix")
-        .data(d => [d])
-        .join("span")
-        .classed("p_prefix", true)
-        .text(d => " p = ");
     conclusiontext.selectAll("span.pvalue")
         .data(d => [d])
         .join("span")
         .classed("pvalue", true)
-        .text(d =>  d.pvalue);
+        .html(d =>  formatPValue(d.pvalue));
 }
 
 function displayData(info, box) {
-    console.log(info);
+    let elem = document.getElementById("displaybox");
+    let rect = elem.getBoundingClientRect();
+    let width = rect.width - (margin.left + margin.right);
+    let height = rect.height - (margin.top + margin.bottom);
+    console.log(width, height);
     let y_scale = Array.from(document.getElementsByName("y_scale")).find(radio =>
 	radio.checked).value;
     let yScalesIndependent = true;
@@ -415,7 +441,7 @@ function displayData(info, box) {
         .classed("x-axis", true)
         .attr("transform", `translate(0, ${height})`);
     d3.axisBottom(xScale)
-        .tickValues([0, 4, 8, 12])
+        .tickValues([0, 3, 6, 9, 12])
         .tickFormat('')(xAxis);
     xAxis.selectAll(".tick").selectAll("foreignObject").data(d => [d]).join("svg:foreignObject")
             .attr("width","2em")
@@ -427,12 +453,29 @@ function displayData(info, box) {
             .html(function(n) {return `10<sup>${n}</sup>`;});
 
     // Add X axis label:
-    group.selectAll("text.xlabel").data(["Viral load (copies/mL)"]).join("text")
+    group.selectAll("text.xlabel").data(["Viral load (copies of mRNA/mL)"]).join("text")
         .classed("xlabel", true)
         .attr("text-anchor", "middle")
         .attr("x", width/2)
         .attr("y", height + margin.top + 24)
-        .text(d => d);        
+        .text(d => d);
+
+    // Y axis with no ticks
+    group.selectAll("g.yaxis").data(d => [d]).join("g")
+	.classed("yaxis", true)
+        .each(function(d, i) {
+	    d3.select(this).call(d3.axisLeft(d.yScale).ticks(0) )
+	});
+
+    group.selectAll("text.ylabel")
+	.data(d => [d])
+        .join("text")
+        .classed("ylabel", true)
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left/2)
+        .attr("x", -height/2)
+        .text(d => "Relative frequency");
 
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See

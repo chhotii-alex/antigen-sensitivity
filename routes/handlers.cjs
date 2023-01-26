@@ -376,6 +376,7 @@ exports.datafetch = async function(req, res, next) {
               "label" : label,
               "colors": colors.getColorSchema(index++),
 	      "mean" : mean_val,
+	      "count" : rawData.length,
 	      "comparisons" : []};
       pop["data"] = bins.map(r => {
          	     return {"viralLoadLog" : r.x0, "count" : r.length };

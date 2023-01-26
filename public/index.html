@@ -27,6 +27,7 @@
 	<fieldset>
 	  <legend>Limit of Detection (LOD)</legend>
 	  <input type="range" min="0" max="12" value="5" class="slider" id="lod_slider">
+	  10<sup id="lod"></sup> copies/ML
 	</fieldset>
         <fieldset class="select_var">
           <legend class="select_label select_label_var" >Group</legend>
@@ -39,10 +40,16 @@
 	<div id="comparisons">
 	</div>
 	<br/>
-	<svg id="displaybox" width="530" height="250">
+	<svg id="displaybox" width="100%" height="400" >
 	  <!-- D3 does its thing here -->
 	</svg>
-      <a href="dataset" download> Download De-identified Dataset </a>
+	<br/>
+	<div class="savebuttons">
+	  <span></span>
+	  <a href="notyet" target="_blank" class="download"> Save plot </a>
+	  <a href="dataset" download class="download"> Download De-identified Dataset </a>
+	</div>
+	<div id="commentary"></div>
     </div>
   </div>
   <details id="moresettings">
@@ -71,6 +78,17 @@
   document.getElementById("infectivityThreshold").oninput = updateThreshold;
   setInfectivityThreshold(document.getElementById("infectivityThreshold").value);
 
+  let lod_slider = document.getElementById("lod_slider");
+  lod_slider.oninput = function() {
+      let lod = this.value;
+      updateLOD(lod);
+  }
+  function updateLOD(lod) {
+      let lod_text = document.getElementById("lod");
+      lod_text.innerHTML = lod;
+  }
+  updateLOD(lod_slider.value);
+  
   function updateScaleOption(event) {
       presentData();
   }

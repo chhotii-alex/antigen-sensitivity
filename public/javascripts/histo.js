@@ -252,17 +252,6 @@ function prepareDataForStackedHistogram(info) {
     return stackedData;
 }
 
-function prepareLegend(info) {
-    let legend = [];
-    let catagories = Object.keys(info.catagories);
-    for (let cat of catagories) {
-        if (info.catagories[cat]) {
-            legend.push({"name" : info.catagories[cat], "color" : info.colors[cat]});
-        }
-    }
-    return legend;
-}
-
 let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
 
 function componseAnnotationOnMean(d) {
@@ -332,14 +321,6 @@ function displayData(info, box) {
         enter => enter.append("div")
             .classed("top", true),
     );
-    div.selectAll("span.drawlabel").data(d => [d.label])
-        .join("span")
-        .classed("drawlabel", true)
-        .text(d => d);
-    div.selectAll("span.notemean").data(d => [componseAnnotationOnMean(d)])
-        .join("span")
-        .classed("notemean", true)
-        .text(d => d);
     let svg = div.selectAll("svg.histogram").data(d => [d]).join("svg")
             .classed("histogram", true)
             .attr("width", width + margin.left + margin.right)
@@ -403,23 +384,6 @@ function displayData(info, box) {
         .attr("y", height + margin.top + 24)
         .text(d => d);        
 
-    let yTickFormat = "d";
-    //Adds in the Y axis
-    group.selectAll("g.yaxis").data(d => [d]).join("g")
-        .classed("yaxis", true)
-        .each(function(d, i) {
-            d3.select(this).call( d3.axisLeft(d.yScale).ticks(3, yTickFormat) )
-        });
-
-        // Y axis label:
-      group.selectAll("text.ylabel").data(d => [d]).join("text")
-        .classed("ylabel", true)
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left/2)
-        .attr("x", -height/2)
-            .text(d => `${getTotal(d.data, Object.keys(d.catagories))} total patients`) ;
-          
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See
         https://observablehq.com/@d3/selection-join */
@@ -429,47 +393,19 @@ function displayData(info, box) {
         .join(
             enter => enter.append('g')
                 .classed('series', true)
-                .style('fill', (d) => d.color)
-                .style('stroke', "#000000"),
-            update => update
-                .call(update => update.transition()
-                    .style('fill', (d) => d.color))
+	        .style('fill', "#ffffff00")
+	        .style('stroke-width', '2')
+                .style('stroke', (d) => d.color)
         ); 
 
     // For each series create a rect element for each viralLoadLog
-    const rectSelection = seriesGroupSelection.selectAll('rect.histbar')
-        .data((d) => d, d => d.data.viralLoadLog)
-        .join(
-            enter => enter.append("rect")
-                .classed("histbar", true)
-                .attr('width', barWidth)
-                .attr('x', d => xScale(d.data.viralLoadLog-0.5))
-                .attr('y', d =>  d[1])
-                .attr('height', d => d[0] -  d[1]),
-            update => update
-                .call(update => update.transition()
-                    .attr('y', d =>  d[1])
-                    .attr('height', d => d[0] -  d[1]))
-        );
-
-    // Create the legend (if needed).
-    // For each series, if there's a label, make an item in the legend. 
-    const legend = group.selectAll('g.legend')
-        .data((d) => prepareLegend(d))
-        .join('g')
-        .classed('legend', true)
-        .attr("transform", (d,i) => `translate(${width-120}, ${6+i*20})`);
-    legend.selectAll('circle.legend')
-            .data(d => [d])
-            .join('circle')
-            .classed('legend', true)
-            .attr("cx",10).attr("cy",-6).attr("r", 6).style("fill", d => d.color);
-    legend.selectAll('text.legend')
-        .data(d => [d])
-        .join('text')
-        .classed('legend', true)
-        .attr("x", 16)
-        .text(d => d.name);
+    const rectSelection = seriesGroupSelection.selectAll('line')
+          .data((d) => traceUpperEdge(d, xScale, barWidth))
+          .join("line")
+	  .attr('x1', d => d.x1)
+	  .attr('x2', d => d.x2)
+	  .attr('y1', d => d.y1)
+	  .attr('y2', d => d.y2);
 
     // Show calculation of "sensitivity" (according to infectivity)    
     div.selectAll("p.sensitivity").data(d => d.distributionsWithSensitivityCalc)
@@ -477,6 +413,24 @@ function displayData(info, box) {
         .classed("sensitivity", true)
         .html(d => markupForSensitivity(d));
   
+}
+
+function traceUpperEdge(data, xScale, barWidth) {
+    let lines = [];
+    let prevY = null;
+    data.forEach( bar => {
+	let x = xScale(bar.data.viralLoadLog-0.5);
+	let width = barWidth;
+	let y = bar[1];
+	// From (x, prevY) to (x, y)
+	if (prevY != null) {
+	    lines.push({"x1":x, "x2":x, "y1":prevY, "y2":y});
+	}
+	// From (x, y) to (x+width, y)
+	lines.push({"x1":x, "x2":x+width, "y1":y, "y2":y});
+	prevY = y;
+    });
+    return lines;
 }
 
 function markupForSensitivity(d) {

@@ -96,18 +96,6 @@ legend {
   border-color: blue;
 }
 
-div.top {
-  display: grid;
-  grid-template-columns: 20em 1fr 20em;
-  grid-template-areas:
-    "drawlabel notemean notemean"
-    "histogram histogram nothing"
-    "histogram histogram sensitivity";
-  padding: 1em;
-  margin: auto;
-  max-width: 800px;
-}
-
 .drawlabel {
   grid-area: drawlabel;
   font-weight: bold;

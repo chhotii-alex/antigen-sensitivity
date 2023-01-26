@@ -2,6 +2,15 @@
 const { Pool } = require('pg');
 const { credentials } = require('./config.cjs');
 
+// Doesn't work:
+//const { mannwhitneyu } = require('./mannwhitneyu.js');
+
+let mwu_promise = import('./mannwhitneyu.js');
+
+console.log(mwu_promise);
+
+//mannwhitneyu.test([0, 1], [3, 4]);
+
 const { host, port, dbname, connect_timeout, user, password } = credentials;
 const pool = new Pool({user: user,
     password: password,
@@ -246,11 +255,10 @@ function makeNewQueries(queries, updaterList) {
     return newQueries;
 }
 
-/* TODO: I think we will be saving the viral load, NOT the log10 of the
-viral load; adjust query, and do a log10 before binning the numbers. */
 exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise; // hack for importing the wrong kind of module
-    let bin = d3.bin().domain([0,13]).thresholds(24).value(d => d.viralloadlog);
+    let mwu = await mwu_promise;
+    let bin = d3.bin().domain([0,13]).thresholds(24);
     let baseQuery = `SELECT log(viral_load) viralloadlog
           FROM covidtestresults `
     let joins = ` `
@@ -349,7 +357,8 @@ exports.datafetch = async function(req, res, next) {
           queries = newQueries;
         }
     }
-    let phonyData = [];
+    let rawDataPrev = [];
+    let results = [];
     let index = 0;
     for (let label of queries.getLabels()) {
       queryParts = queries.queries[label];
@@ -360,22 +369,27 @@ exports.datafetch = async function(req, res, next) {
       query = query.trim(); 
       console.log(query);
       let { rows } = await pool.query(query);
-      let bins = bin(rows);
-      //let mean_val = calculateMeanFromLogValues(rows);
-      // Use geometric mean, not straight-up mean:
-      let mean_val = Math.pow(10, mean(rows))
+      let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
+      let bins = bin(rawData);
+      let mean_val = Math.pow(10, mean(rawData))
       let pop = {
               "label" : label,
               "colors": colors.getColorSchema(index++),
-	      "mean" : mean_val};
+	      "mean" : mean_val,
+	      "comparisons" : []};
       pop["data"] = bins.map(r => {
          	     return {"viralLoadLog" : r.x0, "count" : r.length };
          });
-      phonyData.push(pop);
+      for (const prev of rawDataPrev) {
+         pvalue = compareArrays(prev, rawData, mwu);
+	 pop.comparisons.push(pvalue);
+      }
+      results.push(pop);
+      rawDataPrev.push(rawData);
     }
    
     let assay = assays.assayForIdentifier(req.query.assay);
-    for (let pop of phonyData) {
+    for (let pop of results) {
       for (let bin of pop.data) {
         bin.positives = assay.positiveCount(bin.viralLoadLog, bin.count);
         bin.negatives = assay.negativeCount(bin.viralLoadLog, bin.count);
@@ -383,31 +397,26 @@ exports.datafetch = async function(req, res, next) {
       pop["catagories"] = assay.distinguishedCatagories();
     }
   
-    res.json(phonyData);
-  }
-
-  /* Messy that I'm hard-coding the property name, but this will be going away. */
-  function calculateMeanFromLogValues(values) {
-    let count = 0;
-    let total = 0;
-    for (let val of values) {
-      count += 1;
-      let actual = Math.pow(10, parseFloat(val["viralloadlog"]));
-      total += actual;
-    }
-    return total/count;
+    res.json(results);
   }
 
   function mean(values) {
     let count = 0;
     let total = 0;
-    for (let val of values) {
+    for (let num of values) {
       count += 1;
-      let num = parseFloat(val["viralloadlog"]);
       total += num;
     }
     return total/count;
   }
+
+function compareArrays(arr1, arr2, mwu) {
+   if (arr1.length < 1 || arr2.length < 1) {
+      return null;
+   }
+   result = mwu.test(arr1, arr2);
+   return result.p;
+}
 
 async function getTagsRef(table) {
   let query = `SELECT tag from ${table}`;

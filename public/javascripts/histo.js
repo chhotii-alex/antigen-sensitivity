@@ -184,9 +184,9 @@ function loadData(data) {
 
 export function presentData() {
     applyInfectivityThreshold(gData, gInfectivityThreshold);
-    let box = d3.select("#displaybox");
     if (gData) {
-	displayData(gData, box);
+	displayData(gData, d3.select("#displaybox"));
+	displayComparisons(gData, d3.select("#comparisons"));
     }
 }
 
@@ -273,7 +273,68 @@ function prepareInfectivityRegions(d) {
     return result;
 }
 
-function displayData(info, box) { 
+function displayComparisons(info, box) {
+    console.log("Element to put conclusions: ", box);
+    let comparisons = [];
+    for (let i = 1; i < info.length; ++i) {
+	for (let j = 0; j < i; ++j) {
+	    let d = {};
+	    d.pvalue = info[i].comparisons[j];
+	    if (d.pvalue == null) {
+		continue;
+            }
+	    d.label1 = info[i].label;
+	    d.label2 = info[j].label;
+	    d.conclusion = " is similar to ";
+	    if (d.pvalue < 0.05) {
+		d.conclusion = " differs from ";
+	    }
+	    d.color1 = info[i].colors.negatives;
+	    d.color2 = info[j].colors.negatives;
+	    comparisons.push(d);
+	}
+    }
+    console.log(comparisons);
+    let conclusiontext = box.selectAll("div.conclusiontext")
+        .data(comparisons)
+        .join("div")
+        .classed("conclusiontext", true);
+    conclusiontext.selectAll("span.vl_prefix")
+        .data(d => [d])
+        .join("span")
+        .classed("vl_prefix", true)
+        .text(d => "Viral load for ");
+    conclusiontext.selectAll("span.group1noun")
+        .data(d => [d])
+        .join("span")
+        .classed("group1noun", true)
+        .text(d =>  d.label1)
+        .style('color', (d) => d.color1);
+    conclusiontext.selectAll("span.conclusion")
+        .data(d => [d])
+        .join("span")
+        .classed("conclusion", true)
+        .text(d => d.conclusion);
+    conclusiontext.selectAll("span.group2noun")
+        .data(d => [d])
+        .join("span")
+        .classed("group2noun", true)
+        .text(d =>  d.label2)
+        .style('color', (d) => d.color2);
+    conclusiontext.selectAll("span.p_prefix")
+        .data(d => [d])
+        .join("span")
+        .classed("p_prefix", true)
+        .text(d => " p = ");
+    conclusiontext.selectAll("span.pvalue")
+        .data(d => [d])
+        .join("span")
+        .classed("pvalue", true)
+        .text(d =>  d.pvalue);
+}
+
+function displayData(info, box) {
+    console.log(info);
     let y_scale = Array.from(document.getElementsByName("y_scale")).find(radio =>
 	radio.checked).value;
     let yScalesIndependent = true;
@@ -311,26 +372,11 @@ function displayData(info, box) {
 	}
     }
       
-    /* It would make sense to use d => d.label as the key function for this data
-        binding. But, I think, if we do that, we don't get re-use of the existing
-        DOM elements, and I worry about the effects on performance in that case. Also,
-        I want whiz-bang transitions, with the old bars mutating into the new bars,'
-        for which we need to re-use the existing DOM elements?
-    */
-    let div = box.selectAll("div.top").data(info).join(
-        enter => enter.append("div")
-            .classed("top", true),
-    );
-    let svg = div.selectAll("svg.histogram").data(d => [d]).join("svg")
-            .classed("histogram", true)
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom);
-    let group = svg.selectAll("g.histgroup").data(d => [d]).join("g")
-        .classed("histgroup", true)
+   // Show regions of viral load non-ifectivity/infectivity
+    let regiongroup = box.selectAll("g.regiongroup").data([info[0]]).join("g")
+	.classed("regiongroup", true)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
-    
-    // Show regions of viral load non-ifectivity/infectivity
-    let regiong = group.selectAll("g.i_region")
+    let regiong = regiongroup.selectAll("g.i_region")
         .data(d => prepareInfectivityRegions(d))
         .join("g")
         .classed("i_region", true);
@@ -360,6 +406,10 @@ function displayData(info, box) {
         .text(d => d.title)
         .attr("x", (d) => xScale(d.min));
                              
+    let group = box.selectAll("g.histgroup").data(info).join("g")
+        .classed("histgroup", true)
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
     //Adds in the X axis with ticks
     let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
         .classed("x-axis", true)
@@ -406,13 +456,13 @@ function displayData(info, box) {
 	  .attr('x2', d => d.x2)
 	  .attr('y1', d => d.y1)
 	  .attr('y2', d => d.y2);
-
+/*
     // Show calculation of "sensitivity" (according to infectivity)    
     div.selectAll("p.sensitivity").data(d => d.distributionsWithSensitivityCalc)
         .join("p")
         .classed("sensitivity", true)
         .html(d => markupForSensitivity(d));
-  
+  */
 }
 
 function traceUpperEdge(data, xScale, barWidth) {

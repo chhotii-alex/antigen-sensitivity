@@ -372,6 +372,16 @@ function retrievePValue(info, i, j) {
     return info[i].comparisons[j];
 }
 
+function shortPValue(info, i, j) {
+    let num = retrievePValue(info, i, j);
+    if (num >= 0.01) {
+	return num.toFixed(2);
+    }
+    else {
+	return expo(num);
+    }
+}
+
 function labelAtIndex(info, i) {
     return info[i].label;
 }
@@ -403,10 +413,10 @@ function displayPyramid(info) {
     let w = pyramidElem.getBoundingClientRect().width;
     const scale = w/(totalWidth+2*topMargin);
     function x(i) {
-	return scale*(leftMargin+i*rectSize);
+	return scale*(0+totalWidth-(i+1)*rectSize);
     }
     function y(i) {
-	return scale*(topMargin+i*rectSize);
+	return scale*(topMargin+totalWidth-i*rectSize);
     }
     box.attr('transform-origin', '50% 50%');
     box.attr('transform', "rotate(-45)");
@@ -418,38 +428,38 @@ function displayPyramid(info) {
 	.data(range(1, info.length))
 	.join('text')
 	.classed('row_labels', true)
-	.text(d => labelAtIndex(info, info.length-d))
+	.text(d => labelAtIndex(info, d))
 	.attr('x', scale*(leftMargin+totalWidth+10))
-	.attr('y', d => scale*(topMargin+d*rectSize-10))
+	.attr('y', d => scale*(topMargin+(info.length-d)*rectSize-10))
 	.attr('font-size', `${10*scale}px`);
     let label2 = box.selectAll('text.col_labels')
 	.data(range(0, info.length-1))
 	.join('text')
 	.classed('col_labels', true)
 	.text(d => labelAtIndex(info, d))
-	.attr('x', scale*(topMargin-10))
-	.attr('y', d => scale*((d+1)*rectSize-(totalWidth+10+leftMargin)))
+	.attr('x', d => scale*(totalWidth-(d+0.5)*rectSize))
+	.attr('y', scale*(topMargin-10))
 	.attr("text-anchor", "end")
-	.attr("transform", "rotate(90)")
+    	.attr("transform", d => `rotate(90 ${scale*(totalWidth-(d+0.5)*rectSize)} ${scale*(topMargin-10)})`)
 	.attr('font-size', `${10*scale}px`);
     let square = row.selectAll('rect')
 	.data(d => range(0, d).map(index => [d,index]))
 	.join('rect')
-        .attr('x', d => x(d[0]-1))
-        .attr('y', d => y(d[1]))
+        .attr('x', d => x(d[1]))
+        .attr('y', d => y(d[0]))
         .attr('width', scale*rectSize)
         .attr('height', scale*rectSize)
 	.style('fill', d => colorForPValue(retrievePValue(info, d[0], d[1])));
     let pvalues = row.selectAll('text')
 	.data(d => range(0, d).map(index => [d,index]))
 	.join('text')
-        .attr('x', d => x(d[0]-0.5))
-        .attr('y', d => y(d[1]+0.5))
+        .attr('x', d => x(d[1]-0.5))
+        .attr('y', d => y(d[0]-0.5))
 	.attr("text-anchor", "middle")
-	.attr('transform', d => `rotate(45 ${x(d[0]-0.5)} ${y(d[1]+0.5)} )`)
+	.attr('transform', d => `rotate(45 ${x(d[1]-0.5)} ${y(d[0]-0.5)} )`)
 	.attr('fill', 'white')
-	.attr('font-size', `${8*scale}px`)
-	.text("P!"); 
+	.attr('font-size', `${6.8*scale}px`)
+	.text(d => `${shortPValue(info, d[0], d[1])}`); 
 }
 
 function displayTextComparisons(info) {

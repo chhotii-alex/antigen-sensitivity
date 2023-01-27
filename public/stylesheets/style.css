@@ -60,9 +60,24 @@ legend {
     text-align: center;
 }
 
+.lodisred {
+    color: red;
+}
+
 .pvalue {
     color: grey;
     font-weight: normal;
+}
+
+#pyramid_container {
+    margin-left: 22%;
+    margin-right: 22%;
+    margin-top: -11%;
+}
+
+#pyramid {
+    aspect-ratio : 1;
+    margin: auto;
 }
 
 .savebuttons {

@@ -198,9 +198,13 @@ export function presentData() {
     applyInfectivityThreshold(gData, gInfectivityThreshold);
     if (gData) {
 	displayData(gData, d3.select("#displaybox"));
-	displayComparisons(gData, d3.select("#comparisons"));
+	displayComparisons(gData);
 	displayCommentary(gData);
     }
+}
+
+function getLOD() {
+    return 5; //TODO
 }
 
 function displayCommentary(items) {
@@ -218,6 +222,9 @@ function displayCommentary(items) {
 	text += `${item.count} ${item.label.trim()}`;
     }
     text += " from the Beth Israel Deaconess Medical Center.";
+    text += " A test with an ";
+    text += `<span class="lodisred">LOD of 10<sup>${getLOD()}</sup></span> `;
+    text += " would have a sensitivity of ";
     document.getElementById("commentary").innerHTML = text;
 }
 
@@ -300,8 +307,153 @@ function prepareInfectivityRegions(d) {
     return result;
 }
 
-function displayComparisons(info, box) {
-    console.log("Element to put conclusions: ", box);
+function numberOfComparisons(info) {
+    let count = 0;
+    for (let i = 1; i < info.length; ++i) {
+	for (let j = 0; j < i; ++j) {
+	    if (info[i].comparisons[j] == null) {
+		continue;
+	    }
+	    count += 1;
+	}
+    }
+    return count;
+}
+
+function displayComparisons(info) {
+    if (numberOfComparisons(info) < 4) {
+	displayTextComparisons(info);
+	displayPyramid([]);
+    }
+    else {
+	displayTextComparisons([]);
+	displayPyramid(info);
+    }
+}
+
+function range(start, stop, step=1) {
+    let a = [];
+    if (!step) return a; // zero step means empty array, not forever
+    for (let x = start; ; x += step) {
+	if (step < 0) {
+	    if (x <= stop) {
+		break;
+	    }
+	}
+	else {
+	    if (x >= stop) {
+		break;
+	    }
+	}
+	a.push(x);
+    }
+    return a;
+}
+
+function colorForPValue(p) {
+    let r = 90;
+    let g = 90;
+    let b = 90;
+    p = -Math.log10(p);
+    if (p < 0.0) {
+	p = 0.0;
+    }
+    p = p * 20;
+    r += p;
+    if (r > 255.0) {
+	r = 255.0;
+    }
+    r = Math.floor(r);
+    let s = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
+    return s;
+}
+
+function retrievePValue(info, i, j) {
+    return info[i].comparisons[j];
+}
+
+function labelAtIndex(info, i) {
+    return info[i].label;
+}
+
+function maxLabelLen(info) {
+    let maxLen = 0;
+    for (let i = 0; i < info.length; ++i) {
+	if (info[i].label.length > maxLen) {
+	    maxLen = info[i].label.length;
+	}
+    }
+    return maxLen;
+}
+
+function displayPyramid(info) {
+    let container = document.getElementById("pyramid_container");
+    if (info.length < 2) {
+	container.style.display = "none";
+    }
+    else {
+	container.style.display = "block";
+    }
+    let pyramidElem = document.getElementById("pyramid");
+    const rectSize = 25;
+    const totalWidth = rectSize*(info.length-1);
+    const topMargin = maxLabelLen(info)*5.6;
+    const leftMargin = 0;
+    let box = d3.select("#pyramid");
+    let w = pyramidElem.getBoundingClientRect().width;
+    const scale = w/(totalWidth+2*topMargin);
+    function x(i) {
+	return scale*(leftMargin+i*rectSize);
+    }
+    function y(i) {
+	return scale*(topMargin+i*rectSize);
+    }
+    box.attr('transform-origin', '50% 50%');
+    box.attr('transform', "rotate(-45)");
+    let row = box.selectAll('g.pyramidrow')
+        .data(range(1, info.length))
+	.join('g')
+	.classed('pyramidrow', true);
+    let label1 = box.selectAll('text.row_labels')
+	.data(range(1, info.length))
+	.join('text')
+	.classed('row_labels', true)
+	.text(d => labelAtIndex(info, info.length-d))
+	.attr('x', scale*(leftMargin+totalWidth+10))
+	.attr('y', d => scale*(topMargin+d*rectSize-10))
+	.attr('font-size', `${10*scale}px`);
+    let label2 = box.selectAll('text.col_labels')
+	.data(range(0, info.length-1))
+	.join('text')
+	.classed('col_labels', true)
+	.text(d => labelAtIndex(info, d))
+	.attr('x', scale*(topMargin-10))
+	.attr('y', d => scale*((d+1)*rectSize-(totalWidth+10+leftMargin)))
+	.attr("text-anchor", "end")
+	.attr("transform", "rotate(90)")
+	.attr('font-size', `${10*scale}px`);
+    let square = row.selectAll('rect')
+	.data(d => range(0, d).map(index => [d,index]))
+	.join('rect')
+        .attr('x', d => x(d[0]-1))
+        .attr('y', d => y(d[1]))
+        .attr('width', scale*rectSize)
+        .attr('height', scale*rectSize)
+	.style('fill', d => colorForPValue(retrievePValue(info, d[0], d[1])));
+    let pvalues = row.selectAll('text')
+	.data(d => range(0, d).map(index => [d,index]))
+	.join('text')
+        .attr('x', d => x(d[0]-0.5))
+        .attr('y', d => y(d[1]+0.5))
+	.attr("text-anchor", "middle")
+	.attr('transform', d => `rotate(45 ${x(d[0]-0.5)} ${y(d[1]+0.5)} )`)
+	.attr('fill', 'white')
+	.attr('font-size', `${8*scale}px`)
+	.text("P!"); 
+}
+
+function displayTextComparisons(info) {
+    let box = d3.select("#comparisons");
     let comparisons = [];
     for (let i = 1; i < info.length; ++i) {
 	for (let j = 0; j < i; ++j) {

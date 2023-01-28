@@ -16,26 +16,25 @@
     see how viral loads vary&mdash;or don't&mdash;across age, sex, and so on.
   </p>
   <div class="webapp" >
-    <form class="settings">
-      <div class="selects_form">
-        <fieldset class="select_antigen">
-          <legend class="select_label select_label_antigen" >Test</legend>
-          <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
-            <option value="none" selected>-- no test selected --</option>
-          </select>
-        </fieldset>
-	<fieldset>
-	  <legend>Limit of Detection (LOD)</legend>
-	  <input type="range" min="0" max="12" value="5" class="slider" id="lod_slider">
-	  10<sup id="lod"></sup> copies/ML
-	</fieldset>
-        <fieldset class="select_var">
-          <legend class="select_label select_label_var" >Group</legend>
-	  <div id="select_var_checks">
-	  </div>
-        </fieldset>
-      </div>
-    </form>
+    <div class="settings">
+      <fieldset class="select_antigen">
+        <legend class="select_label select_label_antigen" >Test</legend>
+        <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
+          <option value="none" selected>-- no test selected --</option>
+        </select>
+      </fieldset>
+      <fieldset>
+	<legend>Limit of Detection (LOD)</legend>
+	<input type="range" min="0" max="12" value="5" class="slider" id="lod_slider">
+	10<sup id="lod"></sup> copies/ML
+      </fieldset>
+      <fieldset class="select_var">
+        <legend class="select_label select_label_var" >Group</legend>
+	<button id="resetChecks" class="bluebutton" >Reset</button>
+	<div id="select_var_checks">
+	</div>
+      </fieldset>
+    </div>
     <div class="output">
 	<div id="comparisons">
 	</div>
@@ -73,7 +72,9 @@
   <hr/>
 </body>
 <script type="module">
-  import { setInfectivityThreshold, presentData } from './javascripts/histo.js';
+  import { setInfectivityThreshold, presentData, resetChecks } from './javascripts/histo.js';
+
+  document.getElementById("resetChecks").onclick = resetChecks;
 
   function updateThreshold(event) {
     let newValue = event.target.value;

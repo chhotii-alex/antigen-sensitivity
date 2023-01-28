@@ -41,6 +41,18 @@ function createCheckbox(id, displayName, parentNode, labelClass) {
     return checky;
 }
 
+export function resetChecks() {
+    for (const v of Object.keys(variables)) {
+	document.getElementById(v).checked = false;
+	for (const value of variables[v]) {
+	    document.getElementById(value).checked = false;
+	}
+    }
+    updateQuery();    
+}
+
+
+
 let variables = {};
 let variableValues = {};
 
@@ -219,7 +231,7 @@ function displayCommentary(items) {
 		text += " and ";
 	    }
 	}
-	text += `${item.count} ${item.label.trim()}`;
+	text += `<br/>${item.count} ${item.label.trim()}`;
     }
     text += " from the Beth Israel Deaconess Medical Center.";
     text += " A test with an ";

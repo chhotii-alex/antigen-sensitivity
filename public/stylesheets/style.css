@@ -87,6 +87,15 @@ legend {
 	"none download download";
 }
 
+.bluebutton {
+    border: none;
+    padding: 2px 6px;
+    margin: 4px 6px;
+    background-color: #0099ff;
+    color: white;
+    border-radius: 4px;
+}
+
 .download {
     font-size: 0.75em;
     padding: 2px 6px;
@@ -143,17 +152,5 @@ legend {
 .sensitivity {
   grid-area: sensitivity;
   padding-bottom: 1em;
-}
-
-@media only screen and (max-width: 600px) {
-  .selects_form {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "select_var"
-      "select_antigen";
-  }
-  .select_label {
-    text-align: left;
-  }
 }
 

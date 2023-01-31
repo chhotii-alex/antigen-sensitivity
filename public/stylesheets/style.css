@@ -24,21 +24,32 @@ h1 {
 .has_bottom_line {
     border-bottom: 1px solid #dfdfdf;
 }
-fieldset.select_var {
+#select_var {
     max-width: 76em;
     margin: 1em auto 2em;
-    border: 2px solid;
+    columns: 4;
 }
-legend.select_label {
+#select_var > legend {
     text-align: center;
     margin: auto;
     padding: 0.75em;
     border: 2px solid;
 }
-.select_var {
-    columns: 4;
+.select_var_closed {
+    border: none;
 }
-
+.select_var_closed > div {
+    display: none;
+}
+.select_var_open {
+    border: 2px solid;
+}
+.select_var_open > div {
+    display: block;
+}    
+.select_var_open svg {
+    transform: rotate(0.25turn);
+}
 .grouphisto {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -49,6 +60,7 @@ legend.select_label {
 	"none savebuttons"
 }
 .comparisons {
+    text-align: center;
     grid-area: comparisons;
 }
 .displaybox {
@@ -74,11 +86,6 @@ legend {
 
 .valuename {
     margin-left: 1em;
-}
-
-.conclusiontext {
-    font-weight: bold;
-    text-align: center;
 }
 
 .lodisred {
@@ -157,18 +164,6 @@ legend {
 
 .indent {
   margin-left: 1em;
-}
-
-.select_label {
-  text-align: left;
-}
-
-.select_label_var {
-  grid-area: select_label_var;
-}
-
-.select_var {
-  grid-area: select_var;
 }
 
 .select_label_antigen {

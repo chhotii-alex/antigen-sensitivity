@@ -21,23 +21,27 @@
   </header>
   <div class="webapp" >
     <div class="pickgroup has_bottom_line">
-      <fieldset class="select_var">
-        <legend class="select_label select_label_var" >Explore group(s)</legend>
-	<strong>Group</strong>
-	<button id="resetChecks" class="bluebutton" >Reset</button>
+      <fieldset id="select_var" class="select_var_closed">
+        <legend id="select_var_label">Explore group(s)
+	  <svg height="10" width="10" >
+	    <line x1="0" y1="0" x2="10" y2="5" stroke="black" />
+	    <line x1="10" y1="5" x2="0" y2="10" stroke="black" />
+	  </svg>
+	</legend>
 	<div id="select_var_checks">
+	  <strong>Group</strong>
+	  <button id="resetChecks" class="bluebutton" >Reset</button>
 	</div>
       </fieldset>
     </div>
     <div class="grouphisto has_bottom_line">
-      <h1 class="comparisons" >
-	<div id="comparisons" >
-	</div>
-      </h1>
+      <h1 id="comparison_title" class="comparisons" ></h1>
       <svg id="displaybox" class="displaybox" width="100%" height="400" >
 	<!-- D3 does its thing here -->
       </svg>
       <div class="meantext">
+	<div id="pvalue_text" >
+	</div>
 	<div id="commentary"></div>
       </div>
       <div id="pyramid_container" class="pyramid" >
@@ -91,6 +95,24 @@
   import { setInfectivityThreshold, presentData, resetChecks } from './javascripts/histo.js';
 
   document.getElementById("resetChecks").onclick = resetChecks;
+  document.getElementById("select_var_label").onclick = toggleParent;
+
+  function toggleParent(event) {
+      let parent = event.target.parentNode;
+      while (true) {
+	  if (parent.className == "select_var_closed") {
+	      parent.className = "select_var_open";
+	      return;
+	  }
+	  else if (parent.className == "select_var_open") {
+	      parent.className = "select_var_closed";
+	      return;
+	  }
+	  else {
+	      parent = parent.parentNode;
+	  }
+      }	  
+  }
 
   function updateThreshold(event) {
     let newValue = event.target.value;

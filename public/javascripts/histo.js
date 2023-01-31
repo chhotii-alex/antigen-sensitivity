@@ -16,7 +16,7 @@ function formatPValue(p) {
     const r = /(\d\.\d)e([+-]\d+)/
     const match = s.match(r);
     if (!match) return "";
-    return `<em>p</em>=${match[1]}x10<sup>${match[2]}</sup>`;
+    return `<em>(p</em>=${match[1]}x10<sup>${match[2]}</sup>)`;
 }
 
 /*  The comorbidityCategories lookup will have an entry for every item in the drop-down in the
@@ -60,14 +60,16 @@ function loadVariableOptions(data) {
     let options = data.items;
     let div = document.getElementById("select_var_checks");
     for (let item of options) {
+	let subdiv = document.createElement("div");
+	div.appendChild(subdiv);
 	variables[item.id] = [];
-	let checky = createCheckbox(item.id, item.displayName, div, "variablename");
+	let checky = createCheckbox(item.id, item.displayName, subdiv, "variablename");
 	checky.addEventListener('click', updateVariables);
 	let splits = item.splits;
 	for (let subItem of splits) {
 	    variables[item.id].push(subItem.value);
 	    variableValues[subItem.value] = item.id;
-	    checky = createCheckbox(subItem.value, subItem.valueDisplayName, div, "valuename");
+	    checky = createCheckbox(subItem.value, subItem.valueDisplayName, subdiv, "valuename");
 	    checky.addEventListener('click', updateVariables);
 	}
     }
@@ -338,13 +340,12 @@ function numberOfComparisons(info) {
 }
 
 function displayComparisons(info) {
-    if (numberOfComparisons(info) < 4) {
-	displayTextComparisons(info);
-	displayPyramid([]);
+    displayTextComparisons(info);
+    if (numberOfComparisons(info) > 1) {
+	displayPyramid(info);
     }
     else {
-	displayTextComparisons([]);
-	displayPyramid(info);
+	displayPyramid([]);
     }
 }
 
@@ -479,9 +480,43 @@ function displayPyramid(info) {
 	.text(d => `${shortPValue(info, d[0], d[1])}`); 
 }
 
+function hasSignificantDifferences(info, alpha) {
+    for (let i = 1; i < info.length; ++i) {
+	for (let j = 0; j < i; ++j) {
+	    let d = {};
+	    d.pvalue = info[i].comparisons[j];
+	    if (d.pvalue == null) {
+		continue;
+            }
+	    if (d.pvalue < alpha) {
+		return true;
+	    }
+	}
+    }
+    return false;
+}
+
 function displayTextComparisons(info) {
-    let box = d3.select("#comparisons");
+    let text = "";
+    if (info.length > 1) {
+	let conclusion = "are similar";
+	if (hasSignificantDifferences(info, 0.05)) {
+	    conclusion = "vary";
+	}
+	let preposition = "between";
+	if (info.length > 2) {
+	    preposition = "across";
+	}
+	let num = info.length;
+	text = `Viral loads ${conclusion} ${preposition} these ${num} groups`;
+    }
+    document.getElementById("comparison_title").innerHTML = text;
+	    
+    let box = d3.select("#pvalue_text");
     let comparisons = [];
+    if (info.length > 2) {
+	info = [];
+    }
     for (let i = 1; i < info.length; ++i) {
 	for (let j = 0; j < i; ++j) {
 	    let d = {};
@@ -491,7 +526,7 @@ function displayTextComparisons(info) {
             }
 	    d.label1 = info[i].label;
 	    d.label2 = info[j].label;
-	    d.conclusion = " are similar ";
+	    d.conclusion = " are statistically indistinguishable ";
 	    if (d.pvalue < 0.05) {
 		d.conclusion = " differ ";
 	    }
@@ -658,7 +693,7 @@ function displayData(info, box) {
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left/2)
         .attr("x", -height/2)
-        .text(d => "Relative frequency");
+        .text(d => "Probability Density");
 
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See

@@ -3,42 +3,63 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+header {
+    max-width: 36em;
+    margin: auto;
+}
 h1 {
-  text-align: center;
+  text-align: left;
   font-weight: 900;
-}
-h3 {
-    text-align: center;
-}
-
-.intro {
-    margin-right: 150px;
-    margin-left: 150px;
 }
 
 .webapp {
     display: grid;
-    grid-template-columns: fit-content(300px) 1fr;  /* TODO: adjust widths */
+    grid-template-columns: 1fr; 
     grid-template-areas:
-	"settings output";
-    /* TODO: margin?
-    margin-right: 150px;
-    margin-left: 150px;     */
+	"pickgroup"
+	"grouphisto"
+	"pickanti"
+	"antihisto";
+}
+.has_bottom_line {
+    border-bottom: 1px solid #dfdfdf;
+}
+fieldset.select_var {
+    max-width: 76em;
+    margin: 1em auto 2em;
+    border: 2px solid;
+}
+legend.select_label {
+    text-align: center;
+    margin: auto;
+    padding: 0.75em;
+    border: 2px solid;
+}
+.select_var {
+    columns: 4;
 }
 
-/*  Assign the class settings to the grid area settings. etc. */
-.settings {
-  grid-area: settings;
+.grouphisto {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas:
+	"comparisons comparisons"
+	"displaybox meantext"
+	"pyramid pyramid"
+	"none savebuttons"
 }
-.output {
-  grid-area: output;
+.comparisons {
+    grid-area: comparisons;
 }
-
-
-fieldset {
-    border: none;
+.displaybox {
+    grid-area: displaybox;
 }
-
+.pyramid {
+    grid-area: pyramid;
+}
+.savebuttons {
+    grid-area: savebuttons;
+}
 select {
   margin: 4px;
 }
@@ -104,6 +125,29 @@ legend {
     color: white;
     border-radius: 4px;
     text-decoration: none;
+}
+
+.pickanti {
+    max-width: 800px;
+    margin:auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+	"antigen_text antigen_text"
+	"select_antigen select_lod"
+}
+.antigen_text {
+    grid-area: antigen_text;
+}
+.select_antigen {
+    grid-area: select_antigen;
+}
+.select_lod {
+    grid-area: select_lod;
+}
+.no_border {
+    border: none;
+    margin: 2em;
 }
 
 #moresettings {

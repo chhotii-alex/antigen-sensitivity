@@ -7,54 +7,70 @@
 </head>
 
 <body>
-  <h1>SARS-CoV-2 Viral Loads and Test Performance by Group</h1>
-  <h3>How viral loads vary across groups and predict antigen-test sensitivity</h3>
-  <p class="intro" >
-    COVID-19 test results are usually reported simply as "positive" or "negative". However,
-    the amount of virus a person sheds&mdash;the viral load&mdash;can very. We estimated viral
-    load for every patient who had a positive PCR test at our hospital from 2020-2023 so you can
-    see how viral loads vary&mdash;or don't&mdash;across age, sex, and so on.
-  </p>
+  <header>
+    <h1>Learning from COVID-19 Viral Loads</h1>
+    <h3>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
+      to antigen tests in different groups</h3>
+    <p class="intro" >
+      COVID-19 test results are usually reported simply as &ldquo;positive&rdquo; or &ldquo;negative&rdquo;. However,
+      the amount of virus a person produces&mdash;the <strong>viral load</strong>&mdash;can very.</p>
+    <p class="intro">We estimated viral
+      load for over <strong>40,000 patients</strong> who had a positive PCR test at our hospital from 2020-2023 so you can
+      see how viral loads vary&mdash;or don&apos;t&mdash;across age, sex, and so on.
+    </p>
+  </header>
   <div class="webapp" >
-    <div class="settings">
-      <fieldset class="select_antigen">
-        <legend class="select_label select_label_antigen" >Test</legend>
-        <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
-          <option value="none" selected>-- no test selected --</option>
-        </select>
-      </fieldset>
-      <fieldset>
-	<legend>Limit of Detection (LOD)</legend>
-	<input type="range" min="0" max="12" value="5" class="slider" id="lod_slider">
-	10<sup id="lod"></sup> copies/ML
-      </fieldset>
+    <div class="pickgroup has_bottom_line">
       <fieldset class="select_var">
-        <legend class="select_label select_label_var" >Group</legend>
+        <legend class="select_label select_label_var" >Explore group(s)</legend>
+	<strong>Group</strong>
 	<button id="resetChecks" class="bluebutton" >Reset</button>
 	<div id="select_var_checks">
 	</div>
       </fieldset>
     </div>
-    <div class="output">
-	<div id="comparisons">
+    <div class="grouphisto has_bottom_line">
+      <h1 class="comparisons" >
+	<div id="comparisons" >
 	</div>
-	<br/>
-	<svg id="displaybox" width="100%" height="400" >
-	  <!-- D3 does its thing here -->
-	</svg>
-	<br/>
-	<div class="savebuttons">
-	  <span></span>
-	  <a href="notyet" target="_blank" class="download"> Save plot </a>
-	  <a href="dataset" download class="download"> Download De-identified Dataset </a>
-	</div>
-	<div id="pyramid_container" >
-	  <svg id="pyramid" width="100%" >
-	</div>
-	</svg>
+      </h1>
+      <svg id="displaybox" class="displaybox" width="100%" height="400" >
+	<!-- D3 does its thing here -->
+      </svg>
+      <div class="meantext">
 	<div id="commentary"></div>
+      </div>
+      <div id="pyramid_container" class="pyramid" >
+	<svg id="pyramid" width="100%" ></svg>
+      </div>
+      <div class="savebuttons">
+	<span></span>
+	<a href="notyet" target="_blank" class="download"> Save plot </a>
+	<a href="dataset" download class="download"> Download De-identified Dataset </a>
+      </div>
+    </div>
+    <div class="pickanti has_bottom_line">
+      <div class="antigen_text">
+	<h3>Antigen Tests</h3>
+	Lorem ipsum dolor sit amet, <strong>consectetur</strong> adipiscing elit, sed do eiusmod tempor <strong>incididunt</strong> ut labore et dolore magna aliqua.
+      </div>
+      <fieldset class="select_test no_border">
+        <legend class="select_label_antigen" >Antigen Test</legend>
+        <select class="select_antigen" name="antigenTest" id="antigenTest" onchange="selectAction()">
+          <option value="none" selected>-- no test selected --</option>
+        </select>
+      </fieldset>
+      <fieldset class="select_lod no_border" >
+	<legend>Limit of Detection (LOD)</legend>
+	<input type="range" min="0" max="12" value="5" class="slider" id="lod_slider">
+	10<sup id="lod"></sup> copies/ML
+      </fieldset>
+    </div>
+    <hr/>
+    <div class="antihisto">
     </div>
   </div>
+  <hr/>
   <details id="moresettings">
     <summary>Show More Settings</summary>
     <div class="indent">

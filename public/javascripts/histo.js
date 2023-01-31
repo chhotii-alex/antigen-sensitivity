@@ -219,25 +219,30 @@ function getLOD() {
     return 5; //TODO
 }
 
+// TODO: Use the framework Luke
 function displayCommentary(items) {
-    let text = "Data is from ";
+    let text = " ";
     for (let i = 0; i < items.length; ++i) {
+	text += "<p>The mean viral load across ";
 	let item = items[i];
-	if (i > 0) {
-	    if (items.length > 2) {
-		text += ', ';
-	    }
-	    if ((i+1) == items.length) {
-		text += " and ";
-	    }
-	}
-	text += `<br/>${item.count} ${item.label.trim()}`;
+	let color = item.colors.negatives;
+	let meanvl = numberFormatter.format(item.mean);
+	text += `<span style="color: ${color}">`;
+	text += `${item.count} ${item.label.trim()}`;
+	text += "</span>"
+	text += " was ";
+	text += `<span style="color: ${color}">`;
+	text += `${meanvl} copies/mL`
+	text += "</span>."
+	text += "</p>";
     }
-    text += " from the Beth Israel Deaconess Medical Center.";
+    document.getElementById("commentary").innerHTML = text;
+}
+
+function displayTestCommentary(items) {
     text += " A test with an ";
     text += `<span class="lodisred">LOD of 10<sup>${getLOD()}</sup></span> `;
     text += " would have a sensitivity of ";
-    document.getElementById("commentary").innerHTML = text;
 }
 
 function applyInfectivityThreshold(data, infectivityThreshold) {
@@ -300,9 +305,9 @@ function prepareDataForStackedHistogram(info) {
 
 let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
 
-function componseAnnotationOnMean(d) {
+function composeAnnotationOnMean(d) {
     let value = d.mean;
-    if (!value) {
+    if (value == null) {
         return "";
     }
     value = parseFloat(value);
@@ -486,16 +491,15 @@ function displayTextComparisons(info) {
             }
 	    d.label1 = info[i].label;
 	    d.label2 = info[j].label;
-	    d.conclusion = " is similar to ";
+	    d.conclusion = " are similar ";
 	    if (d.pvalue < 0.05) {
-		d.conclusion = " differs from ";
+		d.conclusion = " differ ";
 	    }
 	    d.color1 = info[i].colors.negatives;
 	    d.color2 = info[j].colors.negatives;
 	    comparisons.push(d);
 	}
     }
-    console.log(comparisons);
     let conclusiontext = box.selectAll("div.conclusiontext")
         .data(comparisons)
         .join("div")
@@ -504,24 +508,29 @@ function displayTextComparisons(info) {
         .data(d => [d])
         .join("span")
         .classed("vl_prefix", true)
-        .text(d => "Viral load for ");
+        .text(d => "Viral loads for ");
     conclusiontext.selectAll("span.group1noun")
         .data(d => [d])
         .join("span")
         .classed("group1noun", true)
         .text(d =>  d.label1)
         .style('color', (d) => d.color1);
-    conclusiontext.selectAll("span.conclusion")
+    conclusiontext.selectAll("span.and")
         .data(d => [d])
         .join("span")
-        .classed("conclusion", true)
-        .text(d => d.conclusion);
+        .classed("and", true)
+        .text(d => " and ");
     conclusiontext.selectAll("span.group2noun")
         .data(d => [d])
         .join("span")
         .classed("group2noun", true)
         .text(d =>  d.label2)
         .style('color', (d) => d.color2);
+    conclusiontext.selectAll("span.conclusion")
+        .data(d => [d])
+        .join("span")
+        .classed("conclusion", true)
+        .text(d => d.conclusion);
     conclusiontext.selectAll("span.pvalue")
         .data(d => [d])
         .join("span")

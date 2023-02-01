@@ -411,10 +411,11 @@ function maxLabelLen(info) {
 	    maxLen = info[i].label.length;
 	}
     }
-    return maxLen;
+    return maxLen+1;
 }
 
 function displayPyramid(info) {
+    const baseFontSize = 6.8;
     let container = document.getElementById("pyramid_container");
     if (info.length < 2) {
 	container.style.display = "none";
@@ -424,20 +425,21 @@ function displayPyramid(info) {
     }
     let pyramidElem = document.getElementById("pyramid");
     const rectSize = 25;
+    const innerMargin = 10;
+    const outerMargin = 0;
     const totalWidth = rectSize*(info.length-1);
-    const topMargin = maxLabelLen(info)*5.6;
-    const leftMargin = 0;
+    const labelWidth = maxLabelLen(info)*baseFontSize/Math.sqrt(2);
     let box = d3.select("#pyramid");
-    let w = pyramidElem.getBoundingClientRect().width;
-    const scale = w/(totalWidth+2*topMargin);
+    let w = pyramidElem.parentNode.getBoundingClientRect().width;
+    const scale = w/(totalWidth+labelWidth+innerMargin+2*outerMargin);
     function x(i) {
-	return scale*(0+totalWidth-(i+1)*rectSize);
+	return scale*(outerMargin+totalWidth-(i+1)*rectSize);
     }
     function y(i) {
-	return scale*(topMargin+totalWidth-i*rectSize);
+	return scale*(labelWidth+totalWidth+innerMargin+outerMargin-(i)*rectSize);
     }
-    box.attr('transform-origin', '50% 50%');
-    box.attr('transform', "rotate(-45)");
+    box.attr('transform-origin', `${x(0)}px 100%`)
+	.attr('transform', `rotate(-45) translate(${w/Math.sqrt(2)} ${w/Math.sqrt(2)})`);
     let row = box.selectAll('g.pyramidrow')
         .data(range(1, info.length))
 	.join('g')
@@ -447,18 +449,18 @@ function displayPyramid(info) {
 	.join('text')
 	.classed('row_labels', true)
 	.text(d => labelAtIndex(info, d))
-	.attr('x', scale*(leftMargin+totalWidth+10))
-	.attr('y', d => scale*(topMargin+(info.length-d)*rectSize-10))
+	.attr('x', scale*(outerMargin+totalWidth+innerMargin))
+	.attr('y', d => scale*(outerMargin+labelWidth+innerMargin+(info.length-(d+0.25))*rectSize))
 	.attr('font-size', `${10*scale}px`);
     let label2 = box.selectAll('text.col_labels')
 	.data(range(0, info.length-1))
 	.join('text')
 	.classed('col_labels', true)
 	.text(d => labelAtIndex(info, d))
-	.attr('x', d => scale*(totalWidth-(d+0.5)*rectSize))
-	.attr('y', scale*(topMargin-10))
+	.attr('x', d => scale*(totalWidth-(d+0.5)*rectSize+outerMargin))
+	.attr('y', scale*(outerMargin+labelWidth))
 	.attr("text-anchor", "end")
-    	.attr("transform", d => `rotate(90 ${scale*(totalWidth-(d+0.5)*rectSize)} ${scale*(topMargin-10)})`)
+    	.attr("transform", d => `rotate(90 ${scale*(totalWidth-(d+0.5)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`)
 	.attr('font-size', `${10*scale}px`);
     let square = row.selectAll('rect')
 	.data(d => range(0, d).map(index => [d,index]))
@@ -476,7 +478,7 @@ function displayPyramid(info) {
 	.attr("text-anchor", "middle")
 	.attr('transform', d => `rotate(45 ${x(d[1]-0.5)} ${y(d[0]-0.5)} )`)
 	.attr('fill', 'white')
-	.attr('font-size', `${6.8*scale}px`)
+	.attr('font-size', `${baseFontSize*scale}px`)
 	.text(d => `${shortPValue(info, d[0], d[1])}`); 
 }
 

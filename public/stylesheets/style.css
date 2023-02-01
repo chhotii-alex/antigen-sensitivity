@@ -98,14 +98,15 @@ legend {
 }
 
 #pyramid_container {
-    margin-left: 22%;
-    margin-right: 22%;
+    margin-right: 50%;
     margin-top: -11%;
 }
 
 #pyramid {
     aspect-ratio : 1;
-    margin: auto;
+    /*border: solid;*/
+    overflow: visible;
+    pointer-events: none;
 }
 
 .savebuttons {

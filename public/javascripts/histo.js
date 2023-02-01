@@ -1,8 +1,3 @@
-/* 
-    TODOs:
-
-    The word "Infectious" tends to be obscured by bar(s) on the histogram.
-*/
 
 import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
 //import * as d3 from "https://cdn.skypack.dev/d3@7.6";
@@ -320,8 +315,8 @@ function composeAnnotationOnMean(d) {
 
 function prepareInfectivityRegions(d) {
     let result = [
-        {"title" : "Non-contagious", "color" : "#f7f6f2", "min" : 0, "max" : d.infectivityThreshold },
-        {"title" : "Contagious", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
+        {"title" : "", "color" : "#dbdbdb", "min" : 0, "max" : d.infectivityThreshold },
+        {"title" : "CONTAGIOUS", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
     ];
     return result;
 }
@@ -635,22 +630,22 @@ function displayData(info, box) {
         .attr("x", d => xScale(d.min - 0.5))
         .attr("width", d => xScale((d.max - d.min) + 0.5))
         .style("fill", d => d.color);
-    regiong.selectAll("line.leftedge")
-        .data(d => [d])
-        .join("line")
-        .classed("leftedge", true)
-        .attr("x1", d => xScale(d.min - 0.5))
-        .attr("y1", 0)
-        .attr("x2", d => xScale(d.min - 0.5))
-        .attr("y2", height)
-        .attr("stroke", d => (d.min==0)?null:"black");
     regiong.selectAll("text.i_label")
         .data(d => [d])
         .join("text")
         .classed("i_label", true)
-        .attr("y", "1em")
         .text(d => d.title)
-        .attr("x", (d) => xScale(d.min));
+	.style('fill', "#b8b8b8")
+	.attr("text-anchor", "end")
+	.attr("transform", d =>`rotate(-90 ${20+xScale(d.min - 0.5)} 30)`)
+        .attr("y", "30")
+        .attr("x", (d) => 20+xScale(d.min - 0.5));
+    regiong.selectAll("polygon.triangle")
+	.data(d => [d])
+	.join("polygon")
+	.classed("triangle", true)
+	.attr("points", d => `${xScale(d.min-0.5)+8} 28 ${xScale(d.min-0.5)+18} 22 ${xScale(d.min-0.5)+8} 16`)
+	.style("fill", "#dbdbdb");
                              
     let group = box.selectAll("g.histgroup").data(info).join("g")
         .classed("histgroup", true)

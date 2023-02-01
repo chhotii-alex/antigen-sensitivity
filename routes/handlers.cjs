@@ -369,6 +369,9 @@ exports.datafetch = async function(req, res, next) {
       query = query.trim(); 
       console.log(query);
       let { rows } = await pool.query(query);
+      if (rows.length < 1) {
+         continue;
+     }
       let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
       let bins = bin(rawData);
       let mean_val = Math.pow(10, mean(rawData))

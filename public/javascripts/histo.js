@@ -117,6 +117,62 @@ function loadAssayOptions(data) {
     }
 }
 
+function minDateAvail() {
+    return document.getElementById("minDate") != null;
+}
+
+function maxDateAvail() {
+    return document.getElementById("maxDate") != null;
+}
+
+function updateLOD(lod) {
+    let lod_exp = document.getElementById("lod_exp");
+    let lod_text = document.getElementById("lod_text");
+    if (lod >= 0) {
+	lod_exp.innerHTML = lod;
+	lod_text.className = "inline_style";
+	document.getElementById("antigenTest").value = "none";
+    }
+    else {
+	lod_exp.innerHTML = "";
+	lod_text.className = "hidden_style";
+    }
+    displayTestPerformance();
+}
+
+
+function updateAntigenTestSelection() {
+    let assay = document.getElementById("antigenTest").value;
+    console.log(assay);
+    if (assay != "none") {
+	let lod_slider = document.getElementById("lod_slider");
+	lod_slider.value = -1;
+	updateLOD(lod_slider.value);
+    }
+    displayTestPerformance();
+}
+
+document.getElementById("antigenTest").onchange = updateAntigenTestSelection;
+
+document.getElementById("lod_slider").oninput = function() {
+    updateLOD(this.value);
+}
+  
+
+
+function displayTestPerformance() {
+    console.log("Doing displayTestPerformance");
+}
+
+
+if (minDateAvail()) {
+    document.getElementById("minDate").onchange = updateQuery;
+}
+if (maxDateAvail()) {
+    document.getElementById("maxDate").onchange = updateQuery;
+}
+
+
 /* Called directly when a checkbox is clicked */
 export function updateQuery() {
     let assay = document.getElementById("antigenTest").value;
@@ -129,22 +185,6 @@ export function updateQuery() {
       maxDate = document.getElementById("maxDate").value;
     }
     doQuery(assay, minDate, maxDate);
-  }
-
-  function minDateAvail() {
-    return document.getElementById("minDate") != null;
-  }
-
-  function maxDateAvail() {
-    return document.getElementById("maxDate") != null;
-  }
-
-  document.getElementById("antigenTest").onchange = updateQuery;
-  if (minDateAvail()) {
-    document.getElementById("minDate").onchange = updateQuery;
-  }
-  if (maxDateAvail()) {
-    document.getElementById("maxDate").onchange = updateQuery;
   }
 
   let url;
@@ -209,6 +249,7 @@ export function presentData() {
 	displayData(gData, d3.select("#displaybox"));
 	displayComparisons(gData);
 	displayCommentary(gData);
+	displayGroupRadioButtons(gData);
     }
 }
 
@@ -746,6 +787,30 @@ function markupForSensitivity(d) {
     let pc = d.truePositiveCount;
     let pr = Math.round(100*d.sensitivity);
     return `${ic} infectious people,<br>${pc} of whom are antigen-positive<br><b>= ${pr}% sensitivity</b>`;
+}
+
+function displayGroupRadioButtons(info) {
+    console.log("Doing displayGroupRadioButtons");
+    let box = d3.select("#group_radio");
+    console.log("Box:", box);
+    console.log("Data: ", info);
+    let span = box.selectAll("span")
+	.data(info)
+	.join("span")
+    	.classed("first_radio", (d,i) => { return (i == 0); });
+    span.selectAll("input")
+	.data(d => [d])
+	.join("input")
+	.attr("type", "radio")
+	.attr("id", d => d.label)
+	.attr("name", "group_for_performance");
+    span.selectAll("label")
+	.data(d => [d])
+	.join("label")
+	.attr("for", d => d.label)
+	.text(d => d.label);
+    box.select(`span.first_radio input`)
+    	.property("checked", true);
 }
 
 export function displayCheckboxes(subdivisions) {

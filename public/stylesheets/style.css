@@ -1,3 +1,11 @@
+.inline_style {
+    display: inline;
+}
+
+.hidden_style {
+    display: none;
+}
+
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;

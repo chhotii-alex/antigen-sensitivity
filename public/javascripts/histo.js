@@ -241,7 +241,8 @@ function applyLOD(gData, lod) {
 }
 
 function displayAntigenTestHistogram() {
-    displayData([gData[0]], "antiperf", ["negatives", "positives"]);
+    let group = gData.find(pop => pop.label == gData.selectedGroup);
+    displayData([group] , "antiperf", ["negatives", "positives"]);
 }
 
 function setHidden(id, hidden) {
@@ -878,11 +879,12 @@ function markupForSensitivity(d) {
     return `${ic} infectious people,<br>${pc} of whom are antigen-positive<br><b>= ${pr}% sensitivity</b>`;
 }
 
+function updateSelectedGroup(arg) {
+    gData.selectedGroup = arg;
+}
+
 function displayGroupRadioButtons(info) {
-    console.log("Doing displayGroupRadioButtons");
     let box = d3.select("#group_radio");
-    console.log("Box:", box);
-    console.log("Data: ", info);
     let span = box.selectAll("span")
 	.data(info)
 	.join("span")
@@ -892,7 +894,11 @@ function displayGroupRadioButtons(info) {
 	.join("input")
 	.attr("type", "radio")
 	.attr("id", d => d.label)
-	.attr("name", "group_for_performance");
+	.attr("name", "group_for_performance")
+	.on('click', function(e) {
+	    updateSelectedGroup(e.target.id);
+	    displayAntigenTestHistogram();
+	});;
     span.selectAll("label")
 	.data(d => [d])
 	.join("label")
@@ -900,6 +906,9 @@ function displayGroupRadioButtons(info) {
 	.text(d => d.label);
     box.select(`span.first_radio input`)
     	.property("checked", true);
+    if (info.length > 0) {
+	updateSelectedGroup(info[0].label);
+    }
 }
 
 export function displayCheckboxes(subdivisions) {

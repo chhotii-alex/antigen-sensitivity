@@ -316,6 +316,7 @@ export function updateQuery() {
 
 
 export function doQuery(minDate=null, maxDate=null) {
+    setHidden("loading", false);
     let url = 'api/data/viralloads?';
 
     for (let variable in variables) {
@@ -353,6 +354,7 @@ function loadData(data) {
     gData = data;
     gData.assay = oldData.assay;
     gData.lod = oldData.lod;
+    setHidden("loading", true);
     presentData();
 }
 

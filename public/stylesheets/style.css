@@ -164,7 +164,7 @@ legend {
 
 .antihisto {
     display: grid;
-    grid-columns: 2fr 1fr;
+    grid-template-columns: 3fr 1fr;
     grid-template-areas:
 	"antihisto_title antihisto_title"
 	"group_radio group_radio"
@@ -179,9 +179,13 @@ legend {
 .group_radio {
     grid-area: group_radio;
 }
+.radio_button_label {
+    margin-right: 1em;
+}
 .antiperf {
     width: 100%;
     height: 400px;
+    grid-area: antiperf;
 }
 
 #moresettings {

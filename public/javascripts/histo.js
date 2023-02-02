@@ -220,7 +220,8 @@ function applyKnownAntigenTest(gData, assay) {
 		bin["positives"] = bin["count"];
 	    }
 	}
-    }    
+    }
+    applyInfectivityThreshold(gData, gInfectivityThreshold);
 }
 
 function applyLOD(gData, lod) {
@@ -238,11 +239,28 @@ function applyLOD(gData, lod) {
 	    }
 	}
     }
+    applyInfectivityThreshold(gData, gInfectivityThreshold);
 }
 
 function displayAntigenTestHistogram() {
     let group = gData.find(pop => pop.label == gData.selectedGroup);
     displayData([group] , "antiperf", ["negatives", "positives"]);
+    displayAccuracyCalc(group);
+}
+
+function displayAccuracyCalc(group) {
+    console.log(group);
+    let color = group.colors.negatives;
+    let result = `In <span style="color: ${color}">${group.label.trim()}</span>,
+          the <strong>sensitivity</strong> for
+          detecting contagiousness is <strong>${group.sensitivity.toFixed(2)}
+          </strong> and the <strong>specificity</strong> is
+          <strong>${group.specificity.toFixed(2)}</strong>.`
+    let box = d3.select(".performance_commentary");
+    box.selectAll("span")
+	.data([result])
+	.join("span")
+	.html(d => d);
 }
 
 function setHidden(id, hidden) {
@@ -319,6 +337,7 @@ let gInfectivityThreshold;
 
 export function setInfectivityThreshold(value) {
     gInfectivityThreshold = value;
+    applyInfectivityThreshold(gData, gInfectivityThreshold);    
     if (gData) {
         presentData();
     }
@@ -330,7 +349,6 @@ function loadData(data) {
 }
 
 export function presentData() {
-    applyInfectivityThreshold(gData, gInfectivityThreshold);
     if (gData) {
 	displayData(gData, "displaybox"); 
 	displayComparisons(gData);
@@ -370,24 +388,35 @@ function displayTestCommentary(items) {
 }
 
 function applyInfectivityThreshold(data, infectivityThreshold) {
+    console.log("Doing applyInfectivityThreshold");
     for (let pop of data) {
-        pop.infectivityThreshold = infectivityThreshold;
-        pop.infectiousCount = 0;
-        pop.truePositiveCount = 0;
+        pop.tp = 0;
+	pop.fn = 0;
+	pop.fp = 0;
+	pop.tn = 0;
         for (let bin of pop.data) {
             if (bin.viralLoadLog >= infectivityThreshold) {
-                pop.infectiousCount += bin.count;
-                pop.truePositiveCount += bin.positives;
+		console.log("Positives:", bin.positives);
+                pop.tp += bin.positives;
+		pop.fn += bin.negatives;
             }
+	    else {
+		pop.tn += bin.negatives;
+		pop.fp += bin.positives;
+	    }
         }
-        if (pop.truePositiveCount && pop.infectiousCount) {
-            pop.sensitivity = pop.truePositiveCount/pop.infectiousCount;
-            pop.distributionsWithSensitivityCalc = [pop];
-        }
-        else {
-            pop.sensitivity = null;
-            pop.distributionsWithSensitivityCalc = []
-        }
+        if ((pop.tp + pop.fn) > 0) {
+            pop.sensitivity = pop.tp/(pop.tp+pop.fn);
+	}
+	else {
+	    pop.sensitivity = null;
+	}
+	if ((pop.tn + pop.fp) > 0) {
+	    pop.specificity = pop.tn/(pop.tn+pop.fp);
+	}
+	else {
+	    pop.specificity = null;
+	}
     }
 }
 
@@ -442,8 +471,8 @@ function composeAnnotationOnMean(d) {
 
 function prepareInfectivityRegions(d) {
     let result = [
-        {"title" : "", "color" : "#dbdbdb", "min" : 0, "max" : d.infectivityThreshold },
-        {"title" : "CONTAGIOUS", "color" : "white", "min" : d.infectivityThreshold, "max" : 12},
+        {"title" : "", "color" : "#dbdbdb", "min" : 0, "max" : gInfectivityThreshold },
+        {"title" : "CONTAGIOUS", "color" : "white", "min" : gInfectivityThreshold, "max" : 12},
     ];
     return result;
 }
@@ -697,6 +726,7 @@ function displayTextComparisons(info) {
         .html(d =>  formatPValue(d.pvalue));
 }
 
+/* Draws histograms */
 function displayData(info, widgetID, catagories=["count"]) {
     let elem = document.getElementById(widgetID);
     let box = d3.select(elem);
@@ -744,7 +774,7 @@ function displayData(info, widgetID, catagories=["count"]) {
 	}
     }
       
-   // Show regions of viral load non-ifectivity/infectivity
+   // Show regions of viral load non-infectivity/infectivity
     let regiongroup = box.selectAll("g.regiongroup").data([info[0]]).join("g")
 	.classed("regiongroup", true)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -874,7 +904,7 @@ function traceUpperEdge(data, xScale, barWidth) {
 
 function markupForSensitivity(d) {
     let ic = d.infectiousCount;
-    let pc = d.truePositiveCount;
+    let pc = d.tp;
     let pr = Math.round(100*d.sensitivity);
     return `${ic} infectious people,<br>${pc} of whom are antigen-positive<br><b>= ${pr}% sensitivity</b>`;
 }
@@ -899,9 +929,10 @@ function displayGroupRadioButtons(info) {
 	    updateSelectedGroup(e.target.id);
 	    displayAntigenTestHistogram();
 	});;
-    span.selectAll("label")
+    span.selectAll("label.radio_button_label")
 	.data(d => [d])
 	.join("label")
+	.classed("radio_button_label", true)
 	.attr("for", d => d.label)
 	.text(d => d.label);
     box.select(`span.first_radio input`)

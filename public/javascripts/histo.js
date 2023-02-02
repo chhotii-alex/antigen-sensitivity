@@ -2,6 +2,18 @@
 import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
 //import * as d3 from "https://cdn.skypack.dev/d3@7.6";
 
+function addAlpha(color, alpha) {
+    const re = /rgb\((\d+),(\d+),(\d+)\)/;
+    const found = color.match(re);
+    if (!found) {
+	throw new Error("Color specification does not match pattern.");
+    }
+    let r = found[1];
+    let g = found[2];
+    let b = found[3];
+    return `rgba(${r},${g},${b},${alpha})`;
+}   
+
 function expo(x) {
   return Number.parseFloat(x).toExponential(1);
 }
@@ -175,16 +187,12 @@ document.getElementById("lod_slider").oninput = function() {
 }
 
 function isAntigenParamSet() {
-    console.log(gData.assay);
     if (gData.assay != null && gData.assay != "none") {
-	console.log("antigen test is seelcted");
 	return true;
     }
     if (gData.lod != null && gData.lod >= 0) {
-	console.log("LOD is specified");
 	return true;
     }
-    console.log("no antigen test speci");
     return false;
 }
   
@@ -249,7 +257,6 @@ function displayAntigenTestHistogram() {
 }
 
 function displayAccuracyCalc(group) {
-    console.log(group);
     let color = group.colors.negatives;
     let result = `In <span style="color: ${color}">${group.label.trim()}</span>,
           the <strong>sensitivity</strong> for
@@ -266,11 +273,9 @@ function displayAccuracyCalc(group) {
 function setHidden(id, hidden) {
     let node = document.getElementById(id);
     if (hidden) {
-	console.log(`hiding ${id}`);
 	node.classList.add("hidden_style");
     }
     else {
-	console.log(`showing ${id}`);
 	node.classList.remove("hidden_style");
     }
 }
@@ -344,7 +349,10 @@ export function setInfectivityThreshold(value) {
 }
 
 function loadData(data) {
+    let oldData = gData;
     gData = data;
+    gData.assay = oldData.assay;
+    gData.lod = oldData.lod;
     presentData();
 }
 
@@ -354,6 +362,7 @@ export function presentData() {
 	displayComparisons(gData);
 	displayCommentary(gData);
 	displayGroupRadioButtons(gData);
+	displayTestPerformance();
     }
 }
 
@@ -388,7 +397,6 @@ function displayTestCommentary(items) {
 }
 
 function applyInfectivityThreshold(data, infectivityThreshold) {
-    console.log("Doing applyInfectivityThreshold");
     for (let pop of data) {
         pop.tp = 0;
 	pop.fn = 0;
@@ -396,7 +404,6 @@ function applyInfectivityThreshold(data, infectivityThreshold) {
 	pop.tn = 0;
         for (let bin of pop.data) {
             if (bin.viralLoadLog >= infectivityThreshold) {
-		console.log("Positives:", bin.positives);
                 pop.tp += bin.positives;
 		pop.fn += bin.negatives;
             }
@@ -859,29 +866,32 @@ function displayData(info, widgetID, catagories=["count"]) {
     const seriesGroupSelection = group
         .selectAll('g.series')
           .data(d => prepareDataForStackedHistogram(d, catagories), d => d.key)
-          .join(
-              enter => enter.append('g')
-                .classed('series', true)
-	        .style('fill', "#ffffff00")
-	        .style('stroke-width', '2')
-                .style('stroke', (d) => d.color)
-        ); 
+          .join("g")
+          .classed('series', true)
+	  .style('fill', (d) => addAlpha(d.color, 0.2))
+	  .style('stroke-width', '2')
+          .style('stroke', (d) => d.color); 
 
     // For each series create a rect element for each viralLoadLog
-    const rectSelection = seriesGroupSelection.selectAll('line')
+    const rectSelection = seriesGroupSelection.selectAll('rect.histbar')
+	  .data((d) => d, d => d.data.viralLoadLog)
+	  .join("rect")
+	  .classed("histbar", true)
+    	  .attr('width', barWidth-1)
+	  .attr('x', d => xScale(d.data.viralLoadLog-0.5))
+	  .attr('y', d => d[1])
+	  .style('stroke', 'none')
+	  .attr('height', d => d[0] - d[1]);
+
+    // Outline upper edge
+    const lineSelection = seriesGroupSelection.selectAll('line')
           .data((d) => traceUpperEdge(d, xScale, barWidth))
           .join("line")
 	  .attr('x1', d => d.x1)
 	  .attr('x2', d => d.x2)
 	  .attr('y1', d => d.y1)
 	  .attr('y2', d => d.y2);
-/*
-    // Show calculation of "sensitivity" (according to infectivity)    
-    div.selectAll("p.sensitivity").data(d => d.distributionsWithSensitivityCalc)
-        .join("p")
-        .classed("sensitivity", true)
-        .html(d => markupForSensitivity(d));
-  */
+
 }
 
 function traceUpperEdge(data, xScale, barWidth) {

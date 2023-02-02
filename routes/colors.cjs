@@ -27,6 +27,7 @@ exports.getColorSchema = function(index) {
    d = {};
    pair = colorPairs[index % colorPairs.length];
    d["negatives"] = pair[0];
+   d["count"] = d["negatives"];
    d["positives"] = pair[1];
    return d;
 }

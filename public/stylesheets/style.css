@@ -2,10 +2,6 @@
     display: inline;
 }
 
-.hidden_style {
-    display: none;
-}
-
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -166,6 +162,28 @@ legend {
     margin: 2em;
 }
 
+.antihisto {
+    display: grid;
+    grid-columns: 2fr 1fr;
+    grid-template-areas:
+	"antihisto_title antihisto_title"
+	"group_radio group_radio"
+	"antiperf performance_commentary"
+	"none savebuttons"
+}
+
+.antihisto_title {
+    grid-area: antihisto_title;
+}
+
+.group_radio {
+    grid-area: group_radio;
+}
+.antiperf {
+    width: 100%;
+    height: 400px;
+}
+
 #moresettings {
   margin: auto;
   max-width: 800px;   /* I have this matching div.top */
@@ -200,5 +218,9 @@ legend {
 .sensitivity {
   grid-area: sensitivity;
   padding-bottom: 1em;
+}
+
+.hidden_style {
+    display: none;
 }
 

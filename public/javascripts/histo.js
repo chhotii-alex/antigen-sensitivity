@@ -104,7 +104,10 @@ function updateVariables(e) {
     updateQuery();
 }
 
+let assayOptions = {};
+
 function loadAssayOptions(data) {
+    assayOptions = {};
     let options = data.items;
     let select = document.getElementById("antigenTest");
     for (let item of options) {
@@ -114,6 +117,7 @@ function loadAssayOptions(data) {
         opt.value = id;
         opt.text = label;
         select.add(opt);
+	assayOptions[id] = label;
     }
 }
 
@@ -126,28 +130,40 @@ function maxDateAvail() {
 }
 
 function updateLOD(lod) {
+    gData.lod = lod;
+    if (lod >= 0) {
+	gData.assay = null;
+    }
     let lod_exp = document.getElementById("lod_exp");
     let lod_text = document.getElementById("lod_text");
     if (lod >= 0) {
 	lod_exp.innerHTML = lod;
 	lod_text.className = "inline_style";
 	document.getElementById("antigenTest").value = "none";
+	document.getElementById("test_description").innerHTML = `antigen test with an LOD of 10<sup>${lod}</sup>`;
     }
     else {
 	lod_exp.innerHTML = "";
 	lod_text.className = "hidden_style";
     }
+    
     displayTestPerformance();
 }
 
 
 function updateAntigenTestSelection() {
     let assay = document.getElementById("antigenTest").value;
-    console.log(assay);
-    if (assay != "none") {
+    gData.lod = null;
+    if (assay == "none") {
+	assay = null;
+    }
+    gData.assay = assay;
+    if (assay != null) {
 	let lod_slider = document.getElementById("lod_slider");
 	lod_slider.value = -1;
 	updateLOD(lod_slider.value);
+	let assayName = assayOptions[assay];
+	document.getElementById("test_description").innerHTML = assayName;
     }
     displayTestPerformance();
 }
@@ -157,11 +173,87 @@ document.getElementById("antigenTest").onchange = updateAntigenTestSelection;
 document.getElementById("lod_slider").oninput = function() {
     updateLOD(this.value);
 }
+
+function isAntigenParamSet() {
+    console.log(gData.assay);
+    if (gData.assay != null && gData.assay != "none") {
+	console.log("antigen test is seelcted");
+	return true;
+    }
+    if (gData.lod != null && gData.lod >= 0) {
+	console.log("LOD is specified");
+	return true;
+    }
+    console.log("no antigen test speci");
+    return false;
+}
   
-
-
 function displayTestPerformance() {
-    console.log("Doing displayTestPerformance");
+    setHidden("antihisto", !isAntigenParamSet());
+    if (!isAntigenParamSet()) {
+	return;
+    }
+    if (gData.assay != null) {
+	applyKnownAntigenTest(gData, gData.assay);
+    }
+    else {
+	applyLOD(gData, gData.lod);
+    }
+    displayAntigenTestHistogram();
+}
+
+function applyKnownAntigenTest(gData, assay) {
+    for (let pop of gData) {
+	pop.catagories["negatives"] = "Antigen Negatives";
+	pop.catagories["positives"] = "Antigen Positives";
+	for (let bin of pop.data) {
+	    if (bin.viralLoadLog < 4) {
+		bin["negatives"] = bin["count"];
+		bin["positives"] = 0;
+	    }
+	    else if (bin.viralLoadLog < 7) {
+		bin["negatives"] = Math.round(0.5*bin["count"]);
+		bin["positives"] = Math.round(0.5*bin["count"]);
+	    }
+	    else {
+		bin["negatives"] = 0;
+		bin["positives"] = bin["count"];
+	    }
+	}
+    }    
+}
+
+function applyLOD(gData, lod) {
+    for (let pop of gData) {
+	pop.catagories["negatives"] = "Antigen Negatives";
+	pop.catagories["positives"] = "Antigen Positives";
+	for (let bin of pop.data) {
+	    if (bin.viralLoadLog < lod) {
+		bin["negatives"] = bin["count"];
+		bin["positives"] = 0;
+	    }
+	    else {
+		bin["negatives"] = 0;
+		bin["positives"] = bin["count"];
+	    }
+	}
+    }
+}
+
+function displayAntigenTestHistogram() {
+    displayData([gData[0]], "antiperf", ["negatives", "positives"]);
+}
+
+function setHidden(id, hidden) {
+    let node = document.getElementById(id);
+    if (hidden) {
+	console.log(`hiding ${id}`);
+	node.classList.add("hidden_style");
+    }
+    else {
+	console.log(`showing ${id}`);
+	node.classList.remove("hidden_style");
+    }
 }
 
 
@@ -175,7 +267,6 @@ if (maxDateAvail()) {
 
 /* Called directly when a checkbox is clicked */
 export function updateQuery() {
-    let assay = document.getElementById("antigenTest").value;
     let minDate = null;
     let maxDate = null;
     if (minDateAvail()) {
@@ -184,7 +275,7 @@ export function updateQuery() {
     if (maxDateAvail()) {
       maxDate = document.getElementById("maxDate").value;
     }
-    doQuery(assay, minDate, maxDate);
+    doQuery(minDate, maxDate);
   }
 
   let url;
@@ -200,10 +291,7 @@ export function updateQuery() {
         .then(data => loadAssayOptions(data));
 
 
-export function doQuery(assay=null, minDate=null, maxDate=null) {
-    if (assay == "none") {
-        assay = null;
-    }
+export function doQuery(minDate=null, maxDate=null) {
     let url = 'api/data/viralloads?';
 
     for (let variable in variables) {
@@ -214,9 +302,6 @@ export function doQuery(assay=null, minDate=null, maxDate=null) {
 	}
     }
     
-    if (assay) {
-        url += `assay=${assay}&`;
-    }
     if (minDate) {
         url += `minDate=${minDate}&`
     }
@@ -228,7 +313,7 @@ export function doQuery(assay=null, minDate=null, maxDate=null) {
         .then(data => loadData(data));
 }
 
-let gData = null;
+let gData = [];
 let gInfectivityThreshold;
 
 export function setInfectivityThreshold(value) {
@@ -246,7 +331,7 @@ function loadData(data) {
 export function presentData() {
     applyInfectivityThreshold(gData, gInfectivityThreshold);
     if (gData) {
-	displayData(gData, d3.select("#displaybox"));
+	displayData(gData, "displaybox"); 
 	displayComparisons(gData);
 	displayCommentary(gData);
 	displayGroupRadioButtons(gData);
@@ -254,7 +339,7 @@ export function presentData() {
 }
 
 function getLOD() {
-    return 5; //TODO
+    return gData.lod;
 }
 
 // TODO: Use the framework Luke
@@ -327,8 +412,8 @@ function linearScale(values, width) {
         .range([0, width]);
 }
 
-function prepareDataForStackedHistogram(info) {
-    let stack = d3.stack().keys(Object.keys(info.catagories));
+function prepareDataForStackedHistogram(info, catagories) {
+    let stack = d3.stack().keys(catagories);
     let stackedData = stack(info.data);
     stackedData.forEach( (f) => {
         f.color = info.colors[f.key];
@@ -611,17 +696,21 @@ function displayTextComparisons(info) {
         .html(d =>  formatPValue(d.pvalue));
 }
 
-function displayData(info, box) {
-    let elem = document.getElementById("displaybox");
+function displayData(info, widgetID, catagories=["count"]) {
+    let elem = document.getElementById(widgetID);
+    let box = d3.select(elem);
     let rect = elem.getBoundingClientRect();
     let width = rect.width - (margin.left + margin.right);
     let height = rect.height - (margin.top + margin.bottom);
-    console.log(width, height);
     let y_scale = Array.from(document.getElementsByName("y_scale")).find(radio =>
 	radio.checked).value;
     let yScalesIndependent = true;
     if (y_scale == 'scale_shared') {
 	yScalesIndependent = false;
+    }
+
+    if (info.length < 1) {
+	return;
     }
     
     let firstData = info[0].data;
@@ -637,7 +726,7 @@ function displayData(info, box) {
         item.yScale = d3.scaleLinear().range([height,0]);
         let  maxPValues = item.data.map( (d) => {
             let sum = 0;
-            for (let key of Object.keys(item.catagories)) { sum += d[key]; }
+            for (let key of catagories) { sum += d[key]; }
             sum *= 1.1; /* Give headroom for "Infectious"/"Non-infectious" strings. Tweak if any relevant sizes change. */
             return sum;
         });
@@ -738,9 +827,9 @@ function displayData(info, box) {
         https://observablehq.com/@d3/selection-join */
     const seriesGroupSelection = group
         .selectAll('g.series')
-        .data(d => prepareDataForStackedHistogram(d), d => d.key)
-        .join(
-            enter => enter.append('g')
+          .data(d => prepareDataForStackedHistogram(d, catagories), d => d.key)
+          .join(
+              enter => enter.append('g')
                 .classed('series', true)
 	        .style('fill', "#ffffff00")
 	        .style('stroke-width', '2')

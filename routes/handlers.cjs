@@ -23,7 +23,6 @@ let d3promise = import('d3');
 const { sanitizeDateInput } = require('./util.cjs');
 
 const colors  = require('./colors.cjs');
-const assays = require('./antigenTests.cjs');
 
 console.log("webapp routes launching...")
 
@@ -391,16 +390,11 @@ exports.datafetch = async function(req, res, next) {
       results.push(pop);
       rawDataPrev.push(rawData);
     }
-   
-    let assay = assays.assayForIdentifier(req.query.assay);
+
     for (let pop of results) {
-      for (let bin of pop.data) {
-        bin.positives = assay.positiveCount(bin.viralLoadLog, bin.count);
-        bin.negatives = assay.negativeCount(bin.viralLoadLog, bin.count);
-      }
-      pop["catagories"] = assay.distinguishedCatagories();
+       pop["catagories"] = { "count" : "Count" };
     }
-  
+   
     res.json(results);
   }
 

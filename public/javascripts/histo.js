@@ -354,6 +354,14 @@ function loadData(data) {
     gData = data;
     gData.assay = oldData.assay;
     gData.lod = oldData.lod;
+    if (gData.find( e => e.label == oldData.selectedGroup)) {
+	gData.selectedGroup = oldData.selectedGroup;
+    }
+    else {
+	if (gData.length > 0) {
+	    gData.selectedGroup = gData[0].label;
+	}
+    }
     setHidden("loading", true);
     presentData();
 }
@@ -365,6 +373,7 @@ export function presentData() {
 	displayCommentary(gData);
 	displayGroupRadioButtons(gData);
 	displayTestPerformance();
+	onresize = (event) => {presentData()};
     }
 }
 
@@ -930,7 +939,7 @@ function displayGroupRadioButtons(info) {
     let span = box.selectAll("span")
 	.data(info)
 	.join("span")
-    	.classed("first_radio", (d,i) => { return (i == 0); });
+    	.classed("first_radio", d => { return (d.label == gData.selectedGroup); });
     span.selectAll("input")
 	.data(d => [d])
 	.join("input")
@@ -949,9 +958,6 @@ function displayGroupRadioButtons(info) {
 	.text(d => d.label);
     box.select(`span.first_radio input`)
     	.property("checked", true);
-    if (info.length > 0) {
-	updateSelectedGroup(info[0].label);
-    }
 }
 
 export function displayCheckboxes(subdivisions) {

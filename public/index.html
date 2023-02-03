@@ -4,6 +4,18 @@
 <head>
   <title>Predicted COVID Test Performance</title>
   <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" integrity="sha512-YcsIPGdhPK4P/uRW6/sruonlYj+Q7UHWeKfTAkBW+g83NKM+jMJFJ4iAPfSnVp7BKD4dKMHmVSvICUbE/V1sSw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script >
+    function pdfForId(id) {
+      let element = document.getElementById(id);
+	var opt = {
+	    filename:     'viralloads.pdf',
+	    jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+	};
+	html2pdf(element, opt);
+    }	
+    function savePlot1() {  pdfForId('grouphisto');  }
+  </script>
 </head>
 
 <body>
@@ -38,10 +50,10 @@
 	</div>
       </fieldset>
     </div>
-    <div class="grouphisto has_bottom_line">
+    <div id="grouphisto" class="grouphisto has_bottom_line">
       <h1 id="comparison_title" class="comparisons" ></h1>
       <svg id="displaybox" class="displaybox" width="100%" height="400" >
-	<!-- D3 does its thing here -->
+ 	<!-- D3 does its thing here -->
       </svg>
       <div class="meantext">
 	<div id="pvalue_text" >
@@ -53,7 +65,7 @@
       </div>
       <div class="savebuttons">
 	<span></span>
-	<a href="notyet" target="_blank" class="download"> Save plot </a>
+	<button class="download" onclick="savePlot1()"> Save plot </button>
 	<a href="dataset" download class="download"> Download De-identified Dataset </a>
       </div>
     </div>

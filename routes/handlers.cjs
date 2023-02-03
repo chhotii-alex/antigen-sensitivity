@@ -141,13 +141,40 @@ let cachedVars = null;
 
 exports.vars = async function(req, res, next) {
     if (!cachedVars) {
-       query = `SELECT variable, variableDisplayName,
-          value, valueDisplayName, noun, adjective, modifier, whereClause
-            FROM UIVars ORDER BY sort`;
-       let {rows} = await pool.query(query);
-       for (const row of rows) {
-           new PatientSplitSpecifier(row);
+       {
+              query = `SELECT variable, variableDisplayName,
+       	         value, valueDisplayName, noun, adjective, modifier, whereClause
+                FROM UIVars ORDER BY sort`;
+       		let {rows} = await pool.query(query);
+         	for (const row of rows) {
+            	    new PatientSplitSpecifier(row);
+       		    }
        }
+       {
+          query = "SELECT tag, description from TreatmentRef order by sort_key";
+          let {rows} = await pool.query(query);
+          for (const row of rows) {
+             let tag = row.tag;
+	     let description = row.description;
+             let d = {
+	      	 variable: tag,
+	     	 variabledisplayname: description,
+	     	 value: `true_${tag}`,
+	     	 valuedisplayname: `received ${description}`,
+	     	 noun: null,
+	     	 modifier: `getting ${description}`,
+	     	 adjective: null,
+	     	 whereclause: tag.toLowerCase()
+	     };
+	     new PatientSplitSpecifier(d);
+	     d.value = `false_${tag}`;
+	     d.valuedisplayname = `did not receive ${description}`;
+	     d.modifier = `not getting ${description}`;
+	     d.whereclause = `not ${tag.toLowerCase()}`;
+	     new PatientSplitSpecifier(d);
+       	   }
+       }
+	     
        let items = [];
        splits.forEach( (split, variable, map) => {
           let divisions = [];

@@ -84,27 +84,6 @@ async function getComorbidities() {
   return comorbidities;
 }
 
-let treatments = null;
-let treatmentLookup = null;
-  
-async function getTreatments() {
-  if (!treatments) {
-        query = " SELECT tag, description from TreatmentRef order by sort_key";
-       let { rows } = await pool.query(query);
-       treatments = [];
-       treatmentLookup = {};
-       for (const elem of rows) {
-           tag = elem.tag.trim();
-           descr = elem.description;
-	   treatments.push( { "tag":tag,
-	   		    "name":descr,
-			  });
-           treatmentLookup[tag] = descr;
-        }
-  }
-  return treatments;
-}
-
 let splits = new Map();
 
 class PatientSplit {
@@ -151,7 +130,7 @@ exports.vars = async function(req, res, next) {
        		    }
        }
        {
-          query = "SELECT tag, description from TreatmentRef order by sort_key";
+          query = "SELECT tag, description from TreatmentRef order by tag";
           let {rows} = await pool.query(query);
           for (const row of rows) {
              let tag = row.tag;
@@ -361,27 +340,6 @@ exports.datafetch = async function(req, res, next) {
 	       {"base" : baseQuery, "joins" : joins, "where" : whereClause });
 	 }
 	 queries = newQueries;
-    }
-    if (false) { 
-      if (treatmentLookup && req.query.vars in treatmentLookup) {
-         tag = req.query.vars;
-	 descr = `treated with ${treatmentLookup[tag]}`;
-          let newQueries = new QuerySet();
-          for (let query of queries.getLabels()) {
-	    queryParts = queries.queries[query];
-	    description = queries.descriptions[query];
-	    baseQuery = queryParts["base"];
-  	    joins = queryParts["joins"];
-  	    whereClause = queryParts["where"];
-	    tableAbbrev = `c_${tag}`;
-	    joins = joins + ` INNER JOIN Treatment ${tableAbbrev}
-	                          ON covidtestresults.id = ${tableAbbrev}.result_id `;
-            whereClause = whereClause + ` and ${tableAbbrev}.tag = '${tag}' `;
-	    let newSet = new PatientSetDescription(description, null, null, descr);
-	    newQueries.addQuery(newSet, {"base" : baseQuery, "joins" : joins, "where" : whereClause });
-	  }
-          queries = newQueries;
-        }
     }
     let rawDataPrev = [];
     let results = [];

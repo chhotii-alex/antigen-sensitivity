@@ -153,6 +153,49 @@ exports.vars = async function(req, res, next) {
 	     new PatientSplitSpecifier(d);
        	   }
        }
+       {
+           query = `SELECT g.tag group_tag, g.description group_name,
+	           r.tag, r.description,
+		   r.on_by_default
+	           from ComorbidityGroup g,
+		        ComorbidityRef r
+	           WHERE g.tag = r.grouping
+		   order by g.sort_key, r.sort_key`;
+   	   let { rows } = await pool.query(query);
+	   rows.push({'group_tag' : null });
+	   let prev_group = null;
+	   let group_description = null;
+	   let tags;
+	   for (const row of rows) {
+	       let group_tag = row['group_tag'];
+	       if (group_tag != prev_group) {
+	           if (prev_group != null) {
+    	              let tag = prev_group;
+	              let d = {
+		         variable: tag,
+		         variabledisplayname: group_description,
+		         value: `true_${tag}`,
+		         valuedisplayname: `has ${group_description}`,
+		         noun: null,
+		         modifier: `having ${group_description}`,
+		         adjective: null,
+		         whereclause: "(" + stringJoin(" OR ", tags) + ")",
+		      };
+		      new PatientSplitSpecifier(d);
+		      d.value = `false_${tag}`;
+		      d.valuedisplayname = `not having ${group_description}`;
+		      d.modifier = `not having ${group_description}`;
+		      d.whereclause = "(" + stringJoin(" AND ",
+		                        tags.map(s => ` NOT ${s} `)) + ")";
+		      new PatientSplitSpecifier(d);
+		  }
+		  tags = [];
+	       }
+	       tags.push(row['tag']);
+	       group_description = row['group_name'];
+	       prev_group = group_tag;
+	   }
+       }
 	     
        let items = [];
        splits.forEach( (split, variable, map) => {

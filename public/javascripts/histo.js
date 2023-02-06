@@ -129,7 +129,7 @@ function loadAssayOptions(data) {
         opt.value = id;
         opt.text = label;
         select.add(opt);
-	assayOptions[id] = label;
+	assayOptions[id] = item;
     }
 }
 
@@ -174,7 +174,7 @@ function updateAntigenTestSelection() {
 	let lod_slider = document.getElementById("lod_slider");
 	lod_slider.value = -1;
 	updateLOD(lod_slider.value);
-	let assayName = assayOptions[assay];
+	let assayName = assayOptions[assay].displayName;
 	document.getElementById("test_description").innerHTML = assayName;
     }
     displayTestPerformance();
@@ -211,17 +211,19 @@ function displayTestPerformance() {
 }
 
 function applyKnownAntigenTest(gData, assay) {
+    let p = assayOptions[assay].p;
     for (let pop of gData) {
 	pop.catagories["negatives"] = "Antigen Negatives";
 	pop.catagories["positives"] = "Antigen Positives";
 	for (let bin of pop.data) {
-	    if (bin.viralLoadLog < 4) {
+	    if (bin.viralLoadLog < 1) {
 		bin["negatives"] = bin["count"];
 		bin["positives"] = 0;
 	    }
-	    else if (bin.viralLoadLog < 7) {
-		bin["negatives"] = Math.round(0.5*bin["count"]);
-		bin["positives"] = Math.round(0.5*bin["count"]);
+	    else if (bin.viralLoadLog <= p.length) {
+		let p_for_bin = p[Math.floor(bin.viralLoadLog)-1];
+		bin["positives"] = Math.round(p_for_bin*bin["count"]);
+		bin["negatives"] = bin["count"] - bin["positives"];
 	    }
 	    else {
 		bin["negatives"] = 0;

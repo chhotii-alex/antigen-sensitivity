@@ -451,12 +451,12 @@ function getTotal(data, categories) {
     return str;
 }
 
-const margin = {top: 10, right: 30, bottom: 40, left: 80};
+const margin = {top: 10, right: 0, bottom: 40, left: 20};
 
 function linearScale(values, width) {
     let extent = d3.extent(values);
-    extent[0] -= 0.5;
-    extent[1] += 0.5;
+//    extent[0] -= 0.5;
+//    extent[1] += 0.5;
     return d3.scaleLinear()
         .domain(extent)
         .range([0, width]);
@@ -767,9 +767,10 @@ function displayData(info, widgetID, catagories=["count"]) {
     let firstData = info[0].data;
 
     // We are very much assuming that all histograms will have the same x axis.
-    const xValues = firstData.map( (d) => d['viralLoadLog']);
+    const xValues = firstData.map( (d) => d['viralLoadLogMax']);
+    xValues.push(firstData[0].viralLoadLogMin - 1);
     const xScale = linearScale(xValues, width);
-    const barWidth = width/(xValues.length);
+    const barWidth = xScale(firstData[0].viralLoadLogMax) - xScale(firstData[0].viralLoadLogMin);
 
     let allValues = [0];
 
@@ -808,8 +809,8 @@ function displayData(info, widgetID, catagories=["count"]) {
         .classed("region", true)
         .attr("y", 0)
         .attr("height", height)
-        .attr("x", d => xScale(d.min - 0.5))
-        .attr("width", d => xScale((d.max - d.min) + 0.5))
+        .attr("x", d => xScale(d.min))
+        .attr("width", d => xScale(d.max) - xScale(d.min))
         .style("fill", d => d.color);
     regiong.selectAll("text.i_label")
         .data(d => [d])
@@ -818,60 +819,42 @@ function displayData(info, widgetID, catagories=["count"]) {
         .text(d => d.title)
 	.style('fill', "#b8b8b8")
 	.attr("text-anchor", "end")
-	.attr("transform", d =>`rotate(-90 ${20+xScale(d.min - 0.5)} 30)`)
+	.attr("transform", d =>`rotate(-90 ${20+xScale(d.min)} 30)`)
         .attr("y", "30")
-        .attr("x", (d) => 20+xScale(d.min - 0.5));
+        .attr("x", (d) => 20+xScale(d.min));
     regiong.selectAll("polygon.triangle")
 	.data(d => [d])
 	.join("polygon")
 	.classed("triangle", true)
-	.attr("points", d => `${xScale(d.min-0.5)+8} 28 ${xScale(d.min-0.5)+18} 22 ${xScale(d.min-0.5)+8} 16`)
+	.attr("points", d => `${xScale(d.min)+8} 28 ${xScale(d.min)+18} 22 ${xScale(d.min)+8} 16`)
 	.style("fill", "#dbdbdb");
                              
     let group = box.selectAll("g.histgroup").data(info).join("g")
         .classed("histgroup", true)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-    //Adds in the X axis with ticks
-    let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
-        .classed("x-axis", true)
-        .attr("transform", `translate(0, ${height})`);
-    d3.axisBottom(xScale)
-        .tickValues([0, 3, 6, 9, 12])
-        .tickFormat('')(xAxis);
-    xAxis.selectAll(".tick").selectAll("foreignObject").data(d => [d]).join("svg:foreignObject")
-            .attr("width","2em")
-            .attr("height","2em")
-            .attr("x", "-1em")
-            .attr("y", "0.5em")
-        .selectAll("div.exponentlabel").data(d => [d]).join("xhtml:div")
-            .classed("exponentlabel", true)
-            .html(function(n) {return `10<sup>${n}</sup>`;});
-
-    // Add X axis label:
-    group.selectAll("text.xlabel").data(["Viral load (copies of mRNA/mL)"]).join("text")
-        .classed("xlabel", true)
-        .attr("text-anchor", "middle")
-        .attr("x", width/2)
-        .attr("y", height + margin.top + 24)
-        .text(d => d);
-
+    
     // Y axis with no ticks
-    group.selectAll("g.yaxis").data(d => [d]).join("g")
+    group.selectAll("line.yaxis")
+	.data(d => [0])
+	.join("line")
 	.classed("yaxis", true)
-        .each(function(d, i) {
-	    d3.select(this).call(d3.axisLeft(d.yScale).ticks(0) )
-	});
+	.attr("x1", `${xScale(0)}px`)
+	.attr("x2", `${xScale(0)}px`)
+	.attr("y1", 0)
+	.attr("y2", height)
+	.attr("stroke", "black");
 
     group.selectAll("text.ylabel")
 	.data(d => [d])
         .join("text")
         .classed("ylabel", true)
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left/2)
-        .attr("x", -height/2)
-        .text(d => "Probability Density");
+        .attr("text-anchor", "start")
+	.attr("x", `${xScale(0)}`)
+	.attr("y", `${height-100}`)
+//        .attr("x", -height/2)
+//      .attr("y", -margin.left/2)
+        .attr("transform", `rotate(-90 ${xScale(0)} ${height-90})`)
+          .text(d => "Probability Density");
 
     // Create a g element for each series
     /* We can make there be transitions here, by passing functions to join(). See
@@ -890,8 +873,8 @@ function displayData(info, widgetID, catagories=["count"]) {
 	  .data((d) => d, d => d.data.viralLoadLog)
 	  .join("rect")
 	  .classed("histbar", true)
-    	  .attr('width', barWidth-1)
-	  .attr('x', d => xScale(d.data.viralLoadLog-0.5))
+    	  .attr('width', barWidth)
+	  .attr('x', d => xScale(d.data.viralLoadLogMin))
 	  .attr('y', d => d[1])
 	  .style('stroke', 'none')
 	  .attr('height', d => d[0] - d[1]);
@@ -905,14 +888,64 @@ function displayData(info, widgetID, catagories=["count"]) {
 	  .attr('y1', d => d.y1)
 	  .attr('y2', d => d.y2);
 
+    //Adds in the X axis with ticks
+    let xAxis = group.selectAll("g.x-axis").data(d => [d]).join("g")
+        .classed("x-axis", true)
+        .attr("transform", `translate(0, ${height})`);
+    xAxis.selectAll("line")
+	.data([0])
+	.join("line")
+	.attr("x1", xScale(0))
+	.attr("x2", xScale(12))
+	.attr("y1", 0)
+	.attr("y2", 0)
+	.attr("stroke", "black");
+    let tickBox = xAxis.selectAll("g.tick")
+	.data([0, 3, 6, 9, 12])
+	.join("g")
+	.classed("tick", true)
+	.attr("transform", d => `translate(${xScale(d)},0)`);
+    tickBox.selectAll("line")
+	.data(d => [d])
+	.join("line")
+	.attr("x1", 0)
+	.attr("x2", 0)
+	.attr("y1", 0)
+	.attr("y2", 5)
+	.attr("stroke", "black");
+    tickBox.selectAll("foreignObject")
+	.data(d => [d])
+	.join("svg:foreignObject")
+	.attr("width", "2em")
+	.attr("height", "2em")
+	.attr("x", "-1em")
+	.attr("y", "0.5em")
+    .selectAll("div.exponentlabel")
+	.data(d => [d])
+	.join("xhtml:div")
+	.style("font-size", "10px")
+	.classed("exponentlabel", true)
+	.html(n => `10<sup>${n}</sup>`);
+
+    // Add X axis label:
+    group.selectAll("text.xlabel").data(["Viral load (copies of mRNA/mL)"]).join("text")
+        .classed("xlabel", true)
+        .attr("text-anchor", "middle")
+        .attr("x", width/2)
+        .attr("y", height + margin.top + 24)
+        .text(d => d);
+
 }
 
 function traceUpperEdge(data, xScale, barWidth) {
     let lines = [];
     let prevY = null;
     data.forEach( bar => {
-	let x = xScale(bar.data.viralLoadLog-0.5);
-	let width = barWidth;
+	let x = xScale(bar.data.viralLoadLogMin);
+	if (x < xScale(0)) {
+	    x = xScale(0);
+	}
+	let width = xScale(bar.data.viralLoadLogMax) - x;
 	let y = bar[1];
 	// From (x, prevY) to (x, y)
 	if (prevY != null) {

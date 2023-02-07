@@ -309,10 +309,14 @@ function makeNewQueries(queries, updaterList) {
     return newQueries;
 }
 
+// From MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#sequence_generator_range
+const range = (start, stop, step) =>
+  Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
+
 exports.datafetch = async function(req, res, next) {
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let mwu = await mwu_promise;
-    let bin = d3.bin().domain([0,13]).thresholds(24);
+    let bin = d3.bin().domain([-0.25,13.25]).thresholds(range(-0.25, 13.25, 0.5));
     let baseQuery = `SELECT log(viral_load) viralloadlog
           FROM DeidentResults `
     let joins = ` `
@@ -343,53 +347,7 @@ exports.datafetch = async function(req, res, next) {
            queries = makeNewQueries(queries, groupsToFetch);
        }
     }
-    if ('comorbid' in req.query) {
-         if ((typeof req.query.comorbid) == 'string') {
-	    if (req.query.comorbid == "nothing") {
-	      tags = [];
-	    }
-	    else {
-              tags = [req.query.comorbid];
-	    }
-	 }
-	 else {
-	    tags = req.query.comorbid;
-	 }
-	 let newQueries = new QuerySet();
-	 for (let query of queries.getLabels()) {
-	   queryParts = queries.queries[query];
-	   oldSet = queries.descriptions[query];
-	   baseQuery = queryParts["base"];
-	   joins = queryParts["joins"];
-	   whereClause = queryParts["where"];
-	   orClauses = [];
-	   if (tags.length < 1) {
-	   	 descr = "nothing selected";
-	       whereClause += ' AND true = false ';
-	   }
-	   else {
-   	     for (const tag of tags) {
-	       for (const grouping of await getComorbidities()) {
-	          for (const sub of grouping.subdivisions) {
-		     if (tag == sub.tag) {
-		        descr = grouping.name;
-		     }
-		   }
-	       }
-	       tableAbbrev = `c_${tag}`;
-	       joins += `
-	           LEFT OUTER JOIN Comorbidity ${tableAbbrev} on covidtestresults.id = ${tableAbbrev}.result_id
-	                    and (${tableAbbrev}.tag = '${tag}' OR ${tableAbbrev}.tag IS NULL)
-	       `;
-	       orClauses.push(` ${tableAbbrev}.tag IS NOT NULL `);
-	     }
-	     whereClause += "AND (" + stringJoin(" OR ", orClauses) + ")";
-	   }
-	   newQueries.addQuery(new PatientSetDescription(oldSet, null, descr),
-	       {"base" : baseQuery, "joins" : joins, "where" : whereClause });
-	 }
-	 queries = newQueries;
-    }
+
     let rawDataPrev = [];
     let results = [];
     let index = 0;
@@ -414,8 +372,14 @@ exports.datafetch = async function(req, res, next) {
 	      "mean" : mean_val,
 	      "count" : rawData.length,
 	      "comparisons" : []};
-      pop["data"] = bins.map(r => {
-         	     return {"viralLoadLog" : r.x0, "count" : r.length };
+      pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
+                     console.log(r.x0, r.x1);
+         	     return {
+		         "viralLoadLog" : (r.x0+r.x1)/2,
+		         "viralLoadLogMin" : r.x0,
+			 "viralLoadLogMax" : r.x1,
+			 "count" : r.length,
+			 };
          });
       for (const prev of rawDataPrev) {
          pvalue = compareArrays(prev, rawData, mwu);

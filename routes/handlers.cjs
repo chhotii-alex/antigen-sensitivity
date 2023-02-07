@@ -280,14 +280,8 @@ class QuerySet {
 exports.assays = function(req, res, next) {
     let retval = {
       items: [
-        {id: 1, displayName: "Binax",
-	   p: [0.01491014, 0.04713878, 0.13918747, 0.34575833,
-	   0.63334212, 0.84952749, 0.94859362, 0.98369007, 0.99495277],
-	},
-        {id: 2, displayName: "Gingko",
-	   p: [0.01032245, 0.03165307, 0.09292327, 0.2430278,
-	   0.5015379,  0.75922841, 0.90810857, 0.96872187, 0.98980248],
-	},
+        {id: 1, displayName: "Binax", coef: 1.1843183, intercept: -5.37500995},
+        {id: 2, displayName: "Gingko", coef: 1.14230231,  intercept: -5.70535991},
       ]
     };
     res.json(retval);

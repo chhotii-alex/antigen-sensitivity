@@ -211,24 +211,15 @@ function displayTestPerformance() {
 }
 
 function applyKnownAntigenTest(gData, assay) {
-    let p = assayOptions[assay].p;
+    let coef = assayOptions[assay].coef;
+    let intercept = assayOptions[assay].intercept;
     for (let pop of gData) {
 	pop.catagories["negatives"] = "Antigen Negatives";
 	pop.catagories["positives"] = "Antigen Positives";
 	for (let bin of pop.data) {
-	    if (bin.viralLoadLog < 1) {
-		bin["negatives"] = bin["count"];
-		bin["positives"] = 0;
-	    }
-	    else if (bin.viralLoadLog <= p.length) {
-		let p_for_bin = p[Math.floor(bin.viralLoadLog)-1];
-		bin["positives"] = Math.round(p_for_bin*bin["count"]);
-		bin["negatives"] = bin["count"] - bin["positives"];
-	    }
-	    else {
-		bin["negatives"] = 0;
-		bin["positives"] = bin["count"];
-	    }
+        let p = 1/(1 + Math.exp(-coef * bin.viralLoadLog - intercept))
+        bin["positives"] = Math.round(p*bin["count"]);
+        bin["negatives"] = bin["count"] - bin["positives"];
 	}
     }
     applyInfectivityThreshold(gData, gInfectivityThreshold);

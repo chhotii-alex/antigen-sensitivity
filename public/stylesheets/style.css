@@ -278,3 +278,25 @@ legend {
 	columns: 1;
     }
 }
+
+@media only print {
+    .pickgroup {
+	page-break-after: always;
+    }
+    .grouphisto {
+	page-break-after: always;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-areas:
+	    "comparisons"
+	    "displaybox"
+	    "meantext"
+	    "pyramid"
+    }
+    .displaybox {
+	page-break-after: always;
+    }
+    .savebuttons {
+	display: none;
+    }
+}

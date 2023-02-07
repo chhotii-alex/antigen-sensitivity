@@ -252,6 +252,11 @@ legend {
     display: none;
 }
 
+footer {
+    max-width: 400px;
+    margin: auto;
+}
+
 @media only screen and (min-width: 3000px) {
     .webapp {
 	grid-template-columns: 1fr 2fr;

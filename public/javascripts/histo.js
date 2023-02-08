@@ -65,7 +65,7 @@ let variableValues = {};
 
 function loadVariableOptions(data) {
     let options = data.items;
-    let div = document.getElementById("select_var_checks");
+    let div = document.getElementById("select_var");
     for (let item of options) {
 	let subdiv = document.createElement("div");
 	div.appendChild(subdiv);

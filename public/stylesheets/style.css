@@ -47,12 +47,14 @@ h1 {
 .has_bottom_line {
     border-bottom: 1px solid #dfdfdf;
 }
-#select_var {
+.pickgroup > fieldset {
     max-width: 76em;
     margin: 1em auto 2em;
+}
+#select_var {
     columns: 4;
 }
-#select_var > legend {
+#select_var_label {
     text-align: center;
     margin: auto;
     padding: 0.75em;
@@ -72,6 +74,9 @@ h1 {
 }    
 .select_var_open svg {
     transform: rotate(0.25turn);
+}
+#select_var > div {
+    break-inside: avoid-column;
 }
 .grouphisto {
     display: grid;

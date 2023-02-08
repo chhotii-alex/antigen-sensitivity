@@ -530,6 +530,21 @@ function range(start, stop, step=1) {
     return a;
 }
 
+function linspace(start, stop, n) {
+    if (n < 2) {
+	return [start, stop];
+    }
+    if (stop <= start) {
+	return [stop, start];
+    }
+    let step = (stop-start)/(n-1);
+    let a = [];
+    for (let x = start, j = 0; j < n; ++j, x += step) {
+	a.push(x);
+    }
+    return a;
+}
+
 function colorForPValue(p) {
     let r = 90;
     let g = 90;
@@ -554,6 +569,10 @@ function retrievePValue(info, i, j) {
 
 function shortPValue(info, i, j) {
     let num = retrievePValue(info, i, j);
+    return formatShortPValue(num);
+}
+
+function formatShortPValue(num) {
     if (num >= 0.01) {
 	return num.toFixed(2);
     }
@@ -576,23 +595,58 @@ function maxLabelLen(info) {
     return maxLen+1;
 }
 
+function pyramidLegend(values) {
+    let element = document.getElementById("plegend");
+    let container = element.parentNode;
+    const rectSize = 25;
+    let box = d3.select("#plegend");
+    console.log(values);
+    box.selectAll('ellipse')
+	.data(values)
+	.join('ellipse')
+	.attr('cx', 19)
+	.attr('cy', (d,i) => 25*(i+1))
+	.attr('rx', 16)
+	.attr('ry', 10)
+	.attr('width', rectSize)
+	.attr('height', rectSize)
+	.attr('fill', d => colorForPValue(d));
+    box.selectAll('text')
+	.data(values)
+	.join('text')
+	.attr('x', 36)
+	.attr('y', (d,i) => 4 + 25*(i+1))
+	.text(d => `p = ${formatShortPValue(d)}`);
+}	
+
 function displayPyramid(info) {
+    let minP = null;
+    let maxP = null;
+    function observePValue(p) {
+	if (minP == null || p < minP) {
+	    minP = p;
+	}
+	if (maxP == null || p > maxP) {
+	    maxP = p;
+	}
+	return p;
+    }
     const baseFontSize = 6.8;
-    let container = document.getElementById("pyramid_container");
+    let pyramidElem = document.getElementById("pyramid");
+    let container = pyramidElem.parentNode;
     if (info.length < 2) {
 	container.style.display = "none";
     }
     else {
 	container.style.display = "block";
     }
-    let pyramidElem = document.getElementById("pyramid");
     const rectSize = 25;
     const innerMargin = 10;
     const outerMargin = 0;
     const totalWidth = rectSize*(info.length-1);
     const labelWidth = maxLabelLen(info)*baseFontSize/Math.sqrt(2);
     let box = d3.select("#pyramid");
-    let w = pyramidElem.parentNode.getBoundingClientRect().width;
+    let w = container.getBoundingClientRect().width;
     const scale = w/(totalWidth+labelWidth+innerMargin+2*outerMargin);
     function x(i) {
 	return scale*(outerMargin+totalWidth-(i+1)*rectSize);
@@ -631,6 +685,7 @@ function displayPyramid(info) {
         .attr('y', d => y(d[0]))
         .attr('width', scale*rectSize)
         .attr('height', scale*rectSize)
+	.attr('dummy', d=> observePValue(retrievePValue(info, d[0], d[1])))
 	.style('fill', d => colorForPValue(retrievePValue(info, d[0], d[1])));
     let pvalues = row.selectAll('text')
 	.data(d => range(0, d).map(index => [d,index]))
@@ -642,6 +697,13 @@ function displayPyramid(info) {
 	.attr('fill', 'white')
 	.attr('font-size', `${baseFontSize*scale}px`)
 	.text(d => `${shortPValue(info, d[0], d[1])}`); 
+
+    if (info.length < 2 || minP == null) {
+	pyramidLegend([]);
+    }
+    else {
+	pyramidLegend(linspace(minP, maxP, 5));
+    }
 }
 
 function hasSignificantDifferences(info, alpha) {

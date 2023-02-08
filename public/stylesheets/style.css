@@ -75,12 +75,12 @@ h1 {
 }
 .grouphisto {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 3fr 1fr 1fr;
     grid-template-areas:
-	"comparisons comparisons"
-	"displaybox meantext"
-	"pyramid pyramid"
-	"none savebuttons"
+	"comparisons comparisons comparisons"
+	"displaybox meantext meantext"
+	"pyramid pyramid plegend"
+	"none none savebuttons"
 }
 .comparisons {
     text-align: center;
@@ -89,8 +89,14 @@ h1 {
 .displaybox {
     grid-area: displaybox;
 }
+.meantext {
+    grid-area: meantext;
+}
 .pyramid {
     grid-area: pyramid;
+}
+.plegend {
+    grid-area: plegend;
 }
 .savebuttons {
     grid-area: savebuttons;
@@ -130,6 +136,9 @@ legend {
     /*border: solid;*/
     overflow: visible;
     pointer-events: none;
+}
+#plegend {
+    overflow: visible;
 }
 
 .savebuttons {

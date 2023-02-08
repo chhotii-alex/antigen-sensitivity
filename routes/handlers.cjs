@@ -434,7 +434,7 @@ exports.dataset = async function(req, res, next) {
 	    headers = Object.keys(row);
 	    for (const header of headers) {
 	        data += header;
-		data += "\t";
+		data += ",";
 	    }
 	    data += "\r";
 	}
@@ -442,7 +442,7 @@ exports.dataset = async function(req, res, next) {
 	    if (row[header] != null) {
 	       data += row[header];
 	    }
-	    data += "\t";
+	    data += ",";
 	}
 	data += "\r";
     }

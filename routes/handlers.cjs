@@ -7,7 +7,6 @@ const { credentials } = require('./config.cjs');
 
 let mwu_promise = import('./mannwhitneyu.js');
 
-console.log(mwu_promise);
 
 //mannwhitneyu.test([0, 1], [3, 4]);
 
@@ -367,7 +366,6 @@ exports.datafetch = async function(req, res, next) {
 	      "count" : rawData.length,
 	      "comparisons" : []};
       pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
-                     console.log(r.x0, r.x1);
          	     return {
 		         "viralLoadLog" : (r.x0+r.x1)/2,
 		         "viralLoadLogMin" : r.x0,
@@ -434,7 +432,6 @@ exports.dataset = async function(req, res, next) {
     for (const row of rows) {
     	if (headers == null) {
 	    headers = Object.keys(row);
-	    console.log(headers);
 	    for (const header of headers) {
 	        data += header;
 		data += "\t";

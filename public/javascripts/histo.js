@@ -600,7 +600,6 @@ function pyramidLegend(values) {
     let container = element.parentNode;
     const rectSize = 25;
     let box = d3.select("#plegend");
-    console.log(values);
     box.selectAll('ellipse')
 	.data(values)
 	.join('ellipse')
@@ -620,15 +619,9 @@ function pyramidLegend(values) {
 }	
 
 function displayPyramid(info) {
-    let minP = null;
-    let maxP = null;
+    let allPValues = new Set();
     function observePValue(p) {
-	if (minP == null || p < minP) {
-	    minP = p;
-	}
-	if (maxP == null || p > maxP) {
-	    maxP = p;
-	}
+	allPValues.add(p);
 	return p;
     }
     const baseFontSize = 6.8;
@@ -698,12 +691,28 @@ function displayPyramid(info) {
 	.attr('font-size', `${baseFontSize*scale}px`)
 	.text(d => `${shortPValue(info, d[0], d[1])}`); 
 
-    if (info.length < 2 || minP == null) {
+    if (info.length < 2 || allPValues.size < 1) {
 	pyramidLegend([]);
     }
     else {
-	pyramidLegend(linspace(minP, maxP, 5));
+	let values = [...allPValues];
+	values.sort((a,b) => (a-b));
+	pyramidLegend(capLength(values, 5));
     }
+}
+
+function capLength(arr, maxLen) {
+    if (arr.length <= maxLen) {
+	return arr;
+    }
+    let r = arr.slice(1);
+    let n = Math.ceil(r.length / maxLen);
+    let result = [];
+    for (let j = r.length-1; j >= 0; j -= n) {
+	result.unshift(r[j]);
+    }
+    result.unshift(arr[0]);
+    return result;
 }
 
 function hasSignificantDifferences(info, alpha) {

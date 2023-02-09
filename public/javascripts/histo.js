@@ -361,7 +361,7 @@ function loadData(data) {
 
 export function presentData() {
     if (gData) {
-	displayData(gData, "displaybox"); 
+	displayData(gData, "displaybox", ["count"], true);
 	displayComparisons(gData);
 	displayCommentary(gData);
 	displayGroupRadioButtons(gData);
@@ -374,24 +374,74 @@ function getLOD() {
     return gData.lod;
 }
 
-// TODO: Use the framework Luke
-function displayCommentary(items) {
-    let text = " ";
-    for (let i = 0; i < items.length; ++i) {
-	text += "<p>The mean viral load across ";
-	let item = items[i];
-	let color = item.colors.negatives;
-	let meanvl = numberFormatter.format(item.mean);
-	text += `<span style="color: ${color}">`;
-	text += `${item.count} ${item.label.trim()}`;
-	text += "</span>"
-	text += " was ";
-	text += `<span style="color: ${color}">`;
-	text += `${meanvl} copies/mL`
-	text += "</span>."
-	text += "</p>";
+function mouseEnterAction() {
+    return function (event) {
+	highlightGroup(event.target);
+    };
+}
+
+function mouseLeaveAction() {
+    return function (event) {
+	unhighlightGroup(event.target);
+    };
+}
+
+export function highlightGroup(target) {
+    let name = target.getAttribute("app_group_name");
+    if (gData.highlightedGroupLabel != name) {
+	gData.highlightedGroupLabel = name;
+	displayData(gData, "displaybox", ["count"], true);
     }
-    document.getElementById("commentary").innerHTML = text;
+}
+
+export function unhighlightGroup(target) {
+    let name = target.getAttribute("app_group_name");
+    if (gData.highlightedGroupLabel == name) {
+	gData.highlightedGroupLabel = null;
+	displayData(gData, "displaybox", ["count"], false);
+    }
+}
+
+function displayCommentary(items) {
+    let box = d3.select("#commentary");
+    let p = box.selectAll("p")
+	.data(items)
+	.join("p")
+	.attr("app_group_name", (d, i) => d.label)
+	.on("mouseenter", mouseEnterAction())
+	.on("mouseleave", mouseLeaveAction());
+    p.selectAll("text.comm_part1")
+	.data([0])
+	.join("text")
+	.classed("comm_part1", true)
+	.text("The mean viral load across ");
+    let span = p.selectAll("span.comm_part2")
+	.data(d => [d])
+	.join("span")
+	.classed("comm_part2", true)
+	.style("color", d => d.colors.negatives);
+    span.selectAll("text")
+	.data(d => [d])
+	.join("text")
+	.text(d => `${d.count} ${d.label.trim()}`);
+    p.selectAll("text.comm_part3")
+	.data([0])
+	.join("text")
+	.text(" was ");
+    span = p.selectAll("span.comm_part4")
+	.data(d => [d])
+	.join("span")
+	.classed("comm_part4", true)
+	.style("color", d => d.colors.negatives);
+    span.selectAll("text")
+	.data(d => [d])
+	.join("text")
+	.text(d => `${numberFormatter.format(d.mean)} copies/mL`);
+    p.selectAll("text.comm_period")
+	.data([0])
+	.join("text")
+	.classed("comm_period", true)
+	.text(".");
 }
 
 function displayTestCommentary(items) {
@@ -459,6 +509,7 @@ function prepareDataForStackedHistogram(info, catagories) {
     stackedData.forEach( (f) => {
         f.color = info.colors[f.key];
         f.label = info.catagories[f.key];
+	f.groupLabel = info.label;
         f.forEach( (a) => {
             a[0] = info.yScale(a[0]);
             a[1] = info.yScale(a[1]);
@@ -863,7 +914,30 @@ function displayTextComparisons(info) {
 }
 
 /* Draws histograms */
-function displayData(info, widgetID, catagories=["count"]) {
+function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
+    let hasHighlight = highlightOne && (info["highlightedGroupLabel"] != null);
+    function shouldAddMoreAlpha(i) {
+	return hasHighlight && (i != info.highlightedGroupLabel);
+    }
+    function adjustedColor(d, i, isFill) {
+	let color = d.color;
+	if (shouldAddMoreAlpha(d.groupLabel)) {
+	    if (isFill) {
+		return addAlpha(color, 0.05);
+	    }
+	    else {
+		return addAlpha(color, 0.07);
+	    }
+	}
+	else {
+	    if (isFill) {
+		return addAlpha(color, 0.4)
+	    }
+	    else {
+		return color;
+	    }
+	}
+    }
     let elem = document.getElementById(widgetID);
     let box = d3.select(elem);
     let rect = elem.getBoundingClientRect();
@@ -977,12 +1051,12 @@ function displayData(info, widgetID, catagories=["count"]) {
         https://observablehq.com/@d3/selection-join */
     const seriesGroupSelection = group
         .selectAll('g.series')
-          .data(d => prepareDataForStackedHistogram(d, catagories), d => d.key)
+         .data(d => prepareDataForStackedHistogram(d, catagories), d => d.key)
           .join("g")
           .classed('series', true)
-	  .style('fill', (d) => addAlpha(d.color, 0.2))
+	  .style('fill', (d, i) => adjustedColor(d, i, true))
 	  .style('stroke-width', '2')
-          .style('stroke', (d) => d.color); 
+          .style('stroke', (d, i) => adjustedColor(d, i, false));
 
     // For each series create a rect element for each viralLoadLog
     const rectSelection = seriesGroupSelection.selectAll('rect.histbar')

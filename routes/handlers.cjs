@@ -10,13 +10,9 @@ let mwu_promise = import('./mannwhitneyu.js');
 
 //mannwhitneyu.test([0, 1], [3, 4]);
 
-const { host, port, dbname, connect_timeout, user, password } = credentials;
+console.log(credentials);
 console.log("Got credentials, will try to log in...");
-const pool = new Pool({user: user,
-    password: password,
-    database: dbname, 
-    host: host,
-    port: port});
+const pool = new Pool(credentials);
 console.log("Created Pool object");
 
 let d3promise = import('d3');
@@ -212,12 +208,18 @@ async function fetchVars() {
 }
 
 exports.vars = async function(req, res, next) {
+  try {
     let retval = {
       items: await fetchVars(),
       version: 0,
     };
     res.json(retval);
   }
+  catch (error) {
+    console.error(error);
+    next(error);
+  }
+}
 
 class PatientSetDescription {
     constructor(baseObj = null, noun = null, adjective = null, modifier = null) {
@@ -313,7 +315,13 @@ const range = (start, stop, step) =>
 
 exports.datafetch = async function(req, res, next) {
    console.log("doing datafetch");
-   await fetchVars();
+   try {
+      await fetchVars();
+   }
+   catch (error) {
+      console.log(error);
+      next(error);
+   }
    splits = gSplits;
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let mwu = await mwu_promise;
@@ -352,28 +360,29 @@ exports.datafetch = async function(req, res, next) {
     let rawDataPrev = [];
     let results = [];
     let index = 0;
-    for (let label of queries.getLabels()) {
-      queryParts = queries.queries[label];
-      baseQuery = queryParts["base"];
-      joins = queryParts["joins"];
-      whereClause = queryParts["where"];
-      query = `${baseQuery} ${joins} ${whereClause}`;
-      query = query.trim(); 
-      console.log(query);
-      let { rows } = await pool.query(query);
-      if (rows.length < 1) {
-         continue;
-     }
-      let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
-      let bins = bin(rawData);
-      let mean_val = Math.pow(10, mean(rawData))
-      let pop = {
+    try {
+       for (let label of queries.getLabels()) {
+         queryParts = queries.queries[label];
+         baseQuery = queryParts["base"];
+         joins = queryParts["joins"];
+         whereClause = queryParts["where"];
+         query = `${baseQuery} ${joins} ${whereClause}`;
+         query = query.trim(); 
+         console.log(query);
+         let { rows } = await pool.query(query);
+         if (rows.length < 1) {
+             continue;
+         }
+         let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
+         let bins = bin(rawData);
+         let mean_val = Math.pow(10, mean(rawData))
+         let pop = {
               "label" : label,
               "colors": colors.getColorSchema(index++),
 	      "mean" : mean_val,
 	      "count" : rawData.length,
 	      "comparisons" : []};
-      pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
+         pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
          	     return {
 		         "viralLoadLog" : (r.x0+r.x1)/2,
 		         "viralLoadLogMin" : r.x0,
@@ -381,20 +390,26 @@ exports.datafetch = async function(req, res, next) {
 			 "count" : r.length,
 			 };
          });
-      for (const prev of rawDataPrev) {
-         pvalue = compareArrays(prev, rawData, mwu);
-	 pop.comparisons.push(pvalue);
-      }
-      results.push(pop);
-      rawDataPrev.push(rawData);
-    }
+         for (const prev of rawDataPrev) {
+            pvalue = compareArrays(prev, rawData, mwu);
+	    pop.comparisons.push(pvalue);
+         }
+         results.push(pop);
+         rawDataPrev.push(rawData);
+       }
 
-    for (let pop of results) {
-       pop["catagories"] = { "count" : "Count" };
-    }
+       for (let pop of results) {
+            pop["catagories"] = { "count" : "Count" };
+       }
    
-    res.json(results);
-  }
+       res.json(results);
+    }
+    catch (error) {
+          console.log("Error fetching patient data:");
+	  console.error(error);
+	  next(error);
+    }
+}
 
   function mean(values) {
     let count = 0;

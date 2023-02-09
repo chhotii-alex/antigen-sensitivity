@@ -27,13 +27,6 @@ const colors  = require('./colors.cjs');
 
 console.log("webapp routes launching...")
 
-/*
-exports.home = function(req, res, next) {
-    console.log("home page");
-    res.render('index');
-  }
-  */
-
 /* Where in Python we would use, for example,
      s = ", ".join(clauses)
   use this function like so:
@@ -122,6 +115,7 @@ class PatientSplitSpecifier {
 let cachedVars = null;
 
 exports.vars = async function(req, res, next) {
+   console.log("Getting vars");
     if (!cachedVars) {
        {
               query = `SELECT variable, variableDisplayName,
@@ -281,6 +275,7 @@ class QuerySet {
 } 
     
 exports.assays = function(req, res, next) {
+   console.log("Getting assays");
     let retval = {
       items: [
         {id: 1, displayName: "Binax", coef: 1.1843183, intercept: -5.37500995},
@@ -311,6 +306,7 @@ const range = (start, stop, step) =>
   Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
 
 exports.datafetch = async function(req, res, next) {
+   console.log("doing datafetch");
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let mwu = await mwu_promise;
     let bin = d3.bin().domain([-0.25,13.25]).thresholds(range(-0.25, 13.25, 0.5));

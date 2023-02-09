@@ -585,6 +585,59 @@ function labelAtIndex(info, i) {
     return info[i].label;
 }
 
+const substitutions = {
+    "Early Variant" : "Early",
+    "in inpatient settings" : "inpatient",
+    "in outpatients settings" : "outpatient",
+    "in the Emergency Department" : "ED",
+    "at other institutions" : "other inst",
+    "patients" : "",
+    "from ZCTAs with Median Household Income" : "",
+    " to " : "-",
+    ",000" : "K",
+    "not having" : "w/o",
+    "having" : "w/",
+    "not getting" : "w/",
+    "getting" : "w/o",
+    "current smokers": "smokers",
+    "who never smoked" : "non-smoking",
+    " and " : " & ",
+    "(<30 y.o.)" : " ",
+    "(60+ y.o.)" : " ",
+    "30 - 60 y.o." : " middle ",
+    "females" : "F",
+    "males" : "M",
+    "blood products" : "blood",
+    "$" : "",
+    "Asian/Pacific Islander" : "Asian",
+    "Native American" : "NatAmer",
+    "Unknown/Other" : "Other",
+    "Translanted organ and tissue status" : "transplant",
+    "Immunosuppressed" : "Immunosup.",
+    "Immunocompetent" : "Immunocomp.",
+    "Immuno" : "imm-",
+    "appearing " : " ",
+    "Sickle Cell & Thalassemia" : "sickle",
+    "Mental health conditions" : "mental",
+    "Substance abuse" : "drugs",
+    "DEXAMETHASONE": "DEXA",
+};
+
+function shortLabelAtIndex(info, i, maxstr) {
+    let s = info[i].label;
+    for (let subs in substitutions) {
+	if (s.length <= maxstr) {
+	    return s;
+	}
+	s = s.replaceAll(subs, substitutions[subs]);
+	s = s.replaceAll("  ", " ");
+    }
+    if (s.length > maxstr) {
+	s = s.substring(0, maxstr-3) + "...";
+    }
+    return s;
+}
+
 function maxLabelLen(info) {
     let maxLen = 0;
     for (let i = 0; i < info.length; ++i) {
@@ -625,6 +678,7 @@ function displayPyramid(info) {
 	return p;
     }
     const baseFontSize = 6.8;
+    const fontWidthRatio = 0.7;
     let pyramidElem = document.getElementById("pyramid");
     let container = pyramidElem.parentNode;
     if (info.length < 2) {
@@ -637,7 +691,8 @@ function displayPyramid(info) {
     const innerMargin = 10;
     const outerMargin = 0;
     const totalWidth = rectSize*(info.length-1);
-    const labelWidth = maxLabelLen(info)*baseFontSize/Math.sqrt(2);
+    const labelWidth = totalWidth-innerMargin;
+    const maxstr = (totalWidth - innerMargin)/(baseFontSize*fontWidthRatio);
     let box = d3.select("#pyramid");
     let w = container.getBoundingClientRect().width;
     const scale = w/(totalWidth+labelWidth+innerMargin+2*outerMargin);
@@ -647,8 +702,7 @@ function displayPyramid(info) {
     function y(i) {
 	return scale*(labelWidth+totalWidth+innerMargin+outerMargin-(i)*rectSize);
     }
-    box.attr('transform-origin', `${x(0)}px 100%`)
-	.attr('transform', `rotate(-45) translate(${w/Math.sqrt(2)} ${w/Math.sqrt(2)})`);
+    
     let row = box.selectAll('g.pyramidrow')
         .data(range(1, info.length))
 	.join('g')
@@ -657,7 +711,7 @@ function displayPyramid(info) {
 	.data(range(1, info.length))
 	.join('text')
 	.classed('row_labels', true)
-	.text(d => labelAtIndex(info, d))
+	.text(d => shortLabelAtIndex(info, d, maxstr))
 	.attr('x', scale*(outerMargin+totalWidth+innerMargin))
 	.attr('y', d => scale*(outerMargin+labelWidth+innerMargin+(info.length-(d+0.25))*rectSize))
 	.attr('font-size', `${10*scale}px`);
@@ -665,7 +719,7 @@ function displayPyramid(info) {
 	.data(range(0, info.length-1))
 	.join('text')
 	.classed('col_labels', true)
-	.text(d => labelAtIndex(info, d))
+	.text(d => shortLabelAtIndex(info, d, maxstr))
 	.attr('x', d => scale*(totalWidth-(d+0.5)*rectSize+outerMargin))
 	.attr('y', scale*(outerMargin+labelWidth))
 	.attr("text-anchor", "end")

@@ -85,7 +85,6 @@ h1 {
 	"comparisons comparisons comparisons"
 	"displaybox meantext meantext"
 	"pyramid pyramid plegend"
-	"none none savebuttons"
 }
 .comparisons {
     text-align: center;
@@ -95,6 +94,8 @@ h1 {
     grid-area: displaybox;
 }
 .meantext {
+    max-height: 400px;
+    overflow: scroll;
     grid-area: meantext;
 }
 .pyramid {
@@ -130,27 +131,23 @@ legend {
     color: grey;
     font-weight: normal;
 }
-
 #pyramid_container {
-    margin-right: 50%;
-    margin-top: -11%;
+    aspect-ratio : 1;
+    margin-left: 21%;
+    margin-right: 21%;
+    margin-top: -10%;
+    margin-bottom: 1%;
+/*    border: solid;  */
 }
-
 #pyramid {
     aspect-ratio : 1;
-    /*border: solid;*/
+    transform: rotate(-45deg); 
     overflow: visible;
     pointer-events: none;
+/*    border: solid; */
 }
 #plegend {
     overflow: visible;
-}
-
-.savebuttons {
-    display: grid;
-    grid-template-columns: 1fr fit-content(300px) fit-content(300px);
-    grid-template-areas:
-	"none download download";
 }
 
 .bluebutton {
@@ -204,7 +201,6 @@ legend {
 	"antihisto_title antihisto_title"
 	"group_radio group_radio"
 	"antiperf performance_commentary"
-	"none savebuttons"
 }
 
 .antihisto_title {

@@ -461,7 +461,7 @@ exports.dataset = async function(req, res, next) {
 
 
 function intervalFunc() {
-  console.log('node app is running');
+  console.log('node app is running', new Date());
 }
 
 setInterval(intervalFunc, 15000);

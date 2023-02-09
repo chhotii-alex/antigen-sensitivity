@@ -18,7 +18,9 @@ const handlers = require('./handlers.cjs');
     
 
 /* GET home page. */
+/*
 router.get('/', handlers.home);
+*/
 
 router.get('/api/variables', handlers.vars);
 
@@ -29,3 +31,5 @@ router.get('/api/data/viralloads', handlers.datafetch);
 router.get('/dataset', handlers.dataset);
 
 module.exports = router;
+
+console.log("Did index.cjs");

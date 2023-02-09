@@ -11,11 +11,13 @@ let mwu_promise = import('./mannwhitneyu.js');
 //mannwhitneyu.test([0, 1], [3, 4]);
 
 const { host, port, dbname, connect_timeout, user, password } = credentials;
+console.log("Got credentials, will try to log in...");
 const pool = new Pool({user: user,
     password: password,
     database: dbname, 
     host: host,
     port: port});
+console.log("Created Pool object");
 
 let d3promise = import('d3');
 
@@ -25,10 +27,12 @@ const colors  = require('./colors.cjs');
 
 console.log("webapp routes launching...")
 
+/*
 exports.home = function(req, res, next) {
     console.log("home page");
     res.render('index');
   }
+  */
 
 /* Where in Python we would use, for example,
      s = ", ".join(clauses)

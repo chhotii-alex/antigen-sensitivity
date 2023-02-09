@@ -80,7 +80,6 @@ async function getComorbidities() {
   return comorbidities;
 }
 
-let splits = new Map();
 
 class PatientSplit {
    constructor(variable, variableDisplayName){
@@ -94,7 +93,7 @@ class PatientSplit {
 }
 
 class PatientSplitSpecifier {
-   constructor(row) {
+   constructor(row, splits) {
       let variable = row.variable;
       let split = splits.get(variable);
       if (!split) {
@@ -113,17 +112,19 @@ class PatientSplitSpecifier {
 }
 
 let cachedVars = null;
+let gSplits = null;
 
-exports.vars = async function(req, res, next) {
+async function fetchVars() {
    console.log("Getting vars");
-    if (!cachedVars) {
+    if (!(cachedVars && gSplits)) {
+       let splits = new Map();
        {
               query = `SELECT variable, variableDisplayName,
        	         value, valueDisplayName, noun, adjective, modifier, whereClause
                 FROM UIVars ORDER BY sort`;
        		let {rows} = await pool.query(query);
          	for (const row of rows) {
-            	    new PatientSplitSpecifier(row);
+            	    new PatientSplitSpecifier(row, splits);
        		    }
        }
        {
@@ -142,12 +143,12 @@ exports.vars = async function(req, res, next) {
 	     	 adjective: null,
 	     	 whereclause: tag.toLowerCase()
 	     };
-	     new PatientSplitSpecifier(d);
+	     new PatientSplitSpecifier(d, splits);
 	     d.value = `false_${tag}`;
 	     d.valuedisplayname = `did not receive ${description}`;
 	     d.modifier = `not getting ${description}`;
 	     d.whereclause = `not ${tag.toLowerCase()}`;
-	     new PatientSplitSpecifier(d);
+	     new PatientSplitSpecifier(d, splits);
        	   }
        }
        {
@@ -178,13 +179,13 @@ exports.vars = async function(req, res, next) {
 		         adjective: null,
 		         whereclause: "(" + stringJoin(" OR ", tags) + ")",
 		      };
-		      new PatientSplitSpecifier(d);
+		      new PatientSplitSpecifier(d, splits);
 		      d.value = `false_${tag}`;
 		      d.valuedisplayname = `not having ${group_description}`;
 		      d.modifier = `not having ${group_description}`;
 		      d.whereclause = "(" + stringJoin(" AND ",
 		                        tags.map(s => ` NOT ${s} `)) + ")";
-		      new PatientSplitSpecifier(d);
+		      new PatientSplitSpecifier(d, splits);
 		  }
 		  tags = [];
 	       }
@@ -205,9 +206,14 @@ exports.vars = async function(req, res, next) {
 		splits:divisions});
        });
        cachedVars = items;
+       gSplits = splits;
     }
+    return cachedVars;
+}
+
+exports.vars = async function(req, res, next) {
     let retval = {
-      items: cachedVars, 
+      items: await fetchVars(),
       version: 0,
     };
     res.json(retval);
@@ -307,6 +313,8 @@ const range = (start, stop, step) =>
 
 exports.datafetch = async function(req, res, next) {
    console.log("doing datafetch");
+   await fetchVars();
+   splits = gSplits;
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let mwu = await mwu_promise;
     let bin = d3.bin().domain([-0.25,13.25]).thresholds(range(-0.25, 13.25, 0.5));
@@ -450,3 +458,10 @@ exports.dataset = async function(req, res, next) {
   res.attachment("viralloads.csv");
   res.status(200).send(data);
 }
+
+
+function intervalFunc() {
+  console.log('node app is running');
+}
+
+setInterval(intervalFunc, 15000);

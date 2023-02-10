@@ -427,6 +427,7 @@ function displayCommentary(items) {
     p.selectAll("text.comm_part3")
 	.data([0])
 	.join("text")
+	.classed("comm_part3", true)
 	.text(" was ");
     span = p.selectAll("span.comm_part4")
 	.data(d => [d])

@@ -4,7 +4,7 @@ if (process.env.DATABASE_URL) {
    console.log("Found DATABASE_URL");
    connectionString = process.env.DATABASE_URL;
    // This is a hack:
-   connectionString = connectionString.replace("require", "allow");
+   connectionString = connectionString.replace("require", "disable");
    credentials = {connectionString,};
    console.log("Using: ", credentials);
 }

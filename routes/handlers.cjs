@@ -11,10 +11,15 @@ let mwu_promise = import('./mannwhitneyu.js');
 //mannwhitneyu.test([0, 1], [3, 4]);
 
 console.log(credentials);
-console.log("Got credentials, will try to log in...");
 const pool = new Pool(credentials);
-console.log("Created Pool object");
-
+pool
+  .connect()
+  .then(client => {
+     console.log("Connected to database!");
+     client.release();
+     })
+  .catch(err => console.error('error connecting', err.stack));
+  
 let d3promise = import('d3');
 
 const { sanitizeDateInput } = require('./util.cjs');

@@ -2,15 +2,8 @@
 const { Pool } = require('pg');
 const { credentials } = require('./config.cjs');
 
-// Doesn't work:
-//const { mannwhitneyu } = require('./mannwhitneyu.js');
-
 let mwu_promise = import('./mannwhitneyu.js');
 
-
-//mannwhitneyu.test([0, 1], [3, 4]);
-
-console.log(credentials);
 const pool = new Pool(credentials);
 pool
   .connect()
@@ -23,7 +16,6 @@ pool
 let d3promise = import('d3');
 
 const { sanitizeDateInput } = require('./util.cjs');
-
 const colors  = require('./colors.cjs');
 
 console.log("webapp routes launching...")
@@ -34,11 +26,11 @@ console.log("webapp routes launching...")
      s = stringJoin(", ", clauses);
 */ 
 function stringJoin(connecter, items) {
-  result = "";
-  first = true;
-  for (const item of items) {
-     if (first) {
-         first = false;
+    result = "";
+    first = true;
+    for (const item of items) {
+        if (first) {
+        first = false;
      }
      else {
          result += connecter;
@@ -49,13 +41,14 @@ function stringJoin(connecter, items) {
 }
 
 function andWhere(queryParts, cond) {
-  baseQuery = queryParts["base"];
-  joins = queryParts["joins"];
-  whereClause = queryParts["where"];
-  whereClause = `${whereClause} AND ${cond} `;
-  return { "base" : baseQuery,
+    baseQuery = queryParts["base"];
+    joins = queryParts["joins"];
+    whereClause = queryParts["where"];
+    whereClause = `${whereClause} AND ${cond} `;
+    return {
+        "base" : baseQuery,
            "joins" : joins,
-	   "where" : whereClause };
+       "where" : whereClause };
 }
 
 class PatientSplit {
@@ -76,7 +69,7 @@ class PatientSplitSpecifier {
       if (!split) {
          let variableDisplayName = row.variabledisplayname;
          split = new PatientSplit(variable, variableDisplayName);
-	 splits.set(variable, split);
+     splits.set(variable, split);
       }
       split.addSplit(this);
       this.value = row.value;
@@ -97,90 +90,90 @@ async function fetchVars() {
        let splits = new Map();
        {
               query = `SELECT variable, variableDisplayName,
-       	         value, valueDisplayName, noun, adjective, modifier, whereClause
+                    value, valueDisplayName, noun, adjective, modifier, whereClause
                 FROM UIVars ORDER BY sort`;
-       		let {rows} = await pool.query(query);
-         	for (const row of rows) {
-            	    new PatientSplitSpecifier(row, splits);
-       		    }
+               let {rows} = await pool.query(query);
+             for (const row of rows) {
+                    new PatientSplitSpecifier(row, splits);
+                   }
        }
        {
           query = "SELECT tag, description from TreatmentRef order by tag";
           let {rows} = await pool.query(query);
           for (const row of rows) {
              let tag = row.tag;
-	     let description = row.description;
+         let description = row.description;
              let d = {
-	      	 variable: tag,
-	     	 variabledisplayname: description,
-	     	 value: `true_${tag}`,
-	     	 valuedisplayname: `received ${description}`,
-	     	 noun: null,
-	     	 modifier: `getting ${description}`,
-	     	 adjective: null,
-	     	 whereclause: tag.toLowerCase()
-	     };
-	     new PatientSplitSpecifier(d, splits);
-	     d.value = `false_${tag}`;
-	     d.valuedisplayname = `did not receive ${description}`;
-	     d.modifier = `not getting ${description}`;
-	     d.whereclause = `not ${tag.toLowerCase()}`;
-	     new PatientSplitSpecifier(d, splits);
-       	   }
+               variable: tag,
+              variabledisplayname: description,
+              value: `true_${tag}`,
+              valuedisplayname: `received ${description}`,
+              noun: null,
+              modifier: `getting ${description}`,
+              adjective: null,
+              whereclause: tag.toLowerCase()
+         };
+         new PatientSplitSpecifier(d, splits);
+         d.value = `false_${tag}`;
+         d.valuedisplayname = `did not receive ${description}`;
+         d.modifier = `not getting ${description}`;
+         d.whereclause = `not ${tag.toLowerCase()}`;
+         new PatientSplitSpecifier(d, splits);
+              }
        }
        {
            query = `SELECT g.tag group_tag, g.description group_name,
-	           r.tag, r.description,
-		   r.on_by_default
-	           from ComorbidityGroup g,
-		        ComorbidityRef r
-	           WHERE g.tag = r.grouping
-		   order by g.sort_key, r.sort_key`;
-   	   let { rows } = await pool.query(query);
-	   rows.push({'group_tag' : null });
-	   let prev_group = null;
-	   let group_description = null;
-	   let tags;
-	   for (const row of rows) {
-	       let group_tag = row['group_tag'];
-	       if (group_tag != prev_group) {
-	           if (prev_group != null) {
-    	              let tag = prev_group;
-	              let d = {
-		         variable: tag,
-		         variabledisplayname: group_description,
-		         value: `true_${tag}`,
-		         valuedisplayname: `has ${group_description}`,
-		         noun: null,
-		         modifier: `having ${group_description}`,
-		         adjective: null,
-		         whereclause: "(" + stringJoin(" OR ", tags) + ")",
-		      };
-		      new PatientSplitSpecifier(d, splits);
-		      d.value = `false_${tag}`;
-		      d.valuedisplayname = `not having ${group_description}`;
-		      d.modifier = `not having ${group_description}`;
-		      d.whereclause = "(" + stringJoin(" AND ",
-		                        tags.map(s => ` NOT ${s} `)) + ")";
-		      new PatientSplitSpecifier(d, splits);
-		  }
-		  tags = [];
-	       }
-	       tags.push(row['tag']);
-	       group_description = row['group_name'];
-	       prev_group = group_tag;
-	   }
+               r.tag, r.description,
+           r.on_by_default
+               from ComorbidityGroup g,
+                ComorbidityRef r
+               WHERE g.tag = r.grouping
+           order by g.sort_key, r.sort_key`;
+          let { rows } = await pool.query(query);
+       rows.push({'group_tag' : null });
+       let prev_group = null;
+       let group_description = null;
+       let tags;
+       for (const row of rows) {
+           let group_tag = row['group_tag'];
+           if (group_tag != prev_group) {
+               if (prev_group != null) {
+                      let tag = prev_group;
+                  let d = {
+                 variable: tag,
+                 variabledisplayname: group_description,
+                 value: `true_${tag}`,
+                 valuedisplayname: `has ${group_description}`,
+                 noun: null,
+                 modifier: `having ${group_description}`,
+                 adjective: null,
+                 whereclause: "(" + stringJoin(" OR ", tags) + ")",
+              };
+              new PatientSplitSpecifier(d, splits);
+              d.value = `false_${tag}`;
+              d.valuedisplayname = `not having ${group_description}`;
+              d.modifier = `not having ${group_description}`;
+              d.whereclause = "(" + stringJoin(" AND ",
+                                tags.map(s => ` NOT ${s} `)) + ")";
+              new PatientSplitSpecifier(d, splits);
+          }
+          tags = [];
+           }
+           tags.push(row['tag']);
+           group_description = row['group_name'];
+           prev_group = group_tag;
        }
-	     
+       }
+         
        let items = [];
        splits.forEach( (split, variable, map) => {
           let divisions = [];
           for (const spec of split.splits) {
-	     divisions.push({"value":spec.value, "valueDisplayName":spec.valueDisplayName});
-	  }
-	  items.push({id : split.variable,
-	        displayName : split.variableDisplayName,
-		splits:divisions});
+         divisions.push({"value":spec.value, "valueDisplayName":spec.valueDisplayName});
+      }
+      items.push({id : split.variable,
+            displayName : split.variableDisplayName,
+        splits:divisions});
        });
        cachedVars = items;
        gSplits = splits;
@@ -206,13 +199,13 @@ class PatientSetDescription {
     constructor(baseObj = null, noun = null, adjective = null, modifier = null) {
        if (baseObj) {
              this.noun = baseObj.noun;
-	     this.adjectives = baseObj.getAdjectives().slice();
-	     this.modifiers = baseObj.modifiers.slice();
+         this.adjectives = baseObj.getAdjectives().slice();
+         this.modifiers = baseObj.modifiers.slice();
        }
        else {
               this.noun = "patients";
-       	      this.adjectives = [];
-       	      this.modifiers = [];
+                 this.adjectives = [];
+                 this.modifiers = [];
       }
       if (noun) {
          this.setNoun(noun);
@@ -226,8 +219,8 @@ class PatientSetDescription {
     };
     toString() {
         let adj = stringJoin(" ", this.adjectives);
-	let mod = stringJoin(" ", this.modifiers);
-	return `${adj} ${this.noun} ${mod}`;
+    let mod = stringJoin(" ", this.modifiers);
+    return `${adj} ${this.noun} ${mod}`;
     };
     addModifier(s) {
        this.modifiers.push(s);
@@ -279,13 +272,13 @@ function makeNewQueries(queries, updaterList) {
     let newQueries = new QuerySet();
     for (let label of queries.getLabels()) {
         queryParts = queries.queries[label];
-	oldSet = queries.descriptions[label];
-	for (let updater of updaterList) {
-	    let newSet = new PatientSetDescription(oldSet, updater.noun,
-	        updater.adjective, updater.modifier);
+    oldSet = queries.descriptions[label];
+    for (let updater of updaterList) {
+        let newSet = new PatientSetDescription(oldSet, updater.noun,
+            updater.adjective, updater.modifier);
             let newQueryParts = andWhere(queryParts, updater.whereClause);
-	    newQueries.addQuery(newSet, newQueryParts);
-	}
+        newQueries.addQuery(newSet, newQueryParts);
+    }
     }
     return newQueries;
 }
@@ -333,7 +326,7 @@ exports.datafetch = async function(req, res, next) {
        if (splits.get(variable)) {
           let values = req.query[variable];
            let groupsToFetch = splits.get(variable).splits.filter(
-	      spec => values.indexOf(spec.value) >= 0 );
+          spec => values.indexOf(spec.value) >= 0 );
            queries = makeNewQueries(queries, groupsToFetch);
        }
     }
@@ -360,20 +353,20 @@ exports.datafetch = async function(req, res, next) {
          let pop = {
               "label" : label,
               "colors": colors.getColorSchema(index++),
-	      "mean" : mean_val,
-	      "count" : rawData.length,
-	      "comparisons" : []};
+          "mean" : mean_val,
+          "count" : rawData.length,
+          "comparisons" : []};
          pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
-         	     return {
-		         "viralLoadLog" : (r.x0+r.x1)/2,
-		         "viralLoadLogMin" : r.x0,
-			 "viralLoadLogMax" : r.x1,
-			 "count" : r.length,
-			 };
+                  return {
+                 "viralLoadLog" : (r.x0+r.x1)/2,
+                 "viralLoadLogMin" : r.x0,
+             "viralLoadLogMax" : r.x1,
+             "count" : r.length,
+             };
          });
          for (const prev of rawDataPrev) {
             pvalue = compareArrays(prev, rawData, mwu);
-	    pop.comparisons.push(pvalue);
+        pop.comparisons.push(pvalue);
          }
          results.push(pop);
          rawDataPrev.push(rawData);
@@ -387,8 +380,8 @@ exports.datafetch = async function(req, res, next) {
     }
     catch (error) {
           console.log("Error fetching patient data:");
-	  console.error(error);
-	  next(error);
+      console.error(error);
+      next(error);
     }
 }
 
@@ -416,21 +409,21 @@ exports.dataset = async function(req, res, next) {
     let headers = null;
     let data = "";
     for (const row of rows) {
-    	if (headers == null) {
-	    headers = Object.keys(row);
-	    for (const header of headers) {
-	        data += header;
-		data += ",";
-	    }
-	    data += "\r";
-	}
-	for (const header of headers) {
-	    if (row[header] != null) {
-	       data += row[header];
-	    }
-	    data += ",";
-	}
-	data += "\r";
+        if (headers == null) {
+        headers = Object.keys(row);
+        for (const header of headers) {
+            data += header;
+        data += ",";
+        }
+        data += "\r";
+    }
+    for (const header of headers) {
+        if (row[header] != null) {
+           data += row[header];
+        }
+        data += ",";
+    }
+    data += "\r";
     }
     
   res.attachment("viralloads.csv");

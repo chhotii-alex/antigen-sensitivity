@@ -53,30 +53,6 @@ function andWhere(queryParts, cond) {
 	   "where" : whereClause };
 }
 
-let comorbidities = null;
-
-async function getComorbidities() {
-  if (!comorbidities) {
-       query = "SELECT tag, description, grouping, on_by_default from ComorbidityRef order by grouping, sort_key";
-       let currentGrouping = null;
-       let { rows } = await pool.query(query);
-       comorbidities = [];
-       for (const elem of rows) {
-           tag = elem.tag.trim();
-           descr = elem.description;
-	   grouping = elem.grouping;
-	   onByDefault = elem.on_by_default;
-	   if (currentGrouping == null || currentGrouping.name != grouping) {
-	      currentGrouping = { "name" : grouping, subdivisions : [] };
-	      comorbidities.push(currentGrouping);
-	   }
-	   currentGrouping.subdivisions.push({ "tag" : tag, "descr" : descr, "onByDefault" : onByDefault } );
-        }
-  }
-  return comorbidities;
-}
-
-
 class PatientSplit {
    constructor(variable, variableDisplayName){
       this.variable = variable;
@@ -427,24 +403,6 @@ function compareArrays(arr1, arr2, mwu) {
    }
    result = mwu.test(arr1, arr2);
    return result.p;
-}
-
-async function getTagsRef(table) {
-  let query = `SELECT tag from ${table}`;
-  let { rows } = await pool.query(query);
-  return rows.map(r => r.tag.trim());
-}
-
-async function getJoins(table) {
-  comorbidityTags = await getTagsRef(table);
-  comorbidityColumns = comorbidityTags.map(c => `(${c}.tag IS NOT NULL) as "${c}"`);
-  comorbidityJoins = comorbidityTags.map(
-     c => `LEFT OUTER JOIN Comorbidity ${c} on ${c}.result_id = r.id
-          AND (${c}.tag = '${c}' ) `);
-  return {
-  	 "tags": comorbidityTags,
-  	 "columns": comorbidityColumns,
-	 "joins": comorbidityJoins};
 }
 
 exports.dataset = async function(req, res, next) {

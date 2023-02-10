@@ -436,3 +436,18 @@ exports.dataset = async function(req, res, next) {
   res.attachment("viralloads.csv");
   res.status(200).send(data);
 }
+
+function intervalFunc() {
+  console.log('node app is running', new Date());
+  ++intervalCount;
+  if (intervalCount > 10) {
+     interval = interval * 2;
+     clearInterval(intervalID);
+     intervalID = setInterval(intervalFunc, interval);
+     intervalCount = 0;
+   }  
+}
+
+let interval = 4000;
+let intervalID = setInterval(intervalFunc, interval);
+let intervalCount = 0;

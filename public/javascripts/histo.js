@@ -26,12 +26,6 @@ function formatPValue(p) {
     return `<em>(p</em>=${match[1]}x10<sup>${match[2]}</sup>)`;
 }
 
-/*  The comorbidityCategories lookup will have an entry for every item in the drop-down in the
-    "Comorbidities" category. Some of these have subdivisions, and thus have checkboxes,
-    and some don't. 
-*/
-let comorbidityCategories = {};
-
 function createCheckbox(id, displayName, parentNode, labelClass) {
     let checky = document.createElement("input");
     checky.setAttribute("type", "checkbox");
@@ -50,15 +44,13 @@ function createCheckbox(id, displayName, parentNode, labelClass) {
 
 export function resetChecks() {
     for (const v of Object.keys(variables)) {
-	document.getElementById(v).checked = false;
-	for (const value of variables[v]) {
-	    document.getElementById(value).checked = false;
-	}
+        document.getElementById(v).checked = false;
+        for (const value of variables[v]) {
+            document.getElementById(value).checked = false;
+        }
     }
     updateQuery();    
 }
-
-
 
 let variables = {};
 let variableValues = {};
@@ -273,7 +265,6 @@ function setHidden(id, hidden) {
     }
 }
 
-
 if (minDateAvail()) {
     document.getElementById("minDate").onchange = updateQuery;
 }
@@ -281,8 +272,6 @@ if (maxDateAvail()) {
     document.getElementById("maxDate").onchange = updateQuery;
 }
 
-
-/* Called directly when a checkbox is clicked */
 export function updateQuery() {
     let minDate = null;
     let maxDate = null;
@@ -293,17 +282,16 @@ export function updateQuery() {
       maxDate = document.getElementById("maxDate").value;
     }
     doQuery(minDate, maxDate);
-  }
+}
 
-  let url;
-  
-  url = "/api/variables";
-  fetch(url)
+let url;  
+url = "/api/variables";
+fetch(url)
         .then(response => response.json())
         .then(data => loadVariableOptions(data));
 
-  url = "/api/assays";
-  fetch(url)
+url = "/api/assays";
+fetch(url)
         .then(response => response.json())
         .then(data => loadAssayOptions(data));
 
@@ -445,12 +433,6 @@ function displayCommentary(items) {
 	.text(".");
 }
 
-function displayTestCommentary(items) {
-    text += " A test with an ";
-    text += `<span class="lodisred">LOD of 10<sup>${getLOD()}</sup></span> `;
-    text += " would have a sensitivity of ";
-}
-
 function applyInfectivityThreshold(data, infectivityThreshold) {
     for (let pop of data) {
         pop.tp = 0;
@@ -482,17 +464,6 @@ function applyInfectivityThreshold(data, infectivityThreshold) {
     }
 }
 
-function getTotal(data, categories) {
-    let total = 0;
-    for (let segment of data) {
-        for (let cat of categories) {
-            total += segment[cat];
-        }
-    }
-    let str = numberFormatter.format(total);
-    return str;
-}
-
 const margin = {top: 10, right: 0, bottom: 40, left: 20};
 
 function linearScale(values, width) {
@@ -520,17 +491,6 @@ function prepareDataForStackedHistogram(info, catagories) {
 }
 
 let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
-
-function composeAnnotationOnMean(d) {
-    let value = d.mean;
-    if (value == null) {
-        return "";
-    }
-    value = parseFloat(value);
-    let str = numberFormatter.format(value);
-
-    return `mean viral load: ${str} copies/mL`;
-}
 
 function prepareInfectivityRegions(d) {
     let result = [
@@ -631,10 +591,6 @@ function formatShortPValue(num) {
     else {
 	return expo(num);
     }
-}
-
-function labelAtIndex(info, i) {
-    return info[i].label;
 }
 
 const substitutions = {
@@ -1149,13 +1105,6 @@ function traceUpperEdge(data, xScale, barWidth) {
     return lines;
 }
 
-function markupForSensitivity(d) {
-    let ic = d.infectiousCount;
-    let pc = d.tp;
-    let pr = Math.round(100*d.sensitivity);
-    return `${ic} infectious people,<br>${pc} of whom are antigen-positive<br><b>= ${pr}% sensitivity</b>`;
-}
-
 function updateSelectedGroup(arg) {
     gData.selectedGroup = arg;
 }
@@ -1184,30 +1133,6 @@ function displayGroupRadioButtons(info) {
 	.text(d => d.label);
     box.select(`span.first_radio input`)
     	.property("checked", true);
-}
-
-export function displayCheckboxes(subdivisions) {
-    let box = d3.select("#checkboxes");
-
-    if (!subdivisions) {
-	subdivisions = [];
-    }
-    if (subdivisions.length < 2) {
-	subdivisions = [];
-    }
-    let div = box.selectAll("div").data(subdivisions).join(
-	enter => enter.append("div"),
-    );
-    div.selectAll("input").data(d => [d]).join("input")
-        .attr("id", d => d.tag)
-        .attr("type", "checkbox")
-        .property("checked", d => d.onByDefault)
-        .on('change', function() {
-	    updateQuery();
-	});
-    div.selectAll("label").data(d => [d]).join("label")
-        .text(d => d.descr)
-        .attr("for", d => d.tag);
 }
 
 doQuery();

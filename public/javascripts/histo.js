@@ -686,7 +686,8 @@ function displayPyramid(info) {
 	return p;
     }
     const baseFontSize = 6.8;
-    const fontWidthRatio = 0.7;
+    let labelFontSize = 10;
+    const fontWidthRatio = 0.476;
     let pyramidElem = document.getElementById("pyramid");
     let container = pyramidElem.parentNode;
     if (info.length < 2) {
@@ -700,7 +701,11 @@ function displayPyramid(info) {
     const outerMargin = 0;
     const totalWidth = rectSize*(info.length-1);
     const labelWidth = totalWidth-innerMargin;
-    const maxstr = (totalWidth - innerMargin)/(baseFontSize*fontWidthRatio);
+    let maxstr = (totalWidth - innerMargin)/(labelFontSize*fontWidthRatio);
+    if (maxstr < 15) {
+	maxstr = 15;
+	labelFontSize = (totalWidth - innerMargin)/(maxstr*fontWidthRatio);
+    }
     let box = d3.select("#pyramid");
     let w = container.getBoundingClientRect().width;
     const scale = w/(totalWidth+labelWidth+innerMargin+2*outerMargin);
@@ -722,7 +727,7 @@ function displayPyramid(info) {
 	.text(d => shortLabelAtIndex(info, d, maxstr))
 	.attr('x', scale*(outerMargin+totalWidth+innerMargin))
 	.attr('y', d => scale*(outerMargin+labelWidth+innerMargin+(info.length-(d+0.25))*rectSize))
-	.attr('font-size', `${10*scale}px`);
+	.attr('font-size', `${labelFontSize*scale}px`);
     let label2 = box.selectAll('text.col_labels')
 	.data(range(0, info.length-1))
 	.join('text')
@@ -732,7 +737,7 @@ function displayPyramid(info) {
 	.attr('y', scale*(outerMargin+labelWidth))
 	.attr("text-anchor", "end")
     	.attr("transform", d => `rotate(90 ${scale*(totalWidth-(d+0.5)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`)
-	.attr('font-size', `${10*scale}px`);
+	.attr('font-size', `${labelFontSize*scale}px`);
     let square = row.selectAll('rect')
 	.data(d => range(0, d).map(index => [d,index]))
 	.join('rect')

@@ -42,12 +42,10 @@ function stringJoin(connecter, items) {
 
 function andWhere(queryParts, cond) {
     baseQuery = queryParts["base"];
-    joins = queryParts["joins"];
     whereClause = queryParts["where"];
     whereClause = `${whereClause} AND ${cond} `;
     return {
         "base" : baseQuery,
-           "joins" : joins,
        "where" : whereClause };
 }
 
@@ -302,7 +300,6 @@ exports.datafetch = async function(req, res, next) {
     let bin = d3.bin().domain([-0.25,13.25]).thresholds(range(-0.25, 13.25, 0.5));
     let baseQuery = `SELECT log(viral_load) viralloadlog
           FROM DeidentResults `
-    let joins = ` `
     // TODO: how many results does this upper limit trim off? Do we believe this upper limit?
     let whereClause =` WHERE viral_load IS NOT NULL AND viral_load < 1000000000000 `;
   
@@ -321,7 +318,7 @@ exports.datafetch = async function(req, res, next) {
     let queries = new QuerySet();
 
     queries.addQuery(new PatientSetDescription(),
-          {"base":baseQuery, "joins":joins, "where":whereClause});
+          {"base":baseQuery, "where":whereClause});
     for (const variable in req.query) {
        if (splits.get(variable)) {
           let values = req.query[variable];
@@ -338,9 +335,8 @@ exports.datafetch = async function(req, res, next) {
        for (let label of queries.getLabels()) {
          queryParts = queries.queries[label];
          baseQuery = queryParts["base"];
-         joins = queryParts["joins"];
          whereClause = queryParts["where"];
-         query = `${baseQuery} ${joins} ${whereClause}`;
+         query = `${baseQuery} ${whereClause}`;
          query = query.trim(); 
          console.log(query);
          let { rows } = await pool.query(query);

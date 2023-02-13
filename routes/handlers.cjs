@@ -259,6 +259,24 @@ function makeNewQueries(queries, updaterList) {
     return newQueries;
 }
 
+function mean(values) {
+    let count = 0;
+    let total = 0;
+    for (let num of values) {
+      count += 1;
+      total += num;
+    }
+    return total/count;
+}
+
+function compareArrays(arr1, arr2, mwu) {
+   if (arr1.length < 1 || arr2.length < 1) {
+      return null;
+   }
+   result = mwu.test(arr1, arr2);
+   return result.p;
+}
+
 // From MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#sequence_generator_range
 const range = (start, stop, step) =>
   Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
@@ -350,24 +368,6 @@ exports.datafetch = async function(req, res, next) {
       console.error(error);
       next(error);
     }
-}
-
-  function mean(values) {
-    let count = 0;
-    let total = 0;
-    for (let num of values) {
-      count += 1;
-      total += num;
-    }
-    return total/count;
-  }
-
-function compareArrays(arr1, arr2, mwu) {
-   if (arr1.length < 1 || arr2.length < 1) {
-      return null;
-   }
-   result = mwu.test(arr1, arr2);
-   return result.p;
 }
 
 exports.dataset = async function(req, res, next) {

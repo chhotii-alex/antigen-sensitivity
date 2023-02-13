@@ -1,18 +1,7 @@
-// Database connection stuff
-const { Pool } = require('pg');
-const { credentials } = require('./config.cjs');
+const { pool } = require('./database.cjs');
 
 let mwu_promise = import('./mannwhitneyu.js');
 
-const pool = new Pool(credentials);
-pool
-  .connect()
-  .then(client => {
-     console.log("Connected to database!");
-     client.release();
-     })
-  .catch(err => console.error('error connecting', err.stack));
-  
 let d3promise = import('d3');
 
 const { sanitizeDateInput } = require('./util.cjs');
@@ -176,13 +165,14 @@ async function fetchVars() {
        cachedVars = items;
        gSplits = splits;
     }
-    return cachedVars;
+    return {"vars" : cachedVars, "splits": gSplits};
 }
 
 exports.vars = async function(req, res, next) {
   try {
+    const { vars, splits } = await fetchVars();
     let retval = {
-      items: await fetchVars(),
+      items: vars,
       version: 0,
     };
     res.json(retval);
@@ -254,18 +244,6 @@ class QuerySet {
    };
 } 
     
-exports.assays = function(req, res, next) {
-   console.log("Getting assays");
-    let retval = {
-      items: [
-        {id: 1, displayName: "Binax", coef: 1.1843183, intercept: -5.37500995},
-        {id: 2, displayName: "Gingko", coef: 1.14230231,  intercept: -5.70535991},
-      ]
-    };
-    res.json(retval);
-  }
-
-
 function makeNewQueries(queries, updaterList) {
     let newQueries = new QuerySet();
     for (let label of queries.getLabels()) {
@@ -287,14 +265,7 @@ const range = (start, stop, step) =>
 
 exports.datafetch = async function(req, res, next) {
    console.log("doing datafetch");
-   try {
-      await fetchVars();
-   }
-   catch (error) {
-      console.log(error);
-      next(error);
-   }
-   splits = gSplits;
+   const { vars, splits } = await fetchVars();
     let d3 = await d3promise; // hack for importing the wrong kind of module
     let mwu = await mwu_promise;
     let bin = d3.bin().domain([-0.25,13.25]).thresholds(range(-0.25, 13.25, 0.5));

@@ -107,6 +107,36 @@ async function getTreatmentSplits(splits) {
    }
 }
 
+function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag) {
+    let flagString = "false_";
+    let valueStringPrefix = "not having";
+    let modifierPrefix = "not having";
+    if (flag) {
+        flagString = "true_";
+        valueStringPrefix = "has";
+        modifierPrefix = "having";
+    }
+    let whereClause;
+    if (flag) {
+        whereClause = "(" + stringJoin(" OR ", tags) + ")";
+    }
+    else {
+        whereClause = "(" + stringJoin(" AND ",  tags.map(s => ` NOT ${s} `))
+	     + ")";
+    }	
+    let d = {
+        variable: tag,
+        variabledisplayname: group_description,
+        value: `${flagString}${tag}`,
+        valuedisplayname: `${valueStringPrefix} ${group_description}`,
+        noun: null,
+        modifier: `${modifierPrefix} ${group_description}`,
+        adjective: null,
+        whereclause: whereClause,
+    };
+    new PatientSplitSpecifier(d, splits);
+}
+
 async function getComorbiditySplits(splits) {
    query = `SELECT g.tag group_tag, g.description group_name,
                    r.tag, r.description,
@@ -124,25 +154,10 @@ async function getComorbiditySplits(splits) {
        let group_tag = row['group_tag'];
        if (group_tag != prev_group) {
             if (prev_group != null) {
-                let tag = prev_group;
-                let d = {
-                    variable: tag,
-                    variabledisplayname: group_description,
-                    value: `true_${tag}`,
-                    valuedisplayname: `has ${group_description}`,
-                    noun: null,
-                    modifier: `having ${group_description}`,
-                    adjective: null,
-                    whereclause: "(" + stringJoin(" OR ", tags) + ")",
-                };
-                new PatientSplitSpecifier(d, splits);
-                d.value = `false_${tag}`;
-                d.valuedisplayname = `not having ${group_description}`;
-                d.modifier = `not having ${group_description}`;
-                d.whereclause = "(" + stringJoin(" AND ",
-                                                 tags.map(s => ` NOT ${s} `))
-                                + ")";
-                new PatientSplitSpecifier(d, splits);
+	        splitSpecifierForComorbidity(splits, prev_group, tags,
+		    group_description, true);
+	        splitSpecifierForComorbidity(splits, prev_group, tags,
+		    group_description, false);
             }
             tags = [];
        }
@@ -288,80 +303,102 @@ function compareArrays(arr1, arr2, mwu) {
 const range = (start, stop, step) =>
   Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
 
-exports.datafetch = async function(req, res, next) {
-    console.log("doing datafetch");
-    const { vars, splits } = await fetchVars();
+async function makeBinFunction() {
     let d3 = await d3promise; // hack for importing the wrong kind of module
-    let mwu = await mwu_promise;
     let bin = d3.bin().domain([-0.25,13.25]).thresholds(range(-0.25, 13.25, 0.5));
-    let baseQuery = `SELECT log(viral_load) viralloadlog
-                     FROM DeidentResults `
+    return bin;
+}
+
+function makeBaseQuery() {
+    return `SELECT log(viral_load) viralloadlog
+                     FROM DeidentResults `;
+}
+
+function makeBaseWhereClause(variableObj) {
     // TODO: how many results does this upper limit trim off? Do we believe this upper limit?
     let whereClause =` WHERE viral_load IS NOT NULL AND viral_load < 1000000000000 `;
-  
-    if ('minDate' in req.query) {
-        let minDate = sanitizeDateInput(req.query.minDate);
+    if ('minDate' in variableObj) {
+        let minDate = sanitizeDateInput(variableObj.minDate);
         if (minDate) {
             whereClause += `AND collection_when >= '${minDate}' `;
         }
     }
-    if ('maxDate' in req.query) {
-        let maxDate = sanitizeDateInput(req.query.maxDate);
+    if ('maxDate' in variableObj) {
+        let maxDate = sanitizeDateInput(variableObj.maxDate);
         if (maxDate) {
-            baseQuery += `AND collection_when <= '${maxDate}' `;
+            whereClause += `AND collection_when <= '${maxDate}' `;
         }
     }
-    let queries = new QuerySet();
+    return whereClause;
+}
 
-    queries.addQuery(new PatientSetDescription(),
-                     {"base":baseQuery, "where":whereClause});
-    for (const variable in req.query) {
+function splitQueries(queries, splits, variableObj) {
+    for (const variable in variableObj) {
         if (splits.get(variable)) {
-            let values = req.query[variable];
+            let values = variableObj[variable];
             let groupsToFetch = splits.get(variable).splits.filter(
-            spec => values.indexOf(spec.value) >= 0 );
+                spec => values.indexOf(spec.value) >= 0 );
             queries = makeNewQueries(queries, groupsToFetch);
         }
     }
+    return queries;
+}
+
+async function runQuery(label, queryParts, rawDataPrev, index) {
+    const bin = await makeBinFunction();
+    let mwu = await mwu_promise;
+    let baseQuery = queryParts["base"];
+    let whereClause = queryParts["where"];
+    let query = `${baseQuery} ${whereClause}`;
+    query = query.trim(); 
+    console.log(query);
+    let { rows } = await pool.query(query);
+    if (rows.length < 1) {
+        return null;
+    }
+    let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
+    let bins = bin(rawData);
+    let mean_val = Math.pow(10, mean(rawData))
+    let pop = {
+               "label" : label,
+               "colors": colors.getColorSchema(index),
+               "mean" : mean_val,
+               "count" : rawData.length,
+               "comparisons" : []};
+    pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
+        return {
+            "viralLoadLog" : (r.x0+r.x1)/2,
+            "viralLoadLogMin" : r.x0,
+            "viralLoadLogMax" : r.x1,
+            "count" : r.length,
+        };
+    });
+    for (const prev of rawDataPrev) {
+        pvalue = compareArrays(prev, rawData, mwu);
+        pop.comparisons.push(pvalue);
+    }
+    return {rawData: rawData, pop: pop};
+}
+
+exports.datafetch = async function(req, res, next) {
+    const { vars, splits } = await fetchVars();
+  
+    let queries = new QuerySet();
+    queries.addQuery(new PatientSetDescription(),
+                     {"base":makeBaseQuery(), "where":makeBaseWhereClause(req.query)});
+    queries = splitQueries(queries, splits, req.query);
 
     let rawDataPrev = [];
     let results = [];
     let index = 0;
     try {
         for (let label of queries.getLabels()) {
-            queryParts = queries.queries[label];
-            baseQuery = queryParts["base"];
-            whereClause = queryParts["where"];
-            query = `${baseQuery} ${whereClause}`;
-            query = query.trim(); 
-            console.log(query);
-            let { rows } = await pool.query(query);
-            if (rows.length < 1) {
-                continue;
+	    result = await runQuery(label, queries.queries[label], rawDataPrev, index++);
+
+            if (result) {
+                results.push(result.pop);
+                rawDataPrev.push(result.rawData);
             }
-            let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
-            let bins = bin(rawData);
-            let mean_val = Math.pow(10, mean(rawData))
-            let pop = {
-                       "label" : label,
-                       "colors": colors.getColorSchema(index++),
-                       "mean" : mean_val,
-                       "count" : rawData.length,
-                       "comparisons" : []};
-            pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
-                return {
-                    "viralLoadLog" : (r.x0+r.x1)/2,
-                    "viralLoadLogMin" : r.x0,
-                    "viralLoadLogMax" : r.x1,
-                    "count" : r.length,
-                };
-            });
-            for (const prev of rawDataPrev) {
-                pvalue = compareArrays(prev, rawData, mwu);
-                pop.comparisons.push(pvalue);
-            }
-            results.push(pop);
-            rawDataPrev.push(rawData);
         }
 
         for (let pop of results) {

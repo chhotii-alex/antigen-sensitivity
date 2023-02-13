@@ -9,6 +9,42 @@ const colors  = require('./colors.cjs');
 
 console.log("webapp routes launching...")
 
+/*
+  Parameter:
+  k : width of window
+  Returns:
+  kernel density function with signature:
+      Parameter:
+      v : float value
+      Returns:
+      Value of Epanechnikov function at (v/k). See https://en.wikipedia.org/wiki/Kernel_(statistics)#/media/File:Kernel_epanechnikov.svg
+        for shape of Epanechnikov function.
+*/
+function kernelEpanechnikov(k) {
+  return function(v) {
+    return (Math.abs(v /= k) <= 1) ? (2 * 0.75 * (1 - v * v) / k) : 0;
+  };
+}
+
+/*
+  Parameters:
+  kernel: a kernel density function
+  X: an array of X values
+  Returns:
+  function with signature:
+     Parameters:
+     V: an array of values (whose distribtion we want to estimate)
+     Returns:
+     estimated density at each value of X, as estimated based on samples in V
+*/
+function kernelDensityEstimator(kernel, X, d3) {
+  return function(V) {
+    return X.map(function(x) {
+      return [x, d3.mean(V, function(v) { return kernel(x - v); })];
+    });
+  };
+}
+
 /* Where in Python we would use, for example,
      s = ", ".join(clauses)
   use this function like so:
@@ -358,6 +394,9 @@ async function runQuery(label, queryParts, rawDataPrev, index) {
     }
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
     let bins = bin(rawData);
+    let d3 = await d3promise; // hack for importing the wrong kind of module
+    let densityPoints = d3.scaleLinear().domain([0, 13]).ticks(500);
+    let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
     let mean_val = Math.pow(10, mean(rawData))
     let pop = {
                "label" : label,
@@ -372,6 +411,17 @@ async function runQuery(label, queryParts, rawDataPrev, index) {
             "viralLoadLogMax" : r.x1,
             "count" : r.length,
         };
+    });
+    let densityBinWidth = density[2][0] - density[1][0];
+    let halfBin = densityBinWidth/2;
+    pop["data"] = density.map(a => {
+      return {
+         "viralLoadLog" : a[0],
+	 "viralLoadLogMin" : a[0] - halfBin,
+	 "viralLoadLogMax" : a[0] + halfBin,
+	 "count" : a[1]*rawData.length,
+	// "count" : Math.round(a[1]*rawData.length),
+      };
     });
     for (const prev of rawDataPrev) {
         pvalue = compareArrays(prev, rawData, mwu);

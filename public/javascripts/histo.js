@@ -210,7 +210,8 @@ function applyKnownAntigenTest(gData, assay) {
 	pop.catagories["positives"] = "Antigen Positives";
 	for (let bin of pop.data) {
         let p = 1/(1 + Math.exp(-coef * bin.viralLoadLog - intercept))
-        bin["positives"] = Math.round(p*bin["count"]);
+        bin["positives"] = p*bin["count"];
+        //bin["positives"] = Math.round(p*bin["count"]);
         bin["negatives"] = bin["count"] - bin["positives"];
 	}
     }
@@ -243,11 +244,14 @@ function displayAntigenTestHistogram() {
 
 function displayAccuracyCalc(group) {
     let color = group.colors.negatives;
-    let result = `In <span style="color: ${color}">${group.label.trim()}</span>,
+    let result = " ";
+    if (group.sensitivity != null && group.specificity != null) {
+        result = `In <span style="color: ${color}">${group.label.trim()}</span>,
           the <strong>sensitivity</strong> for
           detecting contagiousness is <strong>${group.sensitivity.toFixed(2)}
           </strong> and the <strong>specificity</strong> is
           <strong>${group.specificity.toFixed(2)}</strong>.`
+    }
     let box = d3.select(".performance_commentary");
     box.selectAll("span")
 	.data([result])
@@ -877,11 +881,12 @@ function displayTextComparisons(info) {
 
 /* Draws histograms */
 function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
-    let hasHighlight = highlightOne && (info["highlightedGroupLabel"] != null);
-    function shouldAddMoreAlpha(i) {
-	return hasHighlight && (i != info.highlightedGroupLabel);
+    let highlightedGroupLabel = info["highlightedGroupLabel"];
+    let hasHighlight = highlightOne && (highlightedGroupLabel != null);
+    function shouldAddMoreAlpha(group) {
+	return hasHighlight && (group != highlightedGroupLabel);
     }
-    function adjustedColor(d, i, isFill) {
+    function adjustedColor(d, isFill) {
 	let color = d.color;
 	if (shouldAddMoreAlpha(d.groupLabel)) {
 	    if (isFill) {
@@ -912,10 +917,13 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
 	yScalesIndependent = false;
     }
 
+    info = info.filter(d => d.count >= 200);
+
     if (info.length < 1) {
+	box.selectAll("g").data([]).join("g");
 	return;
     }
-    
+
     let firstData = info[0].data;
 
     // We are very much assuming that all histograms will have the same x axis.
@@ -1009,16 +1017,22 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
           .text(d => "Probability Density");
 
     // Create a g element for each series
-    /* We can make there be transitions here, by passing functions to join(). See
-        https://observablehq.com/@d3/selection-join */
+    /*TODO:  We can make there be transitions here, by passing functions to join(). See
+      https://observablehq.com/@d3/selection-join */
+    /*
+      TODO: See: https://gist.github.com/mbostock/4341954#file-faithful-json
+      for ideas on using datum, curve, and path to simplify this code
+      See http://using-d3js.com/05_04_curves.html
+      for path smoothing options
+      */
     const seriesGroupSelection = group
         .selectAll('g.series')
          .data(d => prepareDataForStackedHistogram(d, catagories), d => d.key)
           .join("g")
           .classed('series', true)
-	  .style('fill', (d, i) => adjustedColor(d, i, true))
+	  .style('fill', (d, i) => adjustedColor(d, true))
 	  .style('stroke-width', '2')
-          .style('stroke', (d, i) => adjustedColor(d, i, false));
+          .style('stroke', (d, i) => adjustedColor(d, false));
 
     // For each series create a rect element for each viralLoadLog
     const rectSelection = seriesGroupSelection.selectAll('rect.histbar')

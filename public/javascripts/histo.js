@@ -1162,6 +1162,10 @@ function displayGroupRadioButtons(info) {
 	.classed("radio_button_label", true)
 	.attr("for", d => d.label)
 	.text(d => d.label);
+    span.selectAll("br.splitradio")
+	.data(d => [d])
+	.join("br")
+	.classed("splitradio", true);
     box.select(`span.first_radio input`)
     	.property("checked", true);
 }

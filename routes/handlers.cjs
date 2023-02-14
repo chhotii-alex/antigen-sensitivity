@@ -327,6 +327,20 @@ function mean(values) {
     return total/count;
 }
 
+function median(values) {
+    values.sort((a, b) => a-b);
+    if (values % 2 == 1) {
+        let mid = (values.length-1)/2;
+	return values[mid];
+    }
+    else {
+        let mid = (values.length)/2;
+	let low = Math.floor(mid);
+	let high = Math.ceil(mid);
+	return (values[low]+values[high])/2;
+    }
+}
+
 function compareArrays(arr1, arr2, mwu) {
     if (arr1.length < 1 || arr2.length < 1) {
         return null;
@@ -380,9 +394,8 @@ function splitQueries(queries, splits, variableObj) {
     return queries;
 }
 
-async function runQuery(label, queryParts, rawDataPrev, index) {
+async function runQuery(label, queryParts, index) {
     const bin = await makeBinFunction();
-    let mwu = await mwu_promise;
     let baseQuery = queryParts["base"];
     let whereClause = queryParts["where"];
     let query = `${baseQuery} ${whereClause}`;
@@ -423,14 +436,23 @@ async function runQuery(label, queryParts, rawDataPrev, index) {
 	// "count" : Math.round(a[1]*rawData.length),
       };
     });
-    for (const prev of rawDataPrev) {
-        pvalue = compareArrays(prev, rawData, mwu);
-        pop.comparisons.push(pvalue);
-    }
     return {rawData: rawData, pop: pop};
 }
 
+function peak(data) {
+    let maxVal = data[0].count;
+    let bestX = data[0].viralLoadLog;
+    for (let i = 1; i < data.length; ++i) {
+        if (data[i].count > maxVal) {
+	    maxVal = data[i].count;
+	    bestX = data[i].viralLoadLog;
+	}
+    }
+    return bestX;
+}
+
 exports.datafetch = async function(req, res, next) {
+    let mwu = await mwu_promise;
     const { vars, splits } = await fetchVars();
   
     let queries = new QuerySet();
@@ -438,23 +460,42 @@ exports.datafetch = async function(req, res, next) {
                      {"base":makeBaseQuery(), "where":makeBaseWhereClause(req.query)});
     queries = splitQueries(queries, splits, req.query);
 
-    let rawDataPrev = [];
     let results = [];
     let index = 0;
     try {
         for (let label of queries.getLabels()) {
-	    result = await runQuery(label, queries.queries[label], rawDataPrev, index++);
-
+	    result = await runQuery(label, queries.queries[label], index++);
             if (result) {
+	        result.pop.rawData = result.rawData;
                 results.push(result.pop);
-                rawDataPrev.push(result.rawData);
             }
         }
 
         for (let pop of results) {
             pop["catagories"] = { "count" : "Count" };
+	    pop["peak"] = peak(pop.data);
+	    pop["median"] = median(pop.rawData);
         }
-   
+	//results.sort((a, b) => a.peak - b.peak);
+	results.sort((a, b) => a.median - b.median);
+	//results.sort((a, b) => a.mean - b.mean);
+
+	for (let i = 0; i < results.length; ++i) {
+	    for (let j = 0; j < i; ++j) {
+		pop = results[i];
+	        rawData = pop.rawData;
+		prev = results[j].rawData;
+                pvalue = compareArrays(prev, rawData, mwu);
+                pop.comparisons.push(pvalue);
+	    }
+	}
+
+	for (let pop of results) {
+	   delete pop.peak;
+	   delete pop.median;
+	   delete pop.rawData;
+	}
+
         res.json(results);
     }
     catch (error) {

@@ -61,6 +61,7 @@ function loadVariableOptions(data) {
     for (let item of options) {
 	let subdiv = document.createElement("div");
 	div.appendChild(subdiv);
+	subdiv.className = "group_variable_div";
 	variables[item.id] = [];
 	let checky = createCheckbox(item.id, item.displayName, subdiv, "variablename");
 	checky.addEventListener('click', updateVariables);

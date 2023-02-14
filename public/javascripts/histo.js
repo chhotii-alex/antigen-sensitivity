@@ -921,8 +921,6 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
 	yScalesIndependent = false;
     }
 
-    info = info.filter(d => shouldShowHistogram(d));
-
     if (info.length < 1) {
 	box.selectAll("g").data([]).join("g");
 	return;
@@ -993,9 +991,19 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
 	.attr("points", d => `${xScale(d.min)+8} 28 ${xScale(d.min)+18} 22 ${xScale(d.min)+8} 16`)
 	.style("fill", "#dbdbdb");
                              
-    let group = box.selectAll("g.histgroup").data(info).join("g")
+    let group = box.selectAll("g.histgroup")
+	.data(info.filter(d => shouldShowHistogram(d)))
+	.join("g")
         .classed("histgroup", true)
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    box.selectAll("text.nodata")
+	.data(info.filter(d => !shouldShowHistogram(d) && (d.label == highlightedGroupLabel)))
+	.join("text")
+	.classed("nodata", true)
+	.text("Insufficient data to plot")
+	.attr("x", `${xScale(1)}px`)
+	.attr("y", 30);
     
     // Y axis with no ticks
     group.selectAll("line.yaxis")
@@ -1135,7 +1143,7 @@ function updateSelectedGroup(arg) {
 function displayGroupRadioButtons(info) {
     let box = d3.select("#group_radio");
     let span = box.selectAll("span")
-	.data(info)
+	.data(info.filter(d => shouldShowHistogram(d)))
 	.join("span")
     	.classed("first_radio", d => { return (d.label == gData.selectedGroup); });
     span.selectAll("input")

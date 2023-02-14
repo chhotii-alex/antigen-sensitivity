@@ -353,13 +353,17 @@ function loadData(data) {
 
 export function presentData() {
     if (gData) {
-	displayData(gData, "displaybox", ["count"], true);
+	groupHistogram();
 	displayComparisons(gData);
 	displayCommentary(gData);
 	displayGroupRadioButtons(gData);
 	displayTestPerformance();
 	onresize = (event) => {presentData()};
     }
+}
+
+function groupHistogram() {
+    displayData(gData, "displaybox", ["count"], true, true);
 }
 
 function getLOD() {
@@ -382,7 +386,7 @@ export function highlightGroup(target) {
     let name = target.getAttribute("app_group_name");
     if (gData.highlightedGroupLabel != name) {
 	gData.highlightedGroupLabel = name;
-	displayData(gData, "displaybox", ["count"], true);
+	groupHistogram();
     }
 }
 
@@ -390,7 +394,7 @@ export function unhighlightGroup(target) {
     let name = target.getAttribute("app_group_name");
     if (gData.highlightedGroupLabel == name) {
 	gData.highlightedGroupLabel = null;
-	displayData(gData, "displaybox", ["count"], false);
+	groupHistogram();
     }
 }
 
@@ -884,7 +888,7 @@ function shouldShowHistogram(pop) {
 }
 
 /* Draws histograms */
-function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
+function displayData(info, widgetID, catagories=["count"], highlightOne=false, joy=false) {
     let highlightedGroupLabel = info["highlightedGroupLabel"];
     let hasHighlight = highlightOne && (highlightedGroupLabel != null);
     function shouldAddMoreAlpha(group) {
@@ -901,7 +905,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
 	    }
 	}
 	else {
-	    if (isFill) {
+	    if (isFill && !joy) {
 		return addAlpha(color, 0.4)
 	    }
 	    else {
@@ -936,8 +940,20 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
 
     let allValues = [0];
 
-    for (let item of info) {
-        item.yScale = d3.scaleLinear().range([height,0]);
+    let histogramWorthyInfo = info.filter(d => shouldShowHistogram(d));
+    let stagger = 0;
+    let heightAdjustment = 1.0;
+    if (joy && (histogramWorthyInfo.length > 1)) {
+	heightAdjustment = 0.1 + 1/histogramWorthyInfo.length;
+	if (heightAdjustment < 0.2) {
+	    heightAdjustment = 0.2;
+	}
+	stagger = (1-heightAdjustment)*height/(histogramWorthyInfo.length-1);
+    }
+    for (let i = 0; i < histogramWorthyInfo.length; ++i) {
+	let item = histogramWorthyInfo[i];
+	let yIndex = histogramWorthyInfo.length-(i+1);
+        item.yScale = d3.scaleLinear().range([height-(yIndex*stagger), height-(yIndex*stagger)-height*heightAdjustment]);
         let  maxPValues = item.data.map( (d) => {
             let sum = 0;
             for (let key of catagories) { sum += d[key]; }

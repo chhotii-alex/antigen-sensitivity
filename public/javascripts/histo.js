@@ -905,8 +905,13 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	    }
 	}
 	else {
-	    if (isFill && !joy) {
-		return addAlpha(color, 0.4)
+	    if (isFill) {
+		if (joy) {
+		    return addAlpha(color, 0.8);
+		}
+		else {
+		    return addAlpha(color, 0.4)
+		}
 	    }
 	    else {
 		return color;
@@ -1067,7 +1072,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	  .data((d) => d, d => d.data.viralLoadLog)
 	  .join("rect")
 	  .classed("histbar", true)
-    	  .attr('width', barWidth)
+    	  .attr('width', (barWidth+1))
 	  .attr('x', d => xScale(d.data.viralLoadLogMin))
 	  .attr('y', d => d[1])
 	  .style('stroke', 'none')

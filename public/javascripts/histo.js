@@ -879,6 +879,10 @@ function displayTextComparisons(info) {
         .html(d =>  formatPValue(d.pvalue));
 }
 
+function shouldShowHistogram(pop) {
+    return pop.count >= 200;
+}
+
 /* Draws histograms */
 function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
     let highlightedGroupLabel = info["highlightedGroupLabel"];
@@ -917,7 +921,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false) {
 	yScalesIndependent = false;
     }
 
-    info = info.filter(d => d.count >= 200);
+    info = info.filter(d => shouldShowHistogram(d));
 
     if (info.length < 1) {
 	box.selectAll("g").data([]).join("g");

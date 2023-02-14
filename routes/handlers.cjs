@@ -366,7 +366,7 @@ function makeBaseQuery() {
 
 function makeBaseWhereClause(variableObj) {
     // TODO: how many results does this upper limit trim off? Do we believe this upper limit?
-    let whereClause =` WHERE viral_load IS NOT NULL AND viral_load < 1000000000000 `;
+    let whereClause =` WHERE viral_load IS NOT NULL AND log(viral_load) < 10 `;
     if ('minDate' in variableObj) {
         let minDate = sanitizeDateInput(variableObj.minDate);
         if (minDate) {
@@ -408,7 +408,7 @@ async function runQuery(label, queryParts, index) {
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
     let bins = bin(rawData);
     let d3 = await d3promise; // hack for importing the wrong kind of module
-    let densityPoints = d3.scaleLinear().domain([0, 13]).ticks(500);
+    let densityPoints = d3.scaleLinear().domain([0, 10]).ticks(500);
     let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
     let mean_val = Math.pow(10, mean(rawData))
     let pop = {

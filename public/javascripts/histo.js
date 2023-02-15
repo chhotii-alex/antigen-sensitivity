@@ -421,7 +421,7 @@ function displayCommentary(items) {
     span.selectAll("text")
 	.data(d => [d])
 	.join("text")
-	.text(d => `${d.count} ${d.label.trim()}`);
+	.text(d => `${numberFormatter.format(d.count)} ${d.label.trim()}`);
     p.selectAll("text.comm_part3")
 	.data([0])
 	.join("text")
@@ -829,7 +829,7 @@ function displayTextComparisons(info) {
 	text = `Viral loads ${conclusion} ${preposition} these ${num} groups`;
     }
     else {
-	text = "Real-world viral loads, 2020 &ndash; present";
+	text = "Real-world viral loads, 2020&ndash;present";
     }
     document.getElementById("comparison_title").innerHTML = text;
 	    

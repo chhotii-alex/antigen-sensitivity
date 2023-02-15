@@ -5,6 +5,10 @@
   <title>Predicted COVID Test Performance</title>
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
   <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100;8..144,300;8..144,400;8..144,500;8..144,600;8..144,700;8..144,800&display=swap');
+  </style>
+
 </head>
 
 <body>
@@ -16,11 +20,13 @@
   </div>
   <header>
     <h1>Learning from COVID-19 Viral Loads</h1>
-    <h3>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
-      to antigen tests in different groups</h3>
+
+    <h2>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
+      of antigen tests in different groups</h2>
+
     <p class="intro" >
-      COVID-19 test results are usually reported simply as &ldquo;positive&rdquo; or &ldquo;negative&rdquo;. However,
-      the amount of virus a person produces&mdash;the <strong>viral load</strong>&mdash;can very.</p>
+      COVID-19 test results are usually reported simply as &ldquo;positive&rdquo; or &ldquo;negative.&rdquo; However,
+      the amount of virus a person produces&mdash;the <strong>viral load</strong>&mdash;can vary.</p>
     <p class="intro">We estimated viral
       load for over <strong>40,000 patients</strong> who had a positive PCR test at our hospital from 2020-2023 so you can
       see how viral loads vary&mdash;or don&apos;t&mdash;across age, sex, and so on.
@@ -29,10 +35,12 @@
   <div class="webapp" >
     <div class="pickgroup has_bottom_line">
       <fieldset class="select_var_closed">
-        <legend id="select_var_label">Explore group(s)
-	  <svg height="10" width="10" >
-	    <line x1="0" y1="0" x2="10" y2="5" stroke="black" />
-	    <line x1="10" y1="5" x2="0" y2="10" stroke="black" />
+        <legend id="select_var_label">Explore groups
+	  <svg height="20" width="14" overflow="visible" >
+	    <g transform="translate(4,8)">
+	      <line x1="0" y1="0" x2="5" y2="6" stroke="black" stroke-width="3" stroke-linecap="round" />
+	      <line x1="5" y1="6" x2="0" y2="12" stroke="black" stroke-width="3" stroke-linecap="round" />
+	    </g>
 	  </svg>
 	</legend>
 	<div id="select_var" >

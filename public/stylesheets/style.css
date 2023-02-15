@@ -23,10 +23,20 @@
 }
 
 body {
-  padding: 50px;
+  padding: 70px;
   font-family: 'Roboto Flex', sans-serif;
   text-align: left;
   line-height: 1.5;
+}
+
+/* This menu is copied over from arnaoutlab.org and most
+of its styling is governed by the stylesheet there.
+However, there's a bit of a collision of positioning decisions,
+patched up here:
+*/
+div#menu {
+    top: 0px;
+    left: 0px;
 }
 
 header {

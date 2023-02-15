@@ -473,7 +473,7 @@ function applyInfectivityThreshold(data, infectivityThreshold) {
     }
 }
 
-const margin = {top: 10, right: 0, bottom: 40, left: 20};
+const margin = {top: 10, right: 0, bottom: 60, left: 20};
 
 function linearScale(values, width) {
     let extent = d3.extent(values);
@@ -1134,7 +1134,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
         .classed("xlabel", true)
         .attr("text-anchor", "middle")
         .attr("x", width/2)
-        .attr("y", height + margin.top + 24)
+        .attr("y", height + margin.top + 44)
         .text(d => d);
 
 }

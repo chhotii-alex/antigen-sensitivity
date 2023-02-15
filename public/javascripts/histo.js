@@ -32,6 +32,7 @@ function createCheckbox(id, displayName, parentNode, labelClass) {
     checky.setAttribute("id", id);
     checky.setAttribute("value", id);
     checky.setAttribute("name", id);
+    checky.setAttribute("class", labelClass);
     let label = document.createElement("label");
     label.setAttribute("for", id);
     label.setAttribute("class", labelClass);

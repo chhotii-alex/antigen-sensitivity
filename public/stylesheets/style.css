@@ -1,3 +1,4 @@
+
 .inline_style {
     display: inline;
 }
@@ -23,16 +24,37 @@
 
 body {
   padding: 50px;
-  font-family: 'Roboto';
+  font-family: 'Roboto Flex', sans-serif;
+  text-align: left;
+  line-height: 1.5;
 }
 
 header {
-    max-width: 36em;
+    max-width: 46em;
     margin: auto;
 }
 h1 {
-  text-align: left;
-  font-weight: 900;
+    font-weight: 700;
+    font-size: 42px;
+    text-align: center;
+    padding-top: 100px;
+    margin: 0;
+}
+
+h2 {
+    color: #333;
+    font-weight: 400;
+    font-size: 20px;
+    text-align: center;
+    padding-left: 3em;
+    padding-right: 3em;
+    padding-bottom: 20px;
+}
+    
+p.intro {
+    color: #444;
+    padding-left: 4em;
+    padding-right: 4em;
 }
 
 .webapp {
@@ -54,11 +76,17 @@ h1 {
 #select_var {
     columns: 4;
 }
+.group_variable_div {
+    padding-top: 20px;
+    padding-right: 10px;
+}
+
 #select_var_label {
     text-align: center;
     margin: auto;
     padding: 0.75em;
     border: 2px solid;
+    background-color: #eee;
 }
 .select_var_closed {
     border: none;
@@ -68,6 +96,10 @@ h1 {
 }
 .select_var_open {
     border: 2px solid;
+    padding-left: 30px;
+    padding-right: 40px;
+    padding-bottom: 50px;
+    background-color: #eee
 }
 .select_var_open > div {
     display: block;
@@ -89,6 +121,7 @@ h1 {
 .comparisons {
     text-align: center;
     grid-area: comparisons;
+    padding-top: 10px;
 }
 .displaybox {
     grid-area: displaybox;
@@ -117,6 +150,7 @@ legend {
 
 .variablename {
     font-weight: bold;
+    padding-left: 4px;
 }
 
 .valuename {

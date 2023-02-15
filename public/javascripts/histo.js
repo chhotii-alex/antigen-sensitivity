@@ -669,6 +669,12 @@ function maxLabelLen(info) {
 function pyramidLegend(values) {
     let element = document.getElementById("plegend");
     let container = element.parentNode;
+    if (values.length < 2) {
+	container.style.display = "none";
+    }
+    else {
+	container.style.display = "block";
+    }
     const rectSize = 25;
     let box = d3.select("#plegend");
     box.selectAll('ellipse')

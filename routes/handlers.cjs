@@ -145,7 +145,7 @@ async function getTreatmentSplits(splits) {
 
 function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag) {
     let flagString = "false_";
-    let valueStringPrefix = "not having";
+    let valueStringPrefix = "no";
     let modifierPrefix = "not having";
     if (flag) {
         flagString = "true_";
@@ -164,7 +164,7 @@ function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag
         variable: tag,
         variabledisplayname: group_description,
         value: `${flagString}${tag}`,
-        valuedisplayname: `${valueStringPrefix} ${group_description}`,
+        valuedisplayname: `${valueStringPrefix} ${group_description.toLowerCase()}`,
         noun: null,
         modifier: `${modifierPrefix} ${group_description}`,
         adjective: null,

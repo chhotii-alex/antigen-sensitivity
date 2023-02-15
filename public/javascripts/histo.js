@@ -828,6 +828,9 @@ function displayTextComparisons(info) {
 	let num = info.length;
 	text = `Viral loads ${conclusion} ${preposition} these ${num} groups`;
     }
+    else {
+	text = "Real-world viral loads, 2020 &ndash; present";
+    }
     document.getElementById("comparison_title").innerHTML = text;
 	    
     let box = d3.select("#pvalue_text");
@@ -1172,6 +1175,9 @@ function updateSelectedGroup(arg) {
 }
 
 function displayGroupRadioButtons(info) {
+    if (info.length < 2) {
+	info = [];
+    }
     let box = d3.select("#group_radio");
     let span = box.selectAll("span")
 	.data(info.filter(d => shouldShowHistogram(d)))

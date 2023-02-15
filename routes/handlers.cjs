@@ -145,12 +145,12 @@ async function getTreatmentSplits(splits) {
 
 function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag) {
     let flagString = "false_";
-    let valueStringPrefix = "no";
-    let modifierPrefix = "not having";
+    let valueStringPrefix = "no reported";
+    let modifierPrefix = "with no";
     if (flag) {
         flagString = "true_";
-        valueStringPrefix = "has";
-        modifierPrefix = "having";
+        valueStringPrefix = "known";
+        modifierPrefix = "with";
     }
     let whereClause;
     if (flag) {

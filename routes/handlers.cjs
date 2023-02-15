@@ -164,7 +164,7 @@ function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag
         variable: tag,
         variabledisplayname: group_description,
         value: `${flagString}${tag}`,
-        valuedisplayname: `${valueStringPrefix} ${group_description.toLowerCase()}`,
+        valuedisplayname: `${valueStringPrefix} ${group_description}`,
         noun: null,
         modifier: `${modifierPrefix} ${group_description}`,
         adjective: null,

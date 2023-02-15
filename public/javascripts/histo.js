@@ -23,7 +23,7 @@ function formatPValue(p) {
     const r = /(\d\.\d)e([+-]\d+)/
     const match = s.match(r);
     if (!match) return "";
-    return `<em>(p</em>=${match[1]}x10<sup>${match[2]}</sup>)`;
+    return `(<em>p</em>=${match[1]}x10<sup>${match[2]}</sup>)`;
 }
 
 function createCheckbox(id, displayName, parentNode, labelClass) {
@@ -883,6 +883,11 @@ function displayTextComparisons(info) {
         .join("span")
         .classed("pvalue", true)
         .html(d =>  formatPValue(d.pvalue));
+    conclusiontext.selectAll("span.period")
+	.data(d => [d])
+	.join("span")
+	.classed("period", true)
+	.text(".");
 }
 
 function shouldShowHistogram(pop) {
@@ -909,7 +914,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	else {
 	    if (isFill) {
 		if (joy) {
-		    return addAlpha(color, 0.8);
+		    return addAlpha(color, 0.7);
 		}
 		else {
 		    return addAlpha(color, 0.4)
@@ -1053,7 +1058,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	.attr("x", `${xScale(-0.25)}`)
 	.attr("y", `${height/2}`)    
         .attr("transform", `rotate(-90 ${xScale(-0.25)} ${height/2})`)
-          .text(d => "Probability density");
+          .text(d => "Fraction of patients");
 
     // Create a g element for each series
     /*TODO:  We can make there be transitions here, by passing functions to join(). See
@@ -1070,7 +1075,7 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
           .join("g")
           .classed('series', true)
 	  .style('fill', (d, i) => adjustedColor(d, true))
-	  .style('stroke-width', '2')
+	  .style('stroke-width', '4')
           .style('stroke', (d, i) => adjustedColor(d, false));
 
     // For each series create a rect element for each viralLoadLog

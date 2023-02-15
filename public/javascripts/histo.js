@@ -1038,17 +1038,20 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	.attr("y2", height)
 	.attr("stroke", "black");
 
-    group.selectAll("text.ylabel")
+    let ylabeldiv = group.selectAll("g.ylabeldiv")
+	.data(d => [d])
+	.join("g")
+	.classed("ylabeldiv", true);
+
+    ylabeldiv.selectAll("text.ylabel")
 	.data(d => [d])
         .join("text")
         .classed("ylabel", true)
         .attr("text-anchor", "start")
 	.attr("x", `${xScale(0)}`)
-	.attr("y", `${height-100}`)
-//        .attr("x", -height/2)
-//      .attr("y", -margin.left/2)
+	.attr("y", `${height-100}`)    
         .attr("transform", `rotate(-90 ${xScale(0)} ${height-90})`)
-          .text(d => "Probability Density");
+          .text(d => "Probability density");
 
     // Create a g element for each series
     /*TODO:  We can make there be transitions here, by passing functions to join(). See

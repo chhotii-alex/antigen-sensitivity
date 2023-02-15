@@ -121,7 +121,7 @@ function loadAssayOptions(data) {
         let label = item.displayName;
         let opt = document.createElement("option");
         opt.value = id;
-        opt.text = label;
+        opt.innerHTML = label;
         select.add(opt);
 	assayOptions[id] = item;
     }

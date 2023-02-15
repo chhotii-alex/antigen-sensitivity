@@ -667,15 +667,20 @@ function maxLabelLen(info) {
     return maxLen+1;
 }
 
-function pyramidLegend(values) {
+function pyramidLegend(flag) {
     let element = document.getElementById("plegend");
     let container = element.parentNode;
-    if (values.length < 2) {
+    if (!flag) {
 	container.style.display = "none";
     }
     else {
 	container.style.display = "block";
     }
+}
+
+function drawPyramidLegend(values) {
+    let element = document.getElementById("plegend");
+    let container = element.parentNode;
     const height = 25;
     const bandWidth = 2;
     let box = d3.select("#plegend");
@@ -706,6 +711,7 @@ function displayPyramid(info) {
     else {
 	container.style.display = "block";
     }
+    pyramidLegend(info.length > 2);
     const rectSize = 25;
     const innerMargin = 10;
     const outerMargin = 0;
@@ -1042,10 +1048,10 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	.data(d => [d])
         .join("text")
         .classed("ylabel", true)
-        .attr("text-anchor", "start")
-	.attr("x", `${xScale(0)}`)
-	.attr("y", `${height-100}`)    
-        .attr("transform", `rotate(-90 ${xScale(0)} ${height-90})`)
+        .attr("text-anchor", "middle")
+	.attr("x", `${xScale(-0.25)}`)
+	.attr("y", `${height/2}`)    
+        .attr("transform", `rotate(-90 ${xScale(-0.25)} ${height/2})`)
           .text(d => "Probability density");
 
     // Create a g element for each series

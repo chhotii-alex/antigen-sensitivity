@@ -1126,7 +1126,6 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
     .selectAll("div.exponentlabel")
 	.data(d => [d])
 	.join("xhtml:div")
-	.style("font-size", "10px")
 	.classed("exponentlabel", true)
 	.html(n => `10<sup>${n}</sup>`);
 

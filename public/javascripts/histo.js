@@ -402,9 +402,10 @@ export function unhighlightGroup(target) {
 
 function displayCommentary(items) {
     let box = d3.select("#commentary");
-    let p = box.selectAll("p")
+    let p = box.selectAll("p.groupcomment")
 	.data(items)
 	.join("p")
+	.classed("groupcomment", true)
 	.attr("app_group_name", (d, i) => d.label)
 	.on("mouseenter", mouseEnterAction())
 	.on("mouseleave", mouseLeaveAction());
@@ -675,24 +676,17 @@ function pyramidLegend(values) {
     else {
 	container.style.display = "block";
     }
-    const rectSize = 25;
+    const height = 25;
+    const bandWidth = 2;
     let box = d3.select("#plegend");
-    box.selectAll('ellipse')
+    box.selectAll('rect')
 	.data(values)
-	.join('ellipse')
-	.attr('cx', 19)
-	.attr('cy', (d,i) => 25*(i+1))
-	.attr('rx', 16)
-	.attr('ry', 10)
-	.attr('width', rectSize)
-	.attr('height', rectSize)
+	.join('rect')
+	.attr('x', (d,i) => `${i*bandWidth}`)
+	.attr('y', 20)
+	.attr('width', bandWidth+1)
+	.attr('height', height)
 	.attr('fill', d => colorForPValue(d));
-    box.selectAll('text')
-	.data(values)
-	.join('text')
-	.attr('x', 36)
-	.attr('y', (d,i) => 4 + 25*(i+1))
-	.text(d => `p = ${formatShortPValue(d)}`);
 }	
 
 function displayPyramid(info) {
@@ -773,15 +767,6 @@ function displayPyramid(info) {
 	.attr('fill', 'white')
 	.attr('font-size', `${baseFontSize*scale}px`)
 	.text(d => `${shortPValue(info, d[0], d[1])}`); 
-
-    if (info.length < 2 || allPValues.size < 1) {
-	pyramidLegend([]);
-    }
-    else {
-	let values = [...allPValues];
-	values.sort((a,b) => (a-b));
-	pyramidLegend(capLength(values, 5));
-    }
 }
 
 function capLength(arr, maxLen) {

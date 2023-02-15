@@ -809,7 +809,7 @@ function displayTextComparisons(info) {
     let text = "";
     if (info.length > 1) {
 	let conclusion = "are similar";
-	if (hasSignificantDifferences(info, 0.05)) {
+	if (hasSignificantDifferences(info, 0.00125)) {
 	    conclusion = "vary";
 	}
 	let preposition = "between";
@@ -1025,8 +1025,9 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	.join("text")
 	.classed("nodata", true)
 	.text("Insufficient data to plot")
-	.attr("x", `${xScale(1)}px`)
-	.attr("y", 30);
+	.attr("text-anchor", "middle")
+	.attr("x", `${xScale(5)}px`)
+	.attr("y", `${(height/2)+margin.top}`);
     
     // Y axis with no ticks
     group.selectAll("line.yaxis")

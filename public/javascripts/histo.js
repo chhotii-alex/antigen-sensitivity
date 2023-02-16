@@ -674,7 +674,7 @@ function pyramidLegend(flag) {
 	container.style.display = "none";
     }
     else {
-	container.style.display = "block";
+	container.style.display = "flex";
     }
 }
 

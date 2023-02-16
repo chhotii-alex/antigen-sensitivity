@@ -16,9 +16,9 @@
 #loading > img {
     //width: inherit;
     position: absolute;
-    top: 40%;
-    left: 40%;
-    width: 20%;
+    top: 48%;
+    left: 48%;
+    width: 4%;
    
 }
 
@@ -39,7 +39,7 @@ div#menu {
     left: 0px;
 }
 
-header {
+header, div.antigen_text {
     max-width: 46em;
     margin-left: auto;
     margin-right: auto;
@@ -94,8 +94,6 @@ p.body_text {
     grid-template-areas:
 	"pickgroup"
 	"grouphisto"
-	"pickanti"
-	"antihisto";
 }
 .has_bottom_line {
     border-bottom: 1px solid #dfdfdf;
@@ -238,10 +236,23 @@ input.valuename {
     transform: rotate(-45deg); 
     overflow: visible;
     pointer-events: none;
+    position: relative;
+    z-index: -1;
 /*    border: solid; */
 }
+
+.plegend {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content:center;
+}
+.plegend_text {
+    text-align: center;
+    nargin: 5%;
+}
 #plegend {
-    overflow: visible;
+    margin: 10% auto;
 }
 
 .bluebutton {
@@ -271,11 +282,7 @@ input.valuename {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-	"antigen_text antigen_text"
 	"select_antigen select_lod"
-}
-.antigen_text {
-    grid-area: antigen_text;
 }
 .select_antigen {
     grid-area: select_antigen;
@@ -367,7 +374,6 @@ footer {
 	grid-template-columns: 1fr 2fr;
 	grid-template-areas:
 	    "pickgroup grouphisto"
-	    "pickanti antihisto"
     }
 }
 

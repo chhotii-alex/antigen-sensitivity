@@ -176,10 +176,23 @@ p.body_text {
     color: #333;
 }
 
+/*
+meantext should always be same height as displaybox.
+Note that both meantext and displaybox have width: 100%
+so their widths are determined by the grid.
+Default grid allots 3/5 of the width to the displaybox and
+2/5 to the meantext (note the use of the 'fr' unit)
+and thus the width of meantext is 2/3 that of displaybox.
+The aspect-ratio of meantext and displaybox are set to be such
+that they result in the same height. Be sure to change the
+aspect-ratio here if the grid changes, or if the aspect-ratio
+of displaybox changes!!!
+*/
 .meantext {
     /* display:flex; */
     /* align-items:center; /* flex-end; */
-    max-height: 500px; /* should always be same height as displaybox */
+    width: 100%;
+    aspect-ratio: 3.2 / 3;
     overflow: scroll;
     grid-area: meantext;
     padding-top: 10px;

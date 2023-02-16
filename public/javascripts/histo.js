@@ -115,6 +115,7 @@ let assayOptions = {};
 function loadAssayOptions(data) {
     assayOptions = {};
     let options = data.items;
+    let randomElement = options[Math.floor(Math.random() * options.length)];
     let select = document.getElementById("antigenTest");
     for (let item of options) {
         let id = item.id;
@@ -124,6 +125,10 @@ function loadAssayOptions(data) {
         opt.innerHTML = label;
         select.add(opt);
 	assayOptions[id] = item;
+    }
+    select.value = randomElement.id;
+    if (gData) {
+	gData.assay = randomElement.id;
     }
 }
 
@@ -168,8 +173,6 @@ function updateAntigenTestSelection() {
 	let lod_slider = document.getElementById("lod_slider");
 	lod_slider.value = -1;
 	updateLOD(lod_slider.value);
-	let assayName = assayOptions[assay].displayName;
-	document.getElementById("test_description").innerHTML = assayName;
     }
     displayTestPerformance();
 }
@@ -218,6 +221,8 @@ function applyKnownAntigenTest(gData, assay) {
 	}
     }
     applyInfectivityThreshold(gData, gInfectivityThreshold);
+    let assayName = assayOptions[assay].displayName;
+    document.getElementById("test_description").innerHTML = assayName;
 }
 
 function applyLOD(gData, lod) {
@@ -347,8 +352,13 @@ function loadData(data) {
     let oldData = gData;
     gData = data.populations;
     gData.tooManyQueries = data.tooManyQueries;
-    gData.assay = oldData.assay;
-    gData.lod = oldData.lod;
+    if (oldData) {
+	gData.assay = oldData.assay;
+	gData.lod = oldData.lod;
+    }
+    else {
+	gData.assay = document.getElementById("antigenTest").value;
+    }
     if (gData.find( e => e.label == oldData.selectedGroup)) {
 	gData.selectedGroup = oldData.selectedGroup;
     }

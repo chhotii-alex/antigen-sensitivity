@@ -246,6 +246,13 @@ function displayAntigenTestHistogram() {
 }
 
 function displayAccuracyCalc(group) {
+    let box = d3.select(".performance_commentary");
+    if (!group) {
+	box.selectAll("span")
+	    .data([])
+	    .join("span");
+	return;
+    }
     let color = group.colors.negatives;
     let result = " ";
     if (group.sensitivity != null && group.specificity != null) {
@@ -255,7 +262,6 @@ function displayAccuracyCalc(group) {
           </strong> and the <strong>specificity</strong> is
           <strong>${group.specificity.toFixed(2)}</strong>.`
     }
-    let box = d3.select(".performance_commentary");
     box.selectAll("span")
 	.data([result])
 	.join("span")
@@ -339,7 +345,8 @@ export function setInfectivityThreshold(value) {
 
 function loadData(data) {
     let oldData = gData;
-    gData = data;
+    gData = data.populations;
+    gData.tooManyQueries = data.tooManyQueries;
     gData.assay = oldData.assay;
     gData.lod = oldData.lod;
     if (gData.find( e => e.label == oldData.selectedGroup)) {
@@ -893,6 +900,7 @@ function displayTextComparisons(info) {
 }
 
 function shouldShowHistogram(pop) {
+    if (!pop) return false;
     return pop.count >= 200;
 }
 
@@ -939,7 +947,8 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 	yScalesIndependent = false;
     }
 
-    if (info.length < 1) {
+    let histogramWorthyInfo = info.filter(d => shouldShowHistogram(d));
+    if (histogramWorthyInfo.length < 1) {
 	box.selectAll("g").data([]).join("g");
 	return;
     }
@@ -954,7 +963,6 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
 
     let allValues = [0];
 
-    let histogramWorthyInfo = info.filter(d => shouldShowHistogram(d));
     let stagger = 0;
     let heightAdjustment = 1.0;
     if (joy && (histogramWorthyInfo.length > 1)) {

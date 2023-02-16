@@ -451,6 +451,7 @@ function peak(data) {
 }
 
 exports.datafetch = async function(req, res, next) {
+    let tooManyQueries = false;
     let mwu = await mwu_promise;
     const { vars, splits } = await fetchVars();
   
@@ -462,6 +463,10 @@ exports.datafetch = async function(req, res, next) {
     let results = [];
     try {
         for (let label of queries.getLabels()) {
+	    if (results.length >= 8) {
+	        tooManyQueries = true;
+	        break;
+	    }
 	    result = await runQuery(label, queries.queries[label]);
             if (result) {
 	        result.pop.rawData = result.rawData;
@@ -496,7 +501,7 @@ exports.datafetch = async function(req, res, next) {
 	   delete pop.rawData;
 	}
 
-        res.json(results);
+        res.json({"populations":results, "tooManyQueries":tooManyQueries});
     }
     catch (error) {
         console.log("Error fetching patient data:");

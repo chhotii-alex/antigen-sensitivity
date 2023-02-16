@@ -394,7 +394,7 @@ function splitQueries(queries, splits, variableObj) {
     return queries;
 }
 
-async function runQuery(label, queryParts, index) {
+async function runQuery(label, queryParts) {
     const bin = await makeBinFunction();
     let baseQuery = queryParts["base"];
     let whereClause = queryParts["where"];
@@ -413,7 +413,6 @@ async function runQuery(label, queryParts, index) {
     let mean_val = Math.pow(10, mean(rawData))
     let pop = {
                "label" : label,
-               "colors": colors.getColorSchema(index),
                "mean" : mean_val,
                "count" : rawData.length,
                "comparisons" : []};
@@ -461,10 +460,9 @@ exports.datafetch = async function(req, res, next) {
     queries = splitQueries(queries, splits, req.query);
 
     let results = [];
-    let index = 0;
     try {
         for (let label of queries.getLabels()) {
-	    result = await runQuery(label, queries.queries[label], index++);
+	    result = await runQuery(label, queries.queries[label]);
             if (result) {
 	        result.pop.rawData = result.rawData;
                 results.push(result.pop);
@@ -490,7 +488,9 @@ exports.datafetch = async function(req, res, next) {
 	    }
 	}
 
-	for (let pop of results) {
+        for (let i = 0; i < results.length; ++i) {
+	   pop = results[i];
+	   pop.colors = colors.getColorSchema(i);
 	   delete pop.peak;
 	   delete pop.median;
 	   delete pop.rawData;

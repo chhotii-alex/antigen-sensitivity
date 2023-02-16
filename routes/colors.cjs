@@ -55,7 +55,6 @@ let colorPairs = [
 ];
 
 colorPairs = colorPairs.map(d => convertColors(d));
-console.log(colorPairs);
 
 exports.getColorSchema = function(index) {
    return colorPairs[index % colorPairs.length];

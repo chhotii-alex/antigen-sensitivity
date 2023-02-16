@@ -240,6 +240,7 @@ function applyLOD(gData, lod) {
 
 function displayAntigenTestHistogram() {
     let group = gData.find(pop => pop.label == gData.selectedGroup);
+    //displayData([group] , "antiperf", ["positives", "negatives"]);
     displayData([group] , "antiperf", ["negatives", "positives"]);
     displayAccuracyCalc(group);
 }

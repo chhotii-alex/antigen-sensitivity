@@ -346,8 +346,9 @@ function loadData(data) {
 	gData.selectedGroup = oldData.selectedGroup;
     }
     else {
-	if (gData.length > 0) {
-	    gData.selectedGroup = gData[0].label;
+	let firstPossibleGroup = gData.find(d => shouldShowHistogram(d));
+	if (firstPossibleGroup) {
+	    gData.selectedGroup = firstPossibleGroup.label;
 	}
     }
     setHidden("loading", true);

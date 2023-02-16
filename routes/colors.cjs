@@ -60,3 +60,6 @@ exports.getColorSchema = function(index) {
    return colorPairs[index % colorPairs.length];
 }
     
+exports.getPlainColors = function() {
+   return {"positives": "#000000", "negatives":"#000000",}
+}

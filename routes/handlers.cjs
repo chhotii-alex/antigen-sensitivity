@@ -493,9 +493,14 @@ exports.datafetch = async function(req, res, next) {
 	    }
 	}
 
-        for (let i = 0; i < results.length; ++i) {
-	   pop = results[i];
-	   pop.colors = colors.getColorSchema(i);
+	let colorIndex = 0;
+	for (let pop of results) {
+	   if (pop.count < 200) {
+	      pop.colors = colors.getPlainColors();
+	   }
+	   else {
+	       pop.colors = colors.getColorSchema(colorIndex++);
+	   }
 	   delete pop.peak;
 	   delete pop.median;
 	   delete pop.rawData;

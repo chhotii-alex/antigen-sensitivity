@@ -54,6 +54,8 @@ let colorPairs = [
 },
 ];
 
+colorPairs.reverse();
+
 colorPairs = colorPairs.map(d => convertColors(d));
 
 exports.getColorSchema = function(index) {

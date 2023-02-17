@@ -380,6 +380,13 @@ function loadData(data) {
 
 export function presentData() {
     if (gData) {
+	let msg = document.getElementById("too_many_groups");
+	if (gData.tooManyQueries) {
+	    msg.classList.remove("hidden_style");
+	}
+	else {	    
+	    msg.classList.add("hidden_style");
+	}
 	groupHistogram();
 	displayComparisons(gData);
 	displayCommentary(gData);

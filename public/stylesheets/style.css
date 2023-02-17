@@ -96,6 +96,13 @@ p.body_text {
 	"pickgroup"
 	"grouphisto"
 }
+.too_many_groups {
+    border: solid;
+    font-style: italic;
+    font-size: 2em;
+    text-align: center;
+    grid-area: too_many_groups;
+}
 .has_bottom_line {
     /* border-bottom: 1px solid #dfdfdf; */
 }
@@ -147,6 +154,7 @@ p.body_text {
     grid-template-columns: 1fr 60em 20em 1fr;
     grid-template-areas:
 	". comparisons comparisons ."
+	". too_many_groups too_many_groups ."
 	". displaybox meantext ."
 	". pyramid plegend .";
 }
@@ -156,6 +164,7 @@ p.body_text {
 	grid-template-columns: 3fr 1fr;
 	grid-template-areas:
 	    "comparisons comparisons"
+	    "too_many_groups too_many_groups"
 	    "displaybox meantext"
 	    "pyramid plegend";
     }

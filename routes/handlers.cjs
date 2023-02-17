@@ -383,15 +383,27 @@ function makeBaseWhereClause(variableObj) {
 }
 
 function splitQueries(queries, splits, variableObj) {
+    let splitVariableCount = 0;
+    let fetchedAllGroups = false;
+    let splitDescription = null;
     for (const variable in variableObj) {
         if (splits.get(variable)) {
+	    ++splitVariableCount;
             let values = variableObj[variable];
-            let groupsToFetch = splits.get(variable).splits.filter(
+	    let split = splits.get(variable);
+            let groupsToFetch = split.splits.filter(
                 spec => values.indexOf(spec.value) >= 0 );
+	    if (groupsToFetch.length == split.splits.length) {
+	        fetchedAllGroups = true;
+		splitDescription = `across ${split.variableDisplayName}`;
+	    }
             queries = makeNewQueries(queries, groupsToFetch);
         }
     }
-    return queries;
+    if (splitVariableCount != 1 || !fetchedAllGroups) {
+        splitDescription = null;
+    }
+    return [queries, splitDescription];
 }
 
 async function runQuery(label, queryParts) {
@@ -456,9 +468,10 @@ exports.datafetch = async function(req, res, next) {
     const { vars, splits } = await fetchVars();
   
     let queries = new QuerySet();
+    let splitDescription;
     queries.addQuery(new PatientSetDescription(),
                      {"base":makeBaseQuery(), "where":makeBaseWhereClause(req.query)});
-    queries = splitQueries(queries, splits, req.query);
+    [queries, splitDescription] = splitQueries(queries, splits, req.query);
 
     let results = [];
     try {
@@ -506,7 +519,8 @@ exports.datafetch = async function(req, res, next) {
 	   delete pop.rawData;
 	}
 
-        res.json({"populations":results, "tooManyQueries":tooManyQueries});
+        res.json({"populations":results, "tooManyQueries":tooManyQueries,
+	       "splitDescription":splitDescription, });
     }
     catch (error) {
         console.log("Error fetching patient data:");

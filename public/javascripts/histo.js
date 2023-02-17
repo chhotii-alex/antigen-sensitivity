@@ -348,10 +348,16 @@ export function setInfectivityThreshold(value) {
     }
 }
 
+/*
+  TODO: fix that code assumes that gData is an Array.
+  It should be an object containing an array, matching
+  what the API returns.
+  */
 function loadData(data) {
     let oldData = gData;
     gData = data.populations;
     gData.tooManyQueries = data.tooManyQueries;
+    gData.splitDescription = data.splitDescription;
     if (oldData) {
 	gData.assay = oldData.assay;
 	gData.lod = oldData.lod;
@@ -835,8 +841,13 @@ function displayTextComparisons(info) {
 	if (info.length > 2) {
 	    preposition = "across";
 	}
-	let num = info.length;
-	text = `Viral loads ${conclusion} ${preposition} these ${num} groups`;
+	if (info.splitDescription) {
+	    text = `Viral loads ${info.splitDescription}`;
+	}
+	else {
+	    let num = info.length;
+	    text = `Viral loads ${conclusion} ${preposition} these ${num} groups`;
+	}
     }
     else {
 	text = "Real-world viral loads, 2020&ndash;present";

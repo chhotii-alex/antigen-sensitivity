@@ -54,7 +54,7 @@ h1 {
 }
 
 h1.comparisons {
-    padding-top: 1em;
+    padding-top: 0.5em;
     font-weight: 500;
     fint-size: 36px;
 }
@@ -75,6 +75,7 @@ h3 {
     font-weight: 600;
     font-size: 22px;
     /* text-align: center; */
+    padding-top: 1em;
     padding-left: 40px;
     padding-right: 40px;
     padding-bottom: 20px;
@@ -96,11 +97,13 @@ p.body_text {
 	"grouphisto"
 }
 .has_bottom_line {
-    border-bottom: 1px solid #dfdfdf;
+    /* border-bottom: 1px solid #dfdfdf; */
 }
 .pickgroup > fieldset {
     max-width: 76em;
-    margin: 1em auto 2em;
+    margin-left: auto;
+    margin-right: auto;
+    /* margin: 1em auto 2em; */
 }
 #select_var {
     columns: 4;
@@ -141,12 +144,21 @@ p.body_text {
 }
 .grouphisto {
     display: grid;
-    margin-bottom: 2.55em;
-    grid-template-columns: 3fr 1fr 1fr;
+    grid-template-columns: 1fr 60em 20em 1fr;
     grid-template-areas:
-	"comparisons comparisons comparisons"
-	"displaybox meantext meantext"
-	"pyramid pyramid plegend"
+	". comparisons comparisons ."
+	". displaybox meantext ."
+	". pyramid plegend .";
+}
+
+@media only screen and (max-width: 80em) {
+    .grouphisto {
+	grid-template-columns: 3fr 1fr;
+	grid-template-areas:
+	    "comparisons comparisons"
+	    "displaybox meantext"
+	    "pyramid plegend";
+    }
 }
 .comparisons {
     text-align: center;
@@ -157,7 +169,7 @@ p.body_text {
     width: 100%;
     aspect-ratio: 1.6 / 1;
     grid-area: displaybox;
-    margin-bottom: 3em;
+    /* margin-bottom: 3em; */
 }
 .ylabeldiv {
     transform: translate(-10px, 0px);
@@ -204,7 +216,22 @@ of displaybox changes!!!
     grid-area: pyramid;
 }
 .plegend {
+    width: 100%;
+    aspect-ratio: 3.2 / 3;
+    overflow: scroll;
+    grid-area: meantext;
+    padding-top: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
     grid-area: plegend;
+    font-size: 20px;
+    padding-bottom: 1.5em;
+    line-height: 1.7em;
+}
+.statistics {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-right: 0.15em;
 }
 .savebuttons {
     grid-area: savebuttons;
@@ -431,6 +458,7 @@ footer {
 }
 .conclusiontext {
     font-size: 20px;
+    padding-top: 1.5em;
     padding-bottom: 1.5em;
     line-height: 1.7em;
 }
@@ -465,7 +493,7 @@ footer {
 }
 .nodata {
     font-size: 40px;
-    font-weight: 200;
+    font-weight: 300;
 }
 .bold {
     color: #000;

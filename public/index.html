@@ -87,9 +87,11 @@
       </div>
       <div class="plegend" >
 	<p class="plengend_text">
-	  Each entry in this triangle plot shows the p-value for the difference in viral load between the indicated groups. (The statistical test is the Mann-Whitney U test.) Brighter entries indicate greater differences.
+	  <text class="statistics">Statistics.</text> Each entry in this triangle plot shows the p-value for the difference in viral load between the indicated groups.
+	  Brighter entries indicate smaller p-values and therefore  more statistically significant differences.
+	  The statistical test used was the Mann-Whitney U test.
 	</p>
-        <img id="plegend" src="plegend.jpg" width="150px" height="50px" />
+        <img align="left" id="plegend" src="plegend.jpg" width="150px" height="50px" />
       </div>
     </div>
   </div>
@@ -113,7 +115,6 @@
 	</span>
       </fieldset>
   </div>
-  <hr/>
   <div class="antihisto hidden_style" id="antihisto">
       <div class="antihisto_title">
 	<h1>
@@ -126,7 +127,6 @@
       <div class="performance_commentary">
       </div>
   </div>
-  <hr/>
   <details id="moresettings">
     <summary>Show More Settings</summary>
     <div class="indent">
@@ -141,11 +141,11 @@
       <input type="range" min="0" max="12" value="5" class="slider" id="infectivityThreshold">
     </div>
   </details>
-  <hr/>
   <footer>
-    <h2>Tell us what you think!</h2>
-    We appreciate your feedback. Please email us at
-    <a href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
+    <h3>Tell us what you think!</h3>
+    <p class="body_text">We appreciate your feedback. Please email us at
+      <a href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
+    </p>
   </footer>
 </body>
 <script type="module">

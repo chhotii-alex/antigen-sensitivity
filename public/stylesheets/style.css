@@ -338,11 +338,21 @@ input.valuename {
 .antihisto {
     grid-area: antihisto;
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 1fr 60em 20em 1fr;
     grid-template-areas:
+	". antihisto_title antihisto_title ."
+	". group_radio group_radio ."
+	". antiperf performance_commentary .";
+}
+
+@media only screen and (max-width: 80em) {
+    .antihisto {
+	grid-template-columns: 3fr 1fr;
+	grid-template-areas:
 	"antihisto_title antihisto_title"
 	"group_radio group_radio"
-	"antiperf performance_commentary"
+	"antiperf performance_commentary";
+    }
 }
 
 .antihisto_title {
@@ -357,6 +367,7 @@ input.valuename {
 }
 .performance_commentary {
     padding: 1em;
+    grid-area: performance_commentary;
 }
 .antiperf {
     width: 100%;

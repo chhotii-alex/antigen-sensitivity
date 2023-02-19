@@ -2,6 +2,8 @@
 import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js"
 //import * as d3 from "https://cdn.skypack.dev/d3@7.6";
 
+import { urlPrefix } from "./server_url.js";
+
 function addAlpha(color, alpha) {
     const re = /rgb\((\d+),(\d+),(\d+)\)/;
     const found = color.match(re);
@@ -302,21 +304,23 @@ export function updateQuery() {
     doQuery(minDate, maxDate);
 }
 
-let url;  
-url = "/api/variables";
-fetch(url)
+function URLforEndpoint(endpointName) {
+    return `${urlPrefix}/api/${endpointName}`;
+}
+
+fetch(URLforEndpoint("variables"))
         .then(response => response.json())
         .then(data => loadVariableOptions(data));
 
-url = "/api/assays";
-fetch(url)
+fetch(URLforEndpoint("assays"))
         .then(response => response.json())
         .then(data => loadAssayOptions(data));
 
 
 export function doQuery(minDate=null, maxDate=null) {
     setHidden("loading", false);
-    let url = 'api/data/viralloads?';
+    let url = URLforEndpoint("data");
+    url += '/viralloads?';
 
     for (let variable in variables) {
 	for (let value of variables[variable]) {

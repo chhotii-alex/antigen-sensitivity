@@ -8,6 +8,7 @@
 */
 
 var express = require('express');
+var cors = require('cors');
 var router = express.Router();
 
 const handlers = require('./handlers.cjs');
@@ -17,16 +18,11 @@ const handlers = require('./handlers.cjs');
 
     
 
-/* GET home page. */
-/*
-router.get('/', handlers.home);
-*/
+router.get('/api/variables', cors(), handlers.vars);
 
-router.get('/api/variables', handlers.vars);
+router.get('/api/data/viralloads', cors(), handlers.datafetch);
 
-router.get('/api/data/viralloads', handlers.datafetch);
-
-router.get('/dataset', handlers.dataset);
+router.get('/dataset', cors(), handlers.dataset);
 
 module.exports = router;
 

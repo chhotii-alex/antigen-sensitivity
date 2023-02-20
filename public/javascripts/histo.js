@@ -749,9 +749,10 @@ function displayPyramid(info) {
     }
     pyramidLegend(info.length > 2);
     const rectSize = 25;
+    const maxGroups = 8; //this is determined by the back end
     const innerMargin = 10;
     const outerMargin = 0;
-    const totalWidth = rectSize*(info.length-1);
+    const totalWidth = rectSize*(maxGroups-1);
     const labelWidth = totalWidth-innerMargin;
     let maxstr = (totalWidth - innerMargin)/(labelFontSize*fontWidthRatio);
     if (maxstr < 15) {
@@ -765,7 +766,7 @@ function displayPyramid(info) {
 	return scale*(outerMargin+totalWidth-(i+1)*rectSize);
     }
     function y(i) {
-	return scale*(labelWidth+totalWidth+innerMargin+outerMargin-(i)*rectSize);
+	return scale*(labelWidth+rectSize*(info.length-1)+innerMargin+outerMargin-(i)*rectSize);
     }
     
     let row = box.selectAll('g.pyramidrow')
@@ -785,10 +786,10 @@ function displayPyramid(info) {
 	.join('text')
 	.classed('col_labels', true)
 	.text(d => shortLabelAtIndex(info, d, maxstr))
-	.attr('x', d => scale*(totalWidth-(d+0.5)*rectSize+outerMargin))
+	.attr('x', d => scale*(totalWidth-(d+0.25)*rectSize+outerMargin))
 	.attr('y', scale*(outerMargin+labelWidth))
-	.attr("text-anchor", "end")
-    	.attr("transform", d => `rotate(90 ${scale*(totalWidth-(d+0.5)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`)
+	.attr("text-anchor", "start")
+    	.attr("transform", d => `rotate(-90 ${scale*(totalWidth-(d+0.25)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`)
 	.attr('font-size', `${labelFontSize*scale}px`);
     let square = row.selectAll('rect')
 	.data(d => range(0, d).map(index => [d,index]))

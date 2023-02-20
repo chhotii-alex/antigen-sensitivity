@@ -13,6 +13,7 @@ var http = require('http');
  */
 
 var port = normalizePort(process.env.PORT || '82');
+console.log(`Will listen on port ${port}`);
 app.set('port', port);
 
 /**

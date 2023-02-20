@@ -896,7 +896,7 @@ function displayTextComparisons(info) {
         .data(d => [d])
         .join("span")
         .classed("vl_prefix", true)
-        .text(d => "Viral loads for ");
+        .html(d => "<strong>Statistics.</strong> Viral loads for ");
     conclusiontext.selectAll("span.group1noun")
         .data(d => [d])
         .join("span")

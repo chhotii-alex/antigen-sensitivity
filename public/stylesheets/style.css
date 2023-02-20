@@ -144,7 +144,7 @@ p.body_text {
     display: block;
 }    
 .select_var_open svg {
-    transform: rotate(0.25turn);
+    transform: translateY(6px) translateX(6px) rotate(0.25turn);
 }
 #select_var > div {
     break-inside: avoid-column;

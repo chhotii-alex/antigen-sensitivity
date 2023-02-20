@@ -897,7 +897,7 @@ function displayTextComparisons(info) {
         .data(d => [d])
         .join("span")
         .classed("vl_prefix", true)
-        .text(d => "Viral loads for ");
+        .html(d => "<strong>Statistics.</strong> Viral loads for ");
     conclusiontext.selectAll("span.group1noun")
         .data(d => [d])
         .join("span")
@@ -934,7 +934,7 @@ function displayTextComparisons(info) {
 
 function shouldShowHistogram(pop) {
     if (!pop) return false;
-    return pop.count >= 200;
+    return pop.count >= 60;
 }
 
 /* Draws histograms */

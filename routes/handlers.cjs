@@ -128,6 +128,19 @@ async function getVariableSplits(splits) {
     }
 }
 
+function capitalized(s) {
+    if (s) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+    else {
+        return '';
+    }
+}
+
+function titleCase(s) {
+    return s.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
 async function getTreatmentSplits(splits) { 
    query = "SELECT tag, description from TreatmentRef order by tag";
    let {rows} = await pool.query(query);
@@ -136,9 +149,9 @@ async function getTreatmentSplits(splits) {
        let description = row.description;
        let d = {
            variable: tag,
-           variabledisplayname: description,
+           variabledisplayname: titleCase(description),
            value: `true_${tag}`,
-           valuedisplayname: `received ${description}`,
+           valuedisplayname: `received ${titleCase(description)}`,
            noun: null,
            modifier: `getting ${description}`,
            adjective: null,
@@ -146,7 +159,7 @@ async function getTreatmentSplits(splits) {
        };
        new PatientSplitSpecifier(d, splits);
        d.value = `false_${tag}`;
-       d.valuedisplayname = `did not receive ${description}`;
+       d.valuedisplayname = `did not receive ${titleCase(description)}`;
        d.modifier = `not getting ${description}`;
        d.whereclause = `not ${tag.toLowerCase()}`;
        new PatientSplitSpecifier(d, splits);
@@ -172,9 +185,9 @@ function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag
     }	
     let d = {
         variable: tag,
-        variabledisplayname: group_description,
+        variabledisplayname: titleCase(group_description),
         value: `${flagString}${tag}`,
-        valuedisplayname: `${valueStringPrefix} ${group_description}`,
+        valuedisplayname: `${valueStringPrefix} ${titleCase(group_description)}`,
         noun: null,
         modifier: `${modifierPrefix} ${group_description}`,
         adjective: null,
@@ -518,7 +531,7 @@ exports.datafetch = async function(req, res, next) {
 
 	let colorIndex = 0;
 	for (let pop of results) {
-	   if (pop.count < 200) {
+	   if (pop.count < 60) {
 	      pop.colors = colors.getPlainColors();
 	   }
 	   else {

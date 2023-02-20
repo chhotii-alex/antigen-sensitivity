@@ -214,13 +214,22 @@ of displaybox changes!!!
     /* align-items:center; /* flex-end; */
     width: 100%;
     aspect-ratio: 1.6 / 3;
-    overflow: scroll;
+    overflow: auto; /* adds scrollbar when needed */
     grid-area: meantext;
     padding-top: 10px;
     padding-left: 40px;
     padding-right: 40px;
     /* padding-bottom: 100px; */
 }
+.meantext::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #aaa; /* or add it to the track */
+}
+.meantext::-webkit-scrollbar-thumb {
+  background: #000;
+}
+
 .pyramid {
     grid-area: pyramid;
 }
@@ -322,7 +331,7 @@ input.valuename {
 
 .pickanti {
     color: #444;
-    max-width: 730px;
+    max-width: 60em;
     margin:auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -337,9 +346,11 @@ input.valuename {
 }
 .no_border {
     border: none;
-    margin: 2em;
+    margin: 1em;
 }
-
+.select_antigen {
+    width: 80%;
+}
 .antihisto {
     grid-area: antihisto;
     display: grid;

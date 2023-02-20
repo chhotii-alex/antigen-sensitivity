@@ -20,6 +20,8 @@ const handlers = require('./handlers.cjs');
 
 router.get('/api/variables', cors(), handlers.vars);
 
+router.get('/api/assays', cors(), handlers.assays);
+
 router.get('/api/data/viralloads', cors(), handlers.datafetch);
 
 router.get('/dataset', cors(), handlers.dataset);

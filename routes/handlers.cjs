@@ -9,6 +9,16 @@ const colors  = require('./colors.cjs');
 
 console.log("webapp routes launching...")
 
+exports.assays = function(req, res, next) {
+    let data = {
+        "items":[
+	    {"id":"binax","displayName":"BinaxNOW&trade; COVID-19 Ag Card","coef":1.1843183,"intercept":-5.37500995},
+	    {"id":"ginko","displayName":"CareStart COVID-19 Antigen Home Test","coef":1.14230231,"intercept":-5.70535991}
+	    ]
+	  };
+    res.json(data);
+}
+
 /*
   Parameter:
   k : width of window

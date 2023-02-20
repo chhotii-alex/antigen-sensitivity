@@ -214,13 +214,22 @@ of displaybox changes!!!
     /* align-items:center; /* flex-end; */
     width: 100%;
     aspect-ratio: 1.6 / 3;
-    overflow: scroll;
+    overflow: auto; /* adds scrollbar when needed */
     grid-area: meantext;
     padding-top: 10px;
     padding-left: 40px;
     padding-right: 40px;
     /* padding-bottom: 100px; */
 }
+.meantext::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #aaa; /* or add it to the track */
+}
+.meantext::-webkit-scrollbar-thumb {
+  background: #000;
+}
+
 .pyramid {
     grid-area: pyramid;
 }
@@ -282,7 +291,7 @@ input.valuename {
 }
 #pyramid {
     aspect-ratio : 1;
-    transform: rotate(-45deg); 
+    transform: rotate(-45deg);
     overflow: visible;
     pointer-events: none;
     position: relative;

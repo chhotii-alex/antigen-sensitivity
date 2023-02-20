@@ -249,10 +249,10 @@ function displayAntigenTestHistogram() {
     let group = gData.find(pop => pop.label == gData.selectedGroup);
     //displayData([group] , "antiperf", ["positives", "negatives"]);
     displayData([group] , "antiperf", ["negatives", "positives"]);
-    displayAccuracyCalc(group);
+    displayAccuracyCalc(group, gData.length == 1);
 }
 
-function displayAccuracyCalc(group) {
+function displayAccuracyCalc(group, onlyGroup) {
     let box = d3.select(".performance_commentary");
     if (!group) {
 	box.selectAll("span")
@@ -262,8 +262,12 @@ function displayAccuracyCalc(group) {
     }
     let color = group.colors.negatives;
     let result = " ";
+    let specifier = '';
+    if (onlyGroup) {
+	specifier = ' all ';
+    }
     if (group.sensitivity != null && group.specificity != null) {
-        result = `In <span style="color: ${color}">${group.label.trim()}</span>,
+        result = `In ${specifier} <span style="color: ${color}">${group.label.trim()}</span>,
           the <strong>sensitivity</strong> for
           detecting contagiousness is <strong>${group.sensitivity.toFixed(2)}
           </strong> and the <strong>specificity</strong> is

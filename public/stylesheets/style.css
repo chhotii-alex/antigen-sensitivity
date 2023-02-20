@@ -335,7 +335,7 @@ input.valuename {
 
 .pickanti {
     color: #444;
-    max-width: 730px;
+    max-width: 60em;
     margin:auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -350,9 +350,11 @@ input.valuename {
 }
 .no_border {
     border: none;
-    margin: 2em;
+    margin: 1em;
 }
-
+.select_antigen {
+    width: 80%;
+}
 .antihisto {
     grid-area: antihisto;
     display: grid;

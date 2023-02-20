@@ -945,22 +945,23 @@ function displayData(info, widgetID, catagories=["count"], highlightOne=false, j
     }
     function adjustedColor(d, isFill) {
 	let color = d.color;
-	if (shouldAddMoreAlpha(d.groupLabel)) {
+	if (typeof(color) == 'object') {
 	    if (isFill) {
-		return addAlpha(color, 0.05);
+		color = color[1];
 	    }
 	    else {
-		return addAlpha(color, 0.07);
+		color =  color[0];
 	    }
+	}
+	if (shouldAddMoreAlpha(d.groupLabel)) {
+	    return addAlpha(color, 0.04);
+	}
+	else if (joy) {
+	    return color;
 	}
 	else {
 	    if (isFill) {
-		if (joy) {
-		    return addAlpha(color, 0.7);
-		}
-		else {
-		    return addAlpha(color, 0.4)
-		}
+		return addAlpha(color, 0.4)
 	    }
 	    else {
 		return color;

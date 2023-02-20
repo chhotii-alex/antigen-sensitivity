@@ -17,40 +17,34 @@ function convertColors(d) {
    return {
       "positives" : convertToRGB(d.positives),
       "negatives" : convertToRGB(d.negatives),
-      "count" : convertToRGB(d.negatives),
+      "count" : [convertToRGB(d.negatives), convertToRGB(d.medium)],
       }
 }
 
 let colorPairs = [
-{"negatives":
-'#6a3d9a', //dark purple
-"positives":
-'#cab2d6', //light purple
+{"negatives": '#6a3d9a', //dark purple
+"positives": '#cab2d6', //light purple
+"medium": "#8B6FB0",
 },
-{"negatives":
-'#1f78b4', //dark blue
-"positives":
-'#a6cee3', //light blue
+{"negatives": '#1f78b4', //dark blue
+"positives": '#a6cee3', //light blue
+"medium": "#6D99C3",
 },
-{"negatives":
-'#33a02c', //dark green
-"positives":
-'#b2df8a', //light green
+{"negatives": '#33a02c', //dark green
+"positives": '#b2df8a', //light green
+"medium": "#7FB66F",
 },
-{"negatives":
-'#d8ac60', //dark yellow
-"positives":
-'#ffff99', //light yellow
+{"negatives": '#d8ac60', //dark yellow
+"positives": '#ffff99', //light yellow
+"medium": "#DDC291",
 },
-{"negatives":
-'#ff7f00', //dark orange
-"positives":
-'#fdbf6f', //light orange
+{"negatives": '#ff7f00', //dark orange
+"positives": '#fdbf6f', //light orange
+"medium": "#FF9F40",
 },
-{"negatives":
-'#e31a1c', //dark red
-"positives":
-'#fb9a99', //light red
+{"negatives": '#e31a1c', //dark red
+"positives": '#fb9a99', //light red
+"medium": "#EA5455",
 },
 ];
 

@@ -531,7 +531,7 @@ exports.datafetch = async function(req, res, next) {
 
 	let colorIndex = 0;
 	for (let pop of results) {
-	   if (pop.count < 200) {
+	   if (pop.count < 60) {
 	      pop.colors = colors.getPlainColors();
 	   }
 	   else {

@@ -933,7 +933,7 @@ function displayTextComparisons(info) {
 
 function shouldShowHistogram(pop) {
     if (!pop) return false;
-    return pop.count >= 200;
+    return pop.count >= 60;
 }
 
 /* Draws histograms */

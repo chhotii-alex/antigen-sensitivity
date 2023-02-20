@@ -273,16 +273,13 @@ input.valuename {
     font-weight: normal;
 }
 #pyramid_container {
-    aspect-ratio : 1;
     margin-left: 21%;
     margin-right: 21%;
-    margin-top: -10%;
-    margin-bottom: 1%;
 /*    border: solid;  */
 }
 #pyramid {
     aspect-ratio : 1;
-    transform: rotate(-45deg); 
+    transform: rotate(-45deg);
     overflow: visible;
     pointer-events: none;
     position: relative;
@@ -370,6 +367,7 @@ input.valuename {
 
 .group_radio {
     grid-area: group_radio;
+    max-width: 36em;
 }
 .radio_button_label {
     margin-right: 1em;

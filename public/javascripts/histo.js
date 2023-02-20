@@ -786,10 +786,10 @@ function displayPyramid(info) {
 	.join('text')
 	.classed('col_labels', true)
 	.text(d => shortLabelAtIndex(info, d, maxstr))
-	.attr('x', d => scale*(totalWidth-(d+0.5)*rectSize+outerMargin))
+	.attr('x', d => scale*(totalWidth-(d+0.25)*rectSize+outerMargin))
 	.attr('y', scale*(outerMargin+labelWidth))
-	.attr("text-anchor", "end")
-    	.attr("transform", d => `rotate(90 ${scale*(totalWidth-(d+0.5)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`)
+	.attr("text-anchor", "start")
+    	.attr("transform", d => `rotate(-90 ${scale*(totalWidth-(d+0.25)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`)
 	.attr('font-size', `${labelFontSize*scale}px`);
     let square = row.selectAll('rect')
 	.data(d => range(0, d).map(index => [d,index]))

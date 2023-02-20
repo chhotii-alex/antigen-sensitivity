@@ -279,7 +279,6 @@ input.valuename {
 }
 #pyramid {
     aspect-ratio : 1;
-    transform: rotate(-45deg);
     overflow: visible;
     pointer-events: none;
     position: relative;

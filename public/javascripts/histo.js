@@ -4,6 +4,10 @@ import * as d3 from "https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/
 
 import { urlPrefix } from "./server_url.js";
 
+function URLforEndpoint(endpointName) {
+    return `${urlPrefix}/api/${endpointName}`;
+}
+
 function addAlpha(color, alpha) {
     const re = /rgb\((\d+),(\d+),(\d+)\)/;
     const found = color.match(re);
@@ -253,6 +257,7 @@ function displayAntigenTestHistogram() {
 }
 
 function displayAccuracyCalc(group, onlyGroup) {
+    if (!d3) return;
     let box = d3.select(".performance_commentary");
     if (!group) {
 	box.selectAll("span")
@@ -306,10 +311,6 @@ export function updateQuery() {
       maxDate = document.getElementById("maxDate").value;
     }
     doQuery(minDate, maxDate);
-}
-
-function URLforEndpoint(endpointName) {
-    return `${urlPrefix}/api/${endpointName}`;
 }
 
 fetch(URLforEndpoint("variables"))
@@ -441,6 +442,7 @@ export function unhighlightGroup(target) {
 }
 
 function displayCommentary(items) {
+    if (!d3) return;
     let box = d3.select("#commentary");
     let p = box.selectAll("p.groupcomment")
 	.data(items)
@@ -518,6 +520,7 @@ function applyInfectivityThreshold(data, infectivityThreshold) {
 const margin = {top: 10, right: 0, bottom: 60, left: 20};
 
 function linearScale(values, width) {
+    if (!d3) return;
     let extent = d3.extent(values);
 //    extent[0] -= 0.5;
 //    extent[1] += 0.5;
@@ -527,6 +530,7 @@ function linearScale(values, width) {
 }
 
 function prepareDataForStackedHistogram(info, catagories) {
+    if (!d3) return;
     let stack = d3.stack().keys(catagories);
     let stackedData = stack(info.data);
     stackedData.forEach( (f) => {
@@ -719,6 +723,7 @@ function pyramidLegend(flag) {
 }
 
 function drawPyramidLegend(values) {
+    if (!d3) return;
     let element = document.getElementById("plegend");
     let container = element.parentNode;
     const height = 25;
@@ -735,6 +740,7 @@ function drawPyramidLegend(values) {
 }	
 
 function displayPyramid(info) {
+    if (!d3) return;
     let allPValues = new Set();
     function observePValue(p) {
 	allPValues.add(p);
@@ -847,6 +853,7 @@ function hasSignificantDifferences(info, alpha) {
 }
 
 function displayTextComparisons(info) {
+    if (!d3) return;
     let text = "";
     if (info.length > 1) {
 	let conclusion = "are similar";
@@ -943,6 +950,7 @@ function shouldShowHistogram(pop) {
 
 /* Draws histograms */
 function displayData(info, widgetID, catagories=["count"], highlightOne=false, joy=false) {
+    if (!d3) return;
     let highlightedGroupLabel = info["highlightedGroupLabel"];
     let hasHighlight = highlightOne && (highlightedGroupLabel != null);
     function shouldAddMoreAlpha(group) {
@@ -1220,6 +1228,7 @@ function updateSelectedGroup(arg) {
 }
 
 function displayGroupRadioButtons(info) {
+    if (!d3) return;
     if (info.length < 2) {
 	info = [];
     }

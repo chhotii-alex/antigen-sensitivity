@@ -20,8 +20,8 @@ function addAlpha(color, alpha) {
     return `rgba(${r},${g},${b},${alpha})`;
 }   
 
-function expo(x) {
-  return Number.parseFloat(x).toExponential(1);
+function expo(x, places=1) {
+    return Number.parseFloat(x).toExponential(places);
 }
 
 function formatPValue(p) {
@@ -644,7 +644,7 @@ function formatShortPValue(num) {
 	return num.toFixed(2);
     }
     else {
-	return expo(num);
+	return expo(num, 0);
     }
 }
 
@@ -746,7 +746,7 @@ function displayPyramid(info) {
 	allPValues.add(p);
 	return p;
     }
-    const baseFontSize = 6.8;
+    const baseFontSize = 6.5;
     let labelFontSize = 10;
     const fontWidthRatio = 0.476;
     let pyramidElem = document.getElementById("pyramid");
@@ -816,7 +816,6 @@ function displayPyramid(info) {
         .attr('x', d => x(d[1]-0.5))
         .attr('y', d => y(d[0]-0.5))
 	.attr("text-anchor", "middle")
-	.attr('transform', d => `rotate(45 ${x(d[1]-0.5)} ${y(d[0]-0.5)} )`)
 	.attr('fill', 'white')
 	.attr('font-size', `${baseFontSize*scale}px`)
 	.text(d => `${shortPValue(info, d[0], d[1])}`); 

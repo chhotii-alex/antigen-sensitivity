@@ -272,7 +272,7 @@ function displayAccuracyCalc(group, onlyGroup) {
 	specifier = ' all ';
     }
     if (group.sensitivity != null && group.specificity != null) {
-        result = `In ${specifier} <span style="color: ${color}">${group.label.trim()}</span>,
+        result = `In ${specifier} <span class="ag_test_group" style="color: ${color}">${group.label.trim()}</span>,
           the <strong>sensitivity</strong> for
           detecting contagiousness is <strong>${group.sensitivity.toFixed(2)}
           </strong> and the <strong>specificity</strong> is

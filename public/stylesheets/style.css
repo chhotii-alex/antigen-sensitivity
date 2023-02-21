@@ -383,8 +383,10 @@ input.valuename {
     margin-right: 1em;
 }
 .performance_commentary {
-    padding: 1em;
     grid-area: performance_commentary;
+    font-size: 20px;
+    padding-bottom: 1.5em;
+/*     line-height: 1.7em;  */
 }
 .antiperf {
     width: 100%;
@@ -393,8 +395,12 @@ input.valuename {
 }
 
 #moresettings {
-  margin: auto;
-  max-width: 800px;   /* I have this matching div.top */
+    max-width: 46em;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 1.5em;
 }
 
 .indent {
@@ -433,8 +439,12 @@ input.valuename {
 }
 
 footer {
-    max-width: 400px;
+    max-width: 46em;
     margin: auto;
+}
+.antigen {
+    padding-top: 0;
+    padding-bottom: 10px;
 }
 
 @media only screen and (min-width: 3000px) {

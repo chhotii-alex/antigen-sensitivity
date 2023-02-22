@@ -74,10 +74,7 @@
     <div id="grouphisto" class="grouphisto has_bottom_line">
       <h1 id="comparison_title" class="comparisons" ></h1>
       <p class="too_many_groups hidden_style" id="too_many_groups">
-	Not all queries run;
-	too many groups selected.
-	Please choose fewer groups above,
-	or contact us.
+	Displaying the first eight plots. Click subsets of the checkboxes to see more (eight at a time).
       </p>
       <svg id="displaybox" class="displaybox">
  	<!-- D3 does its thing here -->
@@ -91,12 +88,16 @@
 	<svg id="pyramid" width="100%" ></svg>
       </div>
       <div class="plegend" >
-	<p class="plengend_text">
+	<p class="plegend_text">
 	  <text class="statistics">Statistics.</text> Each entry in this triangle plot shows the p-value for the difference in viral load between the indicated groups.
-	  Brighter entries indicate smaller p-values and therefore  more statistically significant differences.
+	</p>
+	<p class="plegend_text">
+	  Brighter entries indicate smaller p-values and therefore  more statistically significant differences. Note that differences can be highly significant, but still small. Scale:
+	</p>
+        <img id="plegend" src="plegend.jpg" width="200px" />
+	<p class="plegend_text">
 	  The statistical test used was the Mann-Whitney U test.
 	</p>
-        <img align="left" id="plegend" src="plegend.jpg" width="150px" height="50px" />
       </div>
     </div>
   </div>
@@ -132,24 +133,26 @@
       <div class="performance_commentary">
       </div>
   </div>
+  <div class="antigen_text">
   <details id="moresettings">
     <summary>Show More Settings</summary>
     <div class="indent">
       Scaling on y axes:
       <input type="radio" id="scale_absolute" name="y_scale" value="scale_absolute" checked="checked">
-      <label for="scale_absolute">Counts&mdash;Independent</label>
+      <label for="scale_absolute">Normalize fraction across groups (recommended)</label>
       <input type="radio" id="scale_shared" name="y_scale" value="scale_shared">
-      <label for="scale_shared">Counts&mdash;Shared</label>
+      <label for="scale_shared">No normalization</label>
     </div>
     <div class="indent">
-      <label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold:</label>
+      <label for="infectivityThreshold" name="infectivityThreshold">Infectivity threshold (copies viral mRNA/mL):</label>
       <input type="range" min="0" max="12" value="5" class="slider" id="infectivityThreshold">
     </div>
   </details>
+  </div>
   <footer>
     <h3>Tell us what you think!</h3>
     <p class="body_text">We appreciate your feedback. Please email us at
-      <a href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
+      <a class="email" href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
     </p>
   </footer>
 </body>

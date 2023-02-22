@@ -65,14 +65,14 @@ function stringJoin(connecter, items) {
     first = true;
     for (const item of items) {
         if (first) {
-        first = false;
+           first = false;
+        }
+        else {
+          result += connecter;
+        }
+        result += item;
      }
-     else {
-        result += connecter;
-     }
-     result += item;
-  }
-  return result;
+     return result;
 }
 
 function andWhere(queryParts, cond) {
@@ -552,8 +552,47 @@ exports.datafetch = async function(req, res, next) {
     }
 }
 
+async function getSpreadsheetHeaders() {
+    let query = "SELECT column_name, output_header from OutputColumnNames ORDER BY output_header";
+    let {rows} = await pool.query(query);
+    let spreadsheetColumnHeaders = {};
+    for (const row of rows) {
+        let columnName = row["column_name"];
+        let outputHeader = row["output_header"];
+	spreadsheetColumnHeaders[columnName] = outputHeader;
+    }
+    return spreadsheetColumnHeaders;
+}
+
+async function getLookupTables() {
+    let query = "SELECT column_name, lookup_table FROM OutputColumnNames WHERE lookup_table IS NOT NULL";
+    let {rows} = await pool.query(query);
+    let lookupLookup = {};
+    for (const row of rows) {
+        let id = row["column_name"];
+	lookupLookup[id] = row["lookup_table"];
+    }
+    return lookupLookup;
+}
+
 exports.dataset = async function(req, res, next) {
-    let query = "SELECT * from DeidentResults";
+    let spreadsheetColumnHeaders = await getSpreadsheetHeaders();
+    let lookupLookup = await getLookupTables();
+    let query = "SELECT ";
+    let columns_for_query = [];
+    let joins = " ";
+    for (const col of Object.keys(spreadsheetColumnHeaders)) {
+        if (lookupLookup[col]) {
+	    let lookupTableName = lookupLookup[col];
+	    columns_for_query.push(`"${lookupTableName}".description ${col}`);
+	    joins += `LEFT OUTER JOIN "${lookupTableName}" on "${lookupTableName}".code = ${col}\n`;
+	}
+	else {
+	    columns_for_query.push(col);
+	}
+    }
+    query = `${query} ${stringJoin(", ", columns_for_query)} from DeidentResults \n ${joins}`;
+    console.log(query);
     let { rows } = await pool.query(query);
     let headers = null;
     let data = "";
@@ -561,14 +600,18 @@ exports.dataset = async function(req, res, next) {
         if (headers == null) {
             headers = Object.keys(row);
             for (const header of headers) {
-                data += header;
+	        if (!spreadsheetColumnHeaders[header]) {
+		   console.log(`No header name given for: ${header}`);
+		   spreadsheetColumnHeaders[header] = header;
+		}
+                data += `"${spreadsheetColumnHeaders[header]}"`;
                 data += ",";
             }
             data += "\r";
         }
         for (const header of headers) {
             if (row[header] != null) {
-                data += row[header];
+                data += `"${row[header]}"`;
             }
             data += ",";
         }   

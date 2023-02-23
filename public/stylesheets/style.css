@@ -85,6 +85,7 @@ h3 {
     padding-right: 40px;
     padding-bottom: 20px;
     margin: 0;
+    line-height: 1.2em;
 }
     
 p.body_text {
@@ -183,17 +184,17 @@ p.body_text {
     width: 100%;
     aspect-ratio: 1.6 / 1;
     grid-area: displaybox;
-    /* margin-bottom: 3em; */
+    margin-bottom: 20px;
 }
 .ylabeldiv {
     transform: translate(-10px, 0px);
 }
 .ylabel {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 200;
 }
 .xlabel {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 200;
 }
 .exponentlabel {
@@ -448,6 +449,7 @@ input.valuename {
 footer {
     max-width: 46em;
     margin: auto;
+    padding-bottom: 10em;
 }
 /* .antigen {
     padding-top: 0;
@@ -542,13 +544,47 @@ footer {
 }
 .bold {
     color: #000;
-    font-weight: 700;
+    font-weight: 600;
 }
 .row_labels {
+    font-size: 20px;
+}
+.col_labels {
+    font-size: 20px;
 }
 summary {
     padding-bottom: 1em;
 }
 .email {
-    font-weight: 700;
+    font-weight: 600;
+}
+a.link {
+    font-weight: 600;
+    color: #992626;
+    text-decoration: none;    
+}
+a.download {
+    hover: #fff;
+    color: #fff;
+}
+a.download:hover {
+    color: #fff;
+}
+.ag_test_group {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.senspec_label {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.senspec_value {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
 }

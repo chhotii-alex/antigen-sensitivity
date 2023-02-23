@@ -32,13 +32,16 @@ function formatPValue(p) {
     return `(<em>p</em>=${match[1]}x10<sup>${match[2]}</sup>)`;
 }
 
-function createCheckbox(id, displayName, parentNode, labelClass) {
+function createCheckbox(id, displayName, parentNode, labelClass, checked=false) {
     let checky = document.createElement("input");
     checky.setAttribute("type", "checkbox");
     checky.setAttribute("id", id);
     checky.setAttribute("value", id);
     checky.setAttribute("name", id);
     checky.setAttribute("class", labelClass);
+    if (checked) {
+	checky.setAttribute("checked", "checked");
+    }
     let label = document.createElement("label");
     label.setAttribute("for", id);
     label.setAttribute("class", labelClass);
@@ -66,20 +69,25 @@ function loadVariableOptions(data) {
     let options = data.items;
     let div = document.getElementById("select_var");
     for (let item of options) {
+	let onByDefault = false;
+	if (item.displayName == "Presentation" || item.displayName.toLowerCase() == "presumed variant") {
+	    onByDefault = true;
+	}
 	let subdiv = document.createElement("div");
 	div.appendChild(subdiv);
 	subdiv.className = "group_variable_div";
 	variables[item.id] = [];
-	let checky = createCheckbox(item.id, item.displayName, subdiv, "variablename");
+	let checky = createCheckbox(item.id, item.displayName, subdiv, "variablename", onByDefault);
 	checky.addEventListener('click', updateVariables);
 	let splits = item.splits;
 	for (let subItem of splits) {
 	    variables[item.id].push(subItem.value);
 	    variableValues[subItem.value] = item.id;
-	    checky = createCheckbox(subItem.value, subItem.valueDisplayName, subdiv, "valuename");
+	    checky = createCheckbox(subItem.value, subItem.valueDisplayName, subdiv, "valuename", onByDefault);
 	    checky.addEventListener('click', updateVariables);
 	}
     }
+    doQuery();
 }
 
 function updateVariables(e) {
@@ -1260,4 +1268,4 @@ function displayGroupRadioButtons(info) {
     	.property("checked", true);
 }
 
-doQuery();
+//doQuery();

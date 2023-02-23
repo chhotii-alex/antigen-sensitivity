@@ -531,10 +531,12 @@ exports.datafetch = async function(req, res, next) {
 
 	let colorIndex = 0;
 	for (let pop of results) {
-	   if (pop.count < 60) {
-	      pop.colors = colors.getPlainColors();
-	   }
-	   else {
+	   /* TODO: decision of whether there's enough data to plot, and color assignment,
+	      should move to the front end. */
+	   pop.shouldPlot = false;
+	   pop.colors = colors.getPlainColors();
+	   if (pop.count >= 60) {
+	       pop.shouldPlot = true;
 	       pop.colors = colors.getColorSchema(colorIndex++);
 	   }
 	   delete pop.peak;

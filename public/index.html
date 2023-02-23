@@ -6,6 +6,7 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
   <link href="https://arnaoutlab.org/style4.css" rel="stylesheet" />
   <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100;8..144,300;8..144,400;8..144,500;8..144,600;8..144,700;8..144,800&display=swap');
   </style>
@@ -46,11 +47,45 @@
       of antigen tests in different groups</h2>
 
     <p class="body_text" >
-      COVID-19 test results are usually reported simply as &ldquo;positive&rdquo; or &ldquo;negative.&rdquo; However,
-      the amount of virus a person produces&mdash;the <span class="bold">viral load</span>&mdash;can vary. We estimated viral
-      load for over <span class="bold">40,000 patients</span> who had a positive PCR test at our hospital from 2020-2023 so you can
-      see how viral loads vary&mdash;or don&apos;t&mdash;across age, sex, and so on.
+      COVID-19 test results are usually reported simply as
+      &ldquo;positive&rdquo; or &ldquo;negative.&rdquo; However, the
+      amount of virus a person produces&mdash;<span class="bold">the
+      viral load</span>&mdash;can vary. As clinical microbiologists
+      responsible for COVID-19 testing at a major medical center,
+      we <a href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">estimated</a>
+      viral load for over <span class="bold">40,000 patients</span>
+      who had a positive PCR test at our hospital from 2020-2023 so
+      you can see how viral loads vary&mdash;or
+      don&apos;t&mdash;across age, sex, and so on.
     </p>
+	<h3>Do viral loads vary across groups?</h3>
+    <p class="body_text">
+      COVID-19 viral loads can
+      vary <a href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
+      billion fold</a> from person to person. Within each person, it
+      starts low, reaches a peak (often preceding symptoms), and then
+      falls again as the infection comes under control. Based on
+      informal observations at the hospital, we hypothesized that most
+      groups were exhibiting the same range of viral loads. If true,
+      then antigen tests, which a person can take at home, would be
+      equally effective for most groups. If not, then certain groups
+      might benefit from a different testing strategy.
+    </p>
+    <p class="body_text">
+      A generous grant from the
+      <a href="https://reaganudall.org/">Reagan-Udall Foundation for
+	the FDA</a> allowed us to test this hypothesis. We used fully
+	anonymized data to protect patient privacy. Instead of simply
+	reporting our own observations, we have made the results
+	available here to everyone, so you can explore and compare
+	whatever group or groups that may be of interest to you. This
+	can include comparison of complex subgroups, such as
+	healthy-weight vs. overweight >60-year-old inpatients or sick-
+	vs. well-appearing patients with presumed early vs. delta
+	vs. omicron variants. <span class="bold">Please explore for
+	yourself!</span>
+    </p>
+    
   </header>
   <div class="webapp" >
     <div class="pickgroup has_bottom_line">
@@ -92,20 +127,47 @@
 	  <text class="statistics">Statistics.</text> Each entry in this triangle plot shows the p-value for the difference in viral load between the indicated groups.
 	</p>
 	<p class="plegend_text">
-	  Brighter entries indicate smaller p-values and therefore  more statistically significant differences. Note that differences can be highly significant, but still small. Scale:
+	  Brighter entries indicate smaller p-values and therefore  more statistically significant differences. Note that differences can be highly significant, but still small. Scale for p-values:
 	</p>
         <img id="plegend" src="plegend.jpg" width="200px" />
-	<p class="plegend_text">
-	  The statistical test used was the Mann-Whitney U test.
-	</p>
       </div>
     </div>
   </div>
-      <div class="antigen_text">
-	<h3>Antigen Tests</h3>
-	<p class="body_text">Antigen tests can be self-administered and used at home but are less sensitive than PCR tests. For the antigen tests in the pulldown menu below, the antigen test and a PCR test have been run at the same time on the same people. This real-world data can <span class="bold">predict how well these antigen tests will perform</span> on different groups <span class="bold">without having to run time-consuming and expensive trials</span> on each group selected above.</p>
-	<p class="body_text">When paired trials that directly compare an antigen test to PCR have not been performed, we can still predict how sensitive an antigen test is for detecting contagiousness by using the antigen test’s limit of detection (LOD). If the antigen test you’re looking for does not appear in the dropdown, <span class="bold">set the LOD to see how sensitive your antigen test is.</span></p>
-      </div>
+  <div class="antigen_text">
+    <p class="body_text">
+    </p>
+    <p class="body_text">
+      To test whether between-group differences are significant,
+      we calculated a p-value using a statistical test called the
+      Mann-Whitney U test. The p-value measures how likely it is that
+      two distributions&mdash;here, the distributions of viral loads
+      for each pair of groups&mdash;are drawn from the same underlying
+      distribution: large p-values, mean the groups are statistically
+      indistinguishable; low values mean they differ more than would
+      be expected by chance. This is a commonly used test when the
+      data do not follow a bell-shaped curve, as the data below do
+      not.
+    </p>
+    <h3>How should antigen tests perform on these groups?</h3>
+    <p class="body_text">Antigen tests are less sensitive than PCR
+      tests but can be self-administered and used at home. For the
+      antigen tests in the pulldown menu on the left below, the
+      antigen test and a PCR test have been run at the same time on
+      the same people. This real-world data
+      can <span class="bold">predict how well these antigen tests will
+      perform</span> on different groups <span class="bold">without
+      having to run time-consuming and expensive trials</span> on each
+      group selected above.
+    </p>
+    <p class="body_text">When paired trials that directly compare an
+	antigen test to PCR have not been performed, we can still
+	predict how sensitive an antigen test is for detecting
+	contagiousness by using the antigen test’s limit of detection
+	(LOD). If the antigen test you’re looking for does not appear
+	in the dropdown, <span class="bold">set the LOD to see how
+	sensitive your antigen test is.</span> 
+    </p>
+  </div>
   <div class="pickanti has_bottom_line">
       <fieldset class="select_test no_border">
         <legend class="select_label_antigen" >Antigen Test</legend>
@@ -150,6 +212,32 @@
   </details>
   </div>
   <footer>
+    <h3>How did we estimate contagiousness?</h3>
+    <p class="body_text">
+      Managing a pandemic requires being able to determine not only
+      who is infected, but who is likely to be infectious
+      or <span class="bold">contagious</span>. Note that
+      contagiousness depends on many factors, including proximity,
+      exposure time, and protection (both physical barriers such as
+      masks and immunological defenses such as vaccination or recent
+      infection), and can vary over time as viral load rises and
+      falls.
+    </p>
+    <p class="body_text">
+      Fortunately, in vitro experiments can provide a clinically
+      useful lower bound: if a given viral load fails to result in
+      live-virus infection of known-susceptible cells in culture under
+      ideal laboratory conditions, that viral load is highly unlikely
+      to result in infectious transmission under imperfect real-world
+      conditions. Therefore, a person with a viral load below this
+      threshold can be fairly considered effectively
+      non-contagious. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9293398/">This
+      is what we did.</a>
+    </p>
+    <p class="body_text">
+
+      
+    </p>
     <h3>Tell us what you think!</h3>
     <p class="body_text">We appreciate your feedback. Please email us at
       <a class="email" href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.

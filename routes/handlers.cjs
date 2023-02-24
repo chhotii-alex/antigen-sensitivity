@@ -151,16 +151,16 @@ async function getTreatmentSplits(splits) {
            variable: tag,
            variabledisplayname: titleCase(description),
            value: `true_${tag}`,
-           valuedisplayname: `received ${titleCase(description)}`,
+           valuedisplayname: `received ${description.toLowerCase()}`,
            noun: null,
-           modifier: `getting ${description}`,
+           modifier: `getting ${description.toLowerCase()}`,
            adjective: null,
            whereclause: tag.toLowerCase()
        };
        new PatientSplitSpecifier(d, splits);
        d.value = `false_${tag}`;
-       d.valuedisplayname = `did not receive ${titleCase(description)}`;
-       d.modifier = `not getting ${description}`;
+       d.valuedisplayname = `did not receive ${description.toLowerCase()}`;
+       d.modifier = `not getting ${description.toLowerCase()}`;
        d.whereclause = `not ${tag.toLowerCase()}`;
        new PatientSplitSpecifier(d, splits);
    }
@@ -187,9 +187,9 @@ function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag
         variable: tag,
         variabledisplayname: titleCase(group_description),
         value: `${flagString}${tag}`,
-        valuedisplayname: `${valueStringPrefix} ${titleCase(group_description)}`,
+        valuedisplayname: `${valueStringPrefix} ${group_description.toLowerCase()}`,
         noun: null,
-        modifier: `${modifierPrefix} ${group_description}`,
+        modifier: `${modifierPrefix} ${group_description.toLowerCase()}`,
         adjective: null,
         whereclause: whereClause,
     };

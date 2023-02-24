@@ -151,7 +151,7 @@ async function getTreatmentSplits(splits) {
            variable: tag,
            variabledisplayname: titleCase(description),
            value: `true_${tag}`,
-           valuedisplayname: `received ${description.toLowerCase()}`,
+           valuedisplayname: `Received ${description.toLowerCase()}`,
            noun: null,
            modifier: `getting ${description.toLowerCase()}`,
            adjective: null,
@@ -159,7 +159,7 @@ async function getTreatmentSplits(splits) {
        };
        new PatientSplitSpecifier(d, splits);
        d.value = `false_${tag}`;
-       d.valuedisplayname = `did not receive ${description.toLowerCase()}`;
+       d.valuedisplayname = `Did not receive ${description.toLowerCase()}`;
        d.modifier = `not getting ${description.toLowerCase()}`;
        d.whereclause = `not ${tag.toLowerCase()}`;
        new PatientSplitSpecifier(d, splits);
@@ -168,11 +168,11 @@ async function getTreatmentSplits(splits) {
 
 function splitSpecifierForComorbidity(splits, tag, tags, group_description, flag) {
     let flagString = "false_";
-    let valueStringPrefix = "no reported";
+    let valueStringPrefix = "No reported";
     let modifierPrefix = "with no";
     if (flag) {
         flagString = "true_";
-        valueStringPrefix = "known";
+        valueStringPrefix = "Known";
         modifierPrefix = "with";
     }
     let whereClause;

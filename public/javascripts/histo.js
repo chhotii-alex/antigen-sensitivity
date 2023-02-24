@@ -657,13 +657,13 @@ function formatShortPValue(num) {
 }
 
 const substitutions = {
-    "Early Variant" : "Early",
+    "early variant" : "early",
     "in inpatient settings" : "inpatient",
     "in outpatients settings" : "outpatient",
-    "in the Emergency Department" : "ED",
+    "in the emergency department" : "ED",
     "at other institutions" : "other inst",
     "patients" : "",
-    "from ZCTAs with Median Household Income" : "",
+    "from areass with median household income" : "",
     " to " : "-",
     ",000" : "K",
     "not having" : "w/o",
@@ -688,10 +688,11 @@ const substitutions = {
     "Immunocompetent" : "Immunocomp.",
     "Immuno" : "imm-",
     "appearing " : " ",
-    "Sickle Cell & Thalassemia" : "sickle",
+    "sickle cell & thalassemia" : "sickle",
     "Mental health conditions" : "mental",
     "Substance abuse" : "drugs",
     "DEXAMETHASONE": "DEXA",
+    "dexamethasone": "dexa",
 };
 
 function shortLabelAtIndex(info, i, maxstr) {

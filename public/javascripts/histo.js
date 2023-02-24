@@ -281,10 +281,10 @@ function displayAccuracyCalc(group, onlyGroup) {
     }
     if (group.sensitivity != null && group.specificity != null) {
         result = `In ${specifier} <span class="ag_test_group" style="color: ${color}">${group.label.trim()}</span>,
-          the <strong>sensitivity</strong> for
-          detecting contagiousness is <strong>${group.sensitivity.toFixed(2)}
-          </strong> and the <strong>specificity</strong> is
-          <strong>${group.specificity.toFixed(2)}</strong>.`
+          the <span class="senspec_label">sensitivity</span> for
+          detecting contagiousness is <span class="senspec_value">${group.sensitivity.toFixed(2)}
+          </span> and the <span class="senspec_label">specificity</span> is
+          <span class="senspec_value">${group.specificity.toFixed(2)}</span>.`
     }
     box.selectAll("span")
 	.data([result])

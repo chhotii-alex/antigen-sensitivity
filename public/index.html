@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+  <head>
   <title>Predicted COVID Test Performance</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
   <link href="https://arnaoutlab.org/style4.css" rel="stylesheet" />
   <link rel="stylesheet" href="/stylesheets/style.css">
@@ -38,7 +39,7 @@
 
   
   <div class="savebuttons">
-    <a href="dataset" download class="download"> Download de-identified dataset </a>
+    <a href="dataset" download class="download"> Download data </a>
   </div>
   <header>
     <h1>Learning from COVID-19 Viral Loads</h1>
@@ -52,28 +53,28 @@
       amount of virus a person produces&mdash;<span class="bold">the
       viral load</span>&mdash;can vary. As clinical microbiologists
       responsible for COVID-19 testing at a major medical center,
-      we <a href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">estimated</a>
+      we <a class="link" href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">estimated</a>
       viral load for over <span class="bold">40,000 patients</span>
       who had a positive PCR test at our hospital from 2020-2023 so
       you can see how viral loads vary&mdash;or
       don&apos;t&mdash;across age, sex, and so on.
     </p>
-	<h3>Do viral loads vary across groups?</h3>
+	<h3>How do viral loads vary across patient groups?</h3>
     <p class="body_text">
-      COVID-19 viral loads can
-      vary <a href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
+      COVID-19 viral loads can vary <a class="link"
+      href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
       billion fold</a> from person to person. Within each person, it
       starts low, reaches a peak (often preceding symptoms), and then
-      falls again as the infection comes under control. Based on
-      informal observations at the hospital, we hypothesized that most
-      groups were exhibiting the same range of viral loads. If true,
-      then antigen tests, which a person can take at home, would be
-      equally effective for most groups. If not, then certain groups
-      might benefit from a different testing strategy.
+      falls again as the infection comes under control. Based on our
+      observations, we hypothesized that most groups exhibit the same
+      range of viral loads. If true, then antigen tests (see below),
+      which a person can take at home, would be equally effective for
+      most groups. If not, then certain groups might require separate
+      trials to get the most benefit from antigen tests.
     </p>
     <p class="body_text">
       A generous grant from the
-      <a href="https://reaganudall.org/">Reagan-Udall Foundation for
+      <a class="link" href="https://reaganudall.org/">Reagan-Udall Foundation for
 	the FDA</a> allowed us to test this hypothesis. We used fully
 	anonymized data to protect patient privacy. Instead of simply
 	reporting our own observations, we have made the results
@@ -124,48 +125,58 @@
       </div>
       <div class="plegend" >
 	<p class="plegend_text">
-	  <text class="statistics">Statistics.</text> Each entry in this triangle plot shows the p-value for the difference in viral load between the indicated groups.
+	  <text class="statistics">Statistics.</text> Each entry in
+	  the triangle plot at left shows the p-value for the
+	  difference in viral load between the indicated groups.
+	  Brighter entries indicate smaller p-values and therefore
+	  more statistically significant differences. Note that
+	  differences can be highly significant, but still
+	  small. Scale:
 	</p>
+	<img id="plegend" src="plegend.jpg"
+	  width="200px" />
 	<p class="plegend_text">
-	  Brighter entries indicate smaller p-values and therefore  more statistically significant differences. Note that differences can be highly significant, but still small. Scale for p-values:
+	  See the main text for more regarding this statistical
+	  approach.
 	</p>
-        <img id="plegend" src="plegend.jpg" width="200px" />
       </div>
     </div>
   </div>
   <div class="antigen_text">
     <p class="body_text">
+      To test whether between-group differences are significant, we
+      calculated the p-value for each pair of groups according to a
+      statistical test called the Mann-Whitney U test (MWU). MWU is a
+      commonly used test when data do not follow a bell-shaped
+      curve. The MWU p-value measures how likely it is that two
+      distributions&mdash;here, the distributions of viral loads for
+      each pair of groups&mdash;are drawn from the same underlying
+      distribution. A large p-value means the two groups in the pair
+      are statistically indistinguishable; a low value mean they
+      differ more than would be expected by chance.
     </p>
-    <p class="body_text">
-      To test whether between-group differences are significant,
-      we calculated a p-value using a statistical test called the
-      Mann-Whitney U test. The p-value measures how likely it is that
-      two distributions&mdash;here, the distributions of viral loads
-      for each pair of groups&mdash;are drawn from the same underlying
-      distribution: large p-values, mean the groups are statistically
-      indistinguishable; low values mean they differ more than would
-      be expected by chance. This is a commonly used test when the
-      data do not follow a bell-shaped curve, as the data below do
-      not.
-    </p>
-    <h3>How should antigen tests perform on these groups?</h3>
+    <h3>How can antigen tests be expected to perform on the above
+    groups?</h3>
     <p class="body_text">Antigen tests are less sensitive than PCR
-      tests but can be self-administered and used at home. For the
-      antigen tests in the pulldown menu on the left below, the
-      antigen test and a PCR test have been run at the same time on
-      the same people. This real-world data
+      tests but have the advantage that they can be self-administered
+      and used at home. For the antigen tests in the pulldown menu
+      below on the left, the antigen test and a PCR test have been run
+      at the same time on the same people. This real-world data
       can <span class="bold">predict how well these antigen tests will
       perform</span> on different groups <span class="bold">without
       having to run time-consuming and expensive trials</span> on each
-      group selected above.
+      group selected above. <span class="bold">Select each group using
+      the radio buttons below to compare expected antigen-test
+      performance.</span>
     </p>
     <p class="body_text">When paired trials that directly compare an
 	antigen test to PCR have not been performed, we can still
 	predict how sensitive an antigen test is for detecting
 	contagiousness by using the antigen test’s limit of detection
-	(LOD). If the antigen test you’re looking for does not appear
-	in the dropdown, <span class="bold">set the LOD to see how
-	sensitive your antigen test is.</span> 
+	(LOD), which you can set below on the right. If the antigen
+	test you’re looking for does not appear in the
+	dropdown, <span class="bold">set the LOD to see how sensitive
+	your antigen test is.</span>
     </p>
   </div>
   <div class="pickanti has_bottom_line">
@@ -224,19 +235,28 @@
       falls.
     </p>
     <p class="body_text">
-      Fortunately, in vitro experiments can provide a clinically
-      useful lower bound: if a given viral load fails to result in
-      live-virus infection of known-susceptible cells in culture under
-      ideal laboratory conditions, that viral load is highly unlikely
-      to result in infectious transmission under imperfect real-world
-      conditions. Therefore, a person with a viral load below this
-      threshold can be fairly considered effectively
-      non-contagious. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9293398/">This
-      is what we did.</a>
+      Fortunately, <a class="link"
+      href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9293398/">in
+      vitro experiments</a>&mdash;growing a patient's virus on cells
+      in a petri dish&mdash;can provide a clinically useful lower
+      bound: if virus at a given viral load fails to replicate under
+      these ideal laboratory conditions, in which there is no immune
+      response or medication to combat it, that viral load is highly
+      unlikely to result in infectious transmission under imperfect
+      real-world conditions. Therefore, a person with a viral load
+      below this threshold can be reasonably considered to be
+      non-contagious.
+    </p>
+    <h3>Credits and how to cite this work</h3>
+    <p class="body_text">
+      This work was led by Ramy Arnaout and carried out by Alex
+      Morgan, Elisa Contreras, Michie Yasuda, Sanjucta Dutta, James
+      E. Kirby, and Stefan Riedel at the Beth Israel Deaconess Medical
+      Center and Don Hamel and Phyllis Kanki at the Harvard T.H. Chan
+      School of Public Health. Please cite it as:
     </p>
     <p class="body_text">
-
-      
+      Arnaout, R.A. et al. Learning from COVID-19 Viral Loads. 2023
     </p>
     <h3>Tell us what you think!</h3>
     <p class="body_text">We appreciate your feedback. Please email us at

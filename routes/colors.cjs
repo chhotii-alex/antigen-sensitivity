@@ -15,8 +15,8 @@ function convertToRGB(hexstr) {
 
 function convertColors(d) {
    return {
-      "positives" : convertToRGB(d.positives),
-      "negatives" : convertToRGB(d.negatives),
+      "positives" : [convertToRGB(d.positives),convertToRGB(d.positives)],
+      "negatives" : [convertToRGB(d.negatives),convertToRGB(d.negatives)],
       "count" : [convertToRGB(d.negatives), convertToRGB(d.medium)],
       }
 }

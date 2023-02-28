@@ -1,0 +1,533 @@
+#loading { 
+    position:fixed;
+    z-index:99999;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: inherit;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+#loading > img {
+    //width: inherit;
+    position: absolute;
+    top: 48%;
+    left: 48%;
+    width: 4%;
+   
+}
+
+body {
+    font-family: 'Roboto Flex', sans-serif;
+    text-align: left;
+    line-height: 1.5;
+}
+
+/* This menu is copied over from arnaoutlab.org and most
+of its styling is governed by the stylesheet there.
+However, there's a bit of a collision of positioning decisions,
+patched up here:
+*/
+div#menu {
+    top: 0px;
+    left: 0px;
+}
+
+header, div.antigen_text {
+    max-width: 46em;
+    margin-left: auto;
+    margin-right: auto;
+}
+h1 {
+    font-weight: 700;
+    font-size: 42px;
+    text-align: center;
+    padding-top: 120px;
+    padding-bottom: 10px;
+    margin: 0;
+}
+
+h1.comparisons {
+    padding-top: 0.5em;
+    font-weight: 300;
+    fint-size: 36px;
+}
+
+h1.antigen {
+    padding-top: 0.5em;
+    font-weight: 300;
+    fint-size: 36px;
+}
+
+h2 {
+    color: #333;
+    font-weight: 500;
+    font-size: 22px;
+    /* text-align: center; */
+    padding-left: 80px;
+    padding-right: 80px;
+    padding-bottom: 20px;
+    margin: 0;
+}
+    
+h3 {
+    color: #000;
+    font-weight: 600;
+    font-size: 32px;
+    padding-top: 1em;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 20px;
+    margin: 0;
+    line-height: 1.2em;
+}
+    
+p.body_text {
+    color: #444;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 1.5em;
+}
+
+.webapp {
+    display: grid;
+    grid-template-columns: 1fr; 
+    grid-template-areas:
+        "pickgroup"
+        "grouphisto"
+}
+.too_many_groups {
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    grid-area: too_many_groups;
+    padding-bottom: 10px;
+}
+.has_bottom_line {
+    /* border-bottom: 1px solid #dfdfdf; */
+}
+.pickgroup > fieldset {
+    max-width: 76em;
+    margin-left: auto;
+    margin-right: auto;
+    /* margin: 1em auto 2em; */
+}
+#select_var {
+    columns: 4;
+}
+.group_variable_div {
+    padding-top: 20px;
+    padding-right: 10px;
+}
+
+#select_var_label {
+    text-align: center;
+    margin: auto;
+    padding: 0.75em;
+    border: 2px solid;
+    background-color: #eee;
+}
+#select_var > div {
+    break-inside: avoid-column;
+}
+.grouphisto {
+    display: grid;
+    grid-template-columns: 1fr 60em 20em 1fr;
+    grid-template-areas:
+        ". comparisons comparisons ."
+        ". too_many_groups too_many_groups ."
+        ". histogram meantext ."
+        ". pyramid plegend .";
+}
+
+@media only screen and (max-width: 80em) {
+    .grouphisto {
+        grid-template-columns: 3fr 1fr;
+        grid-template-areas:
+            "comparisons comparisons"
+            "too_many_groups too_many_groups"
+            "histogram meantext"
+            "pyramid plegend";
+    }
+}
+.comparisons {
+    text-align: center;
+    grid-area: comparisons;
+    padding-top: 10px;
+}
+.histogram {
+    grid-area: histogram;
+    width: 100%;
+    aspect-ratio: 1.6 / 1;
+}
+.ylabeldiv {
+    transform: translate(-10px, 0px);
+}
+.ylabel {
+    font-size: 24px;
+    font-weight: 200;
+}
+.xlabel {
+    font-size: 24px;
+    font-weight: 200;
+}
+.exponentlabel {
+    font-size: 16px;
+    font-weight: 200;
+    color: #333;
+}
+
+/*
+meantext should always be same height as displaybox.
+Note that both meantext and displaybox have width: 100%
+so their widths are determined by the grid.
+Default grid allots some fraction of the width to the displaybox and
+some fraction to the meantext (note the use of the 'fr' unit)
+and thus the width of meantext proportional to that of displaybox.
+The aspect-ratio of meantext and displaybox are set to be such
+that they result in the same height. Be sure to change the
+aspect-ratio here if the grouphisto grid changes, or if the aspect-ratio
+of displaybox changes!!!
+*/
+.meantext {
+    /* display:flex; */
+    /* align-items:center; /* flex-end; */
+    width: 100%;
+    aspect-ratio: 1.8 / 3; /* 1.6 / 3 */
+    overflow: auto; /* adds scrollbar when needed */
+    grid-area: meantext;
+    padding-top: 10px;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+.meantext::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+  background-color: #aaa; /* or add it to the track */
+}
+.meantext::-webkit-scrollbar-thumb {
+  background: #000;
+}
+
+.pyramid {
+    grid-area: pyramid;
+}
+.plegend {
+    width: 100%;
+    aspect-ratio: 1.6 / 3;
+    overflow: scroll;
+    grid-area: meantext;
+    padding-top: 20px;
+    padding-left: 40px;
+    grid-area: plegend;
+    font-size: 20px;
+    padding-bottom: 1.5em;
+    line-height: 1.7em;
+
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-end; */
+    /* justify-content:center; */
+}
+#plegend { /* the colorbar */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.5em;
+}
+.statistics {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-right: 0.15em;
+}
+select {
+  margin: 4px;
+}
+
+legend {
+    font-weight: bold;
+}
+input.variablename {
+    margin-right: 0.6em;
+}
+label.variablename {
+    font-weight: bold;
+}
+input.valuename {
+    margin-left: 2em;
+    margin-right: 0.6em;
+}
+.valuename {
+    text-indent: -2em;
+}
+.pvalue {
+    color: grey;
+    font-weight: normal;
+}
+#pyramid_container {
+    margin-top: 20px;
+    margin-left: 21%;
+    margin-right: 21%;
+    margin-bottom: 0;
+    padding-bottom: 0;
+/*    border: solid;  */
+}
+#pyramid {
+    aspect-ratio : 1;
+    overflow: visible;
+    pointer-events: none;
+    position: relative;
+    z-index: -1;
+/*    border: solid; */
+}
+
+.plegend_text {
+    padding-bottom: 1.5em;
+}
+
+.bluebutton {
+    border: none;
+    padding: 2px 6px;
+    margin: 4px 6px;
+    background-color: #0099ff;
+    color: white;
+    border-radius: 4px;
+}
+
+.download {
+    font-size: 0.75em;
+    padding: 2px 6px;
+    margin: 4px 6px;
+    background-color: #0099ff;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+}
+
+.pickanti {
+    color: #444;
+    max-width: 60em;
+    margin:auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "select_antigen select_lod"
+}
+.select_antigen {
+    grid-area: select_antigen;
+}
+.select_lod {
+    grid-area: select_lod;
+}
+.no_border {
+    border: none;
+    margin: 1em;
+}
+.select_antigen {
+    width: 80%;
+}
+.antihisto {
+    grid-area: antihisto;
+    display: grid;
+    grid-template-columns: 1fr 60em 20em 1fr;
+    grid-template-areas:
+        ". antihisto_title antihisto_title ."
+        ". group_radio group_radio ."
+        ". histogram performance_commentary .";
+}
+
+@media only screen and (max-width: 80em) {
+    .antihisto {
+        grid-template-columns: 3fr 1fr;
+        grid-template-areas:
+        "antihisto_title antihisto_title"
+        "group_radio group_radio"
+        "histogram performance_commentary";
+    }
+}
+
+.antihisto_title {
+    grid-area: antihisto_title;
+}
+
+.group_radio {
+    grid-area: group_radio;
+    max-width: 46em;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 1.5em;
+}
+.radio_button_label {
+    margin-right: 1em;
+}
+.performance_commentary {
+    grid-area: performance_commentary;
+    font-size: 20px;
+    padding-bottom: 1.5em;
+/*     line-height: 1.7em;  */
+}
+
+#moresettings {
+    max-width: 46em;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 40px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 1.5em;
+}
+
+.select_label_antigen {
+  grid-area: select_label_antigen;
+}
+
+.select_antigen {
+  grid-area: select_antigen;
+}
+
+.histogram {
+  grid-area: histogram;
+}
+
+.hidden_style {
+    display: none;
+}
+
+footer {
+    max-width: 46em;
+    margin: auto;
+    padding-bottom: 10em;
+}
+
+@media only screen and (min-width: 3000px) {
+    .webapp {
+        grid-template-columns: 1fr 2fr;
+        grid-template-areas:
+            "pickgroup grouphisto"
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+    #select_var {
+        columns: 3;
+    }
+}
+
+@media only screen and (max-width: 900px) {
+    #select_var {
+        columns: 2;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #select_var {
+        columns: 1;
+    }
+}
+
+@media only print {
+    .pickgroup {
+        page-break-after: always;
+    }
+    .grouphisto {
+        page-break-after: always;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "comparisons"
+            "histogram"
+            "meantext"
+            "pyramid"
+    }
+    .histogram {
+        page-break-after: always;
+    }
+    .savebuttons {
+        display: none;
+    }
+}
+.conclusiontext {
+    font-size: 20px;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+    line-height: 1.7em;
+}
+.groupcomment {
+    font-size: 20px;
+    padding-bottom: 1.5em;
+    line-height: 1.7em;
+}
+.comm_part2 {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.group1noun {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.group2noun {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.comm_part4 {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.nodata {
+    font-size: 40px;
+    font-weight: 300;
+}
+.bold {
+    color: #000;
+    font-weight: 600;
+}
+.row_labels {
+    font-size: 20px;
+}
+.col_labels {
+    font-size: 20px;
+}
+summary {
+    padding-bottom: 1em;
+}
+.email {
+    font-weight: 600;
+}
+a.link {
+    font-weight: 600;
+    color: #992626;
+    text-decoration: none;    
+}
+a.download {
+    hover: #fff;
+    color: #fff;
+}
+a.download:hover {
+    color: #fff;
+}
+.ag_test_group {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.senspec_label {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}
+.senspec_value {
+    font-size: 24px; 
+    font-weight: 600;
+    padding-left: 0.15em;
+    padding-right: 0.15em;
+}

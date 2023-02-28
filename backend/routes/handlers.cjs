@@ -112,6 +112,7 @@ class PatientSplitSpecifier {
       this.modifier = row.modifier;
       this.adjective = row.adjective;
       this.whereClause = row.whereclause;
+      this._checked = row.initiallyChecked;
    };
 }
 
@@ -120,7 +121,8 @@ let gSplits = null;
 
 async function getVariableSplits(splits) {
     const query = `SELECT variable, variableDisplayName,
-                        value, valueDisplayName, noun, adjective, modifier, whereClause
+                        value, valueDisplayName, noun, adjective, modifier, whereClause,
+                      "initiallyChecked"
                     FROM UIVars ORDER BY sort`;
     let {rows} = await pool.query(query);
     for (const row of rows) {
@@ -227,7 +229,6 @@ async function getComorbiditySplits(splits) {
 }
 
 async function fetchVars() {
-    console.log("Getting vars");
     if (!(cachedVars && gSplits)) {
         let splits = new Map();
 	await getVariableSplits(splits);
@@ -237,7 +238,10 @@ async function fetchVars() {
         splits.forEach( (split, variable, map) => {
           let divisions = [];
           for (const spec of split.splits) {
-              divisions.push({"value":spec.value, "valueDisplayName":spec.valueDisplayName});
+              divisions.push({"value":spec.value,
+                 "valueDisplayName":spec.valueDisplayName,
+                 "_checked":spec._checked,
+                });
           }
           items.push({id : split.variable,
                       displayName : split.variableDisplayName,

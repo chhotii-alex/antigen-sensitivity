@@ -78,7 +78,6 @@ $: if (variablesDataStructure) {
 function loadVariableOptions(data) {
     let options = data.items;
     for (let item of options) {
-        item._checked = false;
         Object.defineProperty(item, "checked", {
            get() {
               return this._checked;
@@ -94,7 +93,6 @@ function loadVariableOptions(data) {
         let splits = item.splits;
         for (let subItem of splits) {
            subItem.owner = item;
-           subItem._checked = false;
            Object.defineProperty(subItem, "checked", {
               get() {
                   return this._checked;
@@ -471,7 +469,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             {#if (gData.populations.length > 2) }
                 <div class="plegend" >
                     <p class="plegend_text">
-                        <text class="statistics">Statistics.</text>
+                        <span class="statistics">Statistics.</span>
                         Each entry in this triangle plot shows the p-value for the difference in viral load between the indicated groups.
                     </p>
                     <p class="plegend_text">
@@ -479,6 +477,9 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                         Note that differences can be highly significant, but still small. Scale for p-values:
                     </p>
                     <img id="plegend" src="plegend.jpg" width="200px" />
+                    <p class="plegend_text">
+                       See the main text for more regarding this statistical approach.
+                    </p>
                 </div>
             {/if}
         </div>

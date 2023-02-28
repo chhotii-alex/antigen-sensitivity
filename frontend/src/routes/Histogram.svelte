@@ -263,6 +263,7 @@ svg {
       top menu banner: */
     position: relative;
     z-index: -1;
+    overflow: visible;
 }
 .i_label {
     fill: #b8b8b8;

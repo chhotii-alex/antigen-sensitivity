@@ -395,10 +395,14 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     {:else}
                         are similar
                     {/if}
-                    {#if (gData.populations.length == 2) }
-                        between
-                    {:else if (gData.populations.length > 2) }
-                        across
+                    {#if !(gData.splitDescription) }
+                      <span class="acrossbetween">
+                        {#if (gData.populations.length == 2) }
+                            between
+                        {:else if (gData.populations.length > 2) }
+                            across
+                         {/if}
+                       </span>
                     {/if}
                     {#if gData.splitDescription }
                         {gData.splitDescription}

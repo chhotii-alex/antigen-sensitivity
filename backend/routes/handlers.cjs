@@ -441,39 +441,40 @@ async function runQuery(label, queryParts) {
     query = query.trim(); 
     console.log(query);
     let { rows } = await pool.query(query);
-    if (rows.length < 1) {
+    if (rows.length < 4) {
         return null;
     }
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
-    let bins = bin(rawData);
-    let d3 = await d3promise; // hack for importing the wrong kind of module
-    let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);
-    let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
     let mean_val = Math.pow(10, mean(rawData))
     let pop = {
                "label" : label,
                "mean" : mean_val,
                "count" : rawData.length,
                "comparisons" : []};
-    pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
-        return {
-            "viralLoadLog" : (r.x0+r.x1)/2,
-            "viralLoadLogMin" : r.x0,
-            "viralLoadLogMax" : r.x1,
-            "count" : r.length,
-        };
-    });
-    let densityBinWidth = density[2][0] - density[1][0];
-    let halfBin = densityBinWidth/2;
-    pop["data"] = density.map(a => {
-      return {
-         "viralLoadLog" : a[0],
-	 "viralLoadLogMin" : a[0] - halfBin,
-	 "viralLoadLogMax" : a[0] + halfBin,
-	 "count" : a[1]*rawData.length,
-	// "count" : Math.round(a[1]*rawData.length),
-      };
-    });
+    if (rawData.length >= 30) {
+        let bins = bin(rawData);
+        let d3 = await d3promise; // hack for importing the wrong kind of module
+        let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);
+        let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
+        pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
+                return {
+                    "viralLoadLog" : (r.x0+r.x1)/2,
+                    "viralLoadLogMin" : r.x0,
+                    "viralLoadLogMax" : r.x1,
+                    "count" : r.length,
+                };
+        });
+        let densityBinWidth = density[2][0] - density[1][0];
+        let halfBin = densityBinWidth/2;
+        pop["data"] = density.map(a => {
+             return {
+                    "viralLoadLog" : a[0],
+	            "viralLoadLogMin" : a[0] - halfBin,
+	            "viralLoadLogMax" : a[0] + halfBin,
+	            "count" : a[1]*rawData.length,
+             };
+        });
+    }
     return {rawData: rawData, pop: pop};
 }
 
@@ -516,8 +517,13 @@ exports.datafetch = async function(req, res, next) {
 
         for (let pop of results) {
             pop["catagories"] = { "count" : "Count" };
-	    pop["peak"] = peak(pop.data);
 	    pop["median"] = median(pop.rawData);
+            if (pop.data) {
+            	    pop["peak"] = peak(pop.data);
+            }
+            else {
+                 pop["peak"] = pop["median"];
+            }
         }
 	//results.sort((a, b) => a.peak - b.peak);
 	results.sort((a, b) => a.median - b.median);

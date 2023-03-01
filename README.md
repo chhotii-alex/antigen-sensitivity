@@ -16,6 +16,8 @@ The front-end is implemented in Svelte. See https://svelte.dev/
 * Find out the IP address of where the database is running, and the password for the `webapp` db login
 * `cd` into the `backend/routes` directory
 * Edit `template.credentials.any.json` and save as `credentials.development.json` 
+* Edit `frontend/src/routes/server_url.js` to export the URL for the port that the backend exposes (something like 'http://10.24.66.66:82' where the IP address is 
+   the IP address of the machine where you're running this (the port may be overridden if needed by an environment variable))
 
 ### Running
 * `cd antigen-sentitvity/backend`
@@ -25,7 +27,8 @@ The front-end is implemented in Svelte. See https://svelte.dev/
 * `npm run dev`
 * A URL that works locally will appear in the Terminal output, something like `http://localhost:5173/`
 
-
+Note that frontend and backend do not have to be served from the same machine. As long as frontend knows how to find backend (by editing
+`frontend/src/routes/server_url.js`).
 
 # VERY OBSOLETE to-do list below, see GitHub Issues for the current to-do items (see to-do's in shovel repository as well).
 ## TO-DO list, sort-of catagorized and sort-of sorted:

@@ -34,8 +34,8 @@ $: highlightedGroup = info.find(d => d.label == highlightedGroupLabel);
 $: yFunc = ((y_scale == 'scale_shared') ? "yNorm" : "yScale" ); 
 $: histogramWorthyPopulations = info.filter(d => d.shouldPlot);
 
-$: xScale = calculateXScale(d3, info, width);
-$: barWidth = calculateBarWidth(xScale, info);
+$: xScale = calculateXScale(d3, histogramWorthyPopulations, width);
+$: barWidth = calculateBarWidth(xScale, histogramWorthyPopulations);
 
 /* Note the placement of parentheses around the expression. This is the trick to
    getting destructuring working in a Svelte reactive assignement. Thanks to
@@ -52,11 +52,11 @@ $: infectivityRegions = [
       {"title" : "CONTAGIOUS", "color" : "white", "min" : infectivityThreshold, "max" : 12},
    ];
  
-function calculateXScale(d3, info, width) {
+function calculateXScale(d3, populations, width) {
     if (!d3) return null;
-    if (info.length < 1) return null;
+    if (populations.length < 1) return null;
     if (!width) return null;
-    const firstData = info[0].data;
+    const firstData = populations[0].data;
     if (firstData.length < 1) return null;
     const firstBin = firstData[0];
     const xValues = firstData.map( d => d["viralLoadLogMax"]);
@@ -68,9 +68,9 @@ function calculateXScale(d3, info, width) {
         .range([0, width]);
 }
 
-function calculateBarWidth(xScale, info) {
-    if (info.length < 1) return 1;
-    const firstData = info[0].data;
+function calculateBarWidth(xScale, populations) {
+    if (populations.length < 1) return 1;
+    const firstData = populations[0].data;
     const firstBin = firstData[0];
     if (!xScale) return 0;
     return xScale(firstBin.viralLoadLogMax) - xScale(firstBin.viralLoadLogMin);

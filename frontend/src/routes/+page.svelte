@@ -93,6 +93,9 @@ function loadVariableOptions(data) {
         let splits = item.splits;
         for (let subItem of splits) {
            subItem.owner = item;
+           if (subItem._checked) {
+              subItem.owner._checked = true;
+           }
            Object.defineProperty(subItem, "checked", {
               get() {
                   return this._checked;

@@ -211,31 +211,18 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
                                           pop.label,
                                           highlightedGroupLabel,
                                           joy, 0.4)}`}>
-
-                                {#each layer as d}
-                                    <rect class="histbar" width={barWidth+1}
-                                           x={xScale(d.data.viralLoadLogMin)}
-                                           y={pop[yFunc](d[1])}
-                                           height={pop[yFunc](d[0])-pop[yFunc](d[1])}
-                                         stroke="none" />
-                                {/each}
-                                {#each layer as d}
-                                    <line x1={xScale(d.data.viralLoadLogMin)}
-                                            x2={xScale(d.data.viralLoadLogMax)}
-                                            y1={pop[yFunc](d[1])}
-                                            y2={pop[yFunc](d[1])}
+                                <path d={d3.line().curve(d3.curveBasis).x(d => xScale(d.data.viralLoadLog)).y(d => pop[yFunc](d[1]))(layer) }
                                             style={`stroke: ${adjustedColor(pop.colors[layer.key][0],
                                                             hasHighlight,
                                                             pop.label,
                                                             highlightedGroupLabel,
-                                                            joy, 1.0)}`}/>
-                                {/each}
+                                                            joy, 1.0)};`}/>
                             </g>
                         {/each}
                     {/each}
                 {/if}
                 <g class="x-axis" transform={`translate(0, ${height})`} >
-                    <line x1={xScale(0)} x2={xScale(12)} y1="0" y2="0" stroke="black" />
+                    <line x1={xScale(0)} x2={xScale(11)} y1="0" y2="0" stroke="black" />
                     {#each [0, 3, 6, 9] as tick}
                         <g class="tick" transform={`translate(${xScale(tick)},0)`} >
                                 <foreignObject width="2em" height="2em" x="-1em" y="0.5em" >

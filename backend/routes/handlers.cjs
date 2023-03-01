@@ -447,7 +447,7 @@ async function runQuery(label, queryParts) {
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
     let bins = bin(rawData);
     let d3 = await d3promise; // hack for importing the wrong kind of module
-    let densityPoints = d3.scaleLinear().domain([0, 10]).ticks(500);
+    let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);
     let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
     let mean_val = Math.pow(10, mean(rawData))
     let pop = {

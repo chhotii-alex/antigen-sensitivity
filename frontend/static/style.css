@@ -31,6 +31,7 @@ patched up here:
 div#menu {
     top: 0px;
     left: 0px;
+    z-index: 5000;
 }
 
 header, div.antigen_text {

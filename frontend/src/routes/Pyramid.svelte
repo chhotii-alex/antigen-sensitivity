@@ -14,7 +14,7 @@ const innerMargin = 10;
 const outerMargin = 0;
 const totalWidth = rectSize*(maxGroups-1);
 const labelWidth = totalWidth-innerMargin;
-let maxstr = (totalWidth - innerMargin)/(labelFontSize*fontWidthRatio);
+let maxstr = (totalWidth - 2*innerMargin)/(labelFontSize*fontWidthRatio);
 if (maxstr < 15) {
     maxstr = 15;
     labelFontSize = (totalWidth - innerMargin)/(maxstr*fontWidthRatio);
@@ -68,6 +68,7 @@ const substitutions = {
     "from ZCTAs with Median Household Income" : "",
     " to " : "-",
     ",000" : "K",
+    "having unknown vaccination status": "vaccination unknown",
     "not having" : "w/o",
     "having" : "w/",
     "not getting" : "w/",
@@ -94,6 +95,7 @@ const substitutions = {
     "Mental health conditions" : "mental",
     "Substance abuse" : "drugs",
     "DEXAMETHASONE": "DEXA",
+    "vaccination": "vax",
 };
 
 function colorForPValue(p) {

@@ -320,7 +320,6 @@ class QuerySet {
         this.descriptions = {};
     };
     addQuery(description, query) {
-        console.log("Adding query for: ", description, query);
         this.queries[description.toString()] = query;
         this.descriptions[description.toString()] = description;
     };
@@ -440,7 +439,6 @@ async function runQuery(label, queryParts) {
     let whereClause = queryParts["where"];
     let query = `${baseQuery} ${whereClause}`;
     query = query.trim(); 
-    console.log(query);
     let { rows } = await pool.query(query);
     if (rows.length < 4) {
         return null;
@@ -606,7 +604,6 @@ exports.dataset = async function(req, res, next) {
 	}
     }
     query = `${query} ${stringJoin(", ", columns_for_query)} from DeidentResults \n ${joins}`;
-    console.log(query);
     let { rows } = await pool.query(query);
     let headers = null;
     let data = "";
@@ -615,7 +612,6 @@ exports.dataset = async function(req, res, next) {
             headers = Object.keys(row);
             for (const header of headers) {
 	        if (!spreadsheetColumnHeaders[header]) {
-		   console.log(`No header name given for: ${header}`);
 		   spreadsheetColumnHeaders[header] = header;
 		}
                 data += `"${spreadsheetColumnHeaders[header]}"`;
@@ -636,17 +632,3 @@ exports.dataset = async function(req, res, next) {
     res.status(200).send(data);
 }
 
-function intervalFunc() {
-    console.log('node app is running', new Date());
-    ++intervalCount;
-    if (intervalCount > 10) {
-        interval = interval * 2;
-        clearInterval(intervalID);
-        intervalID = setInterval(intervalFunc, interval);
-        intervalCount = 0;
-    }  
-}
-
-let interval = 4000;
-let intervalID = setInterval(intervalFunc, interval);
-let intervalCount = 0;

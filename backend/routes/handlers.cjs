@@ -373,7 +373,8 @@ function compareArrays(arr1, arr2, mwu) {
         return null;
     }
     result = mwu.test(arr1, arr2);
-    return result.p;
+    p = result.p;
+    return Number.parseFloat(p.toPrecision(3));
 }
 
 // From MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#sequence_generator_range
@@ -445,7 +446,8 @@ async function runQuery(label, queryParts) {
         return null;
     }
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
-    let mean_val = Math.pow(10, mean(rawData))
+    let mean_val = Math.pow(10, mean(rawData));
+    mean_val = Number.parseFloat(mean_val.toPrecision(4));
     let pop = {
                "label" : label,
                "mean" : mean_val,

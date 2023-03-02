@@ -432,7 +432,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                                      The mean viral load across
                                 </span>
                                 <span class="comm_part2" style={`color: ${pop.colors.negatives[0]}`}>
-                                     &approx; {numberFormatter.format(pop.count)}
+                                     &sim;{numberFormatter.format(pop.count)}
                                     {pop.label.trim()}
                                 </span>
                                 <span class="comm_part3" >

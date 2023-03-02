@@ -432,7 +432,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                                      The mean viral load across
                                 </span>
                                 <span class="comm_part2" style={`color: ${pop.colors.negatives[0]}`}>
-                                    {numberFormatter.format(pop.count)}
+                                     &approx; {numberFormatter.format(pop.count)}
                                     {pop.label.trim()}
                                 </span>
                                 <span class="comm_part3" >
@@ -585,7 +585,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 {#if gData.populations.length == 1}
                     all
                 {/if}
-                <span class="ag_test_group" style={`color: ${selectedGroup.colors.negatives[0]}`}>
+                <span class="ag_test_group"
+                   style={`color: ${selectedGroup.colors.negatives[0]}`}>
                     {selectedGroup.label}
                 </span>
                 {#if (sensitivity != undefined) } 
@@ -608,6 +609,17 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                         {specificity.toFixed(2)}.
                     </span>
                 {/if}
+                {#each ["positive", "negative"] as cat}
+                  <p class="anti_legend" >
+                    <svg height="1em" width="2em" 
+                      fill={util.addAlpha(selectedGroup.colors[`${cat}s`][0],0.4)}
+                      stroke={selectedGroup.colors[`${cat}s`][0]}
+                      stroke-width="4" >
+                        <ellipse cx="50%" cy="50%" rx="43%" ry="40%" />
+                    </svg>
+                    Predicted to test {cat} on the antigen test
+                  </p>
+                {/each}
             </div>
         {/if}
     </div>
@@ -731,6 +743,9 @@ fieldset.exploreGroupsOpen {
 
 .showingAntigenPerformance {
     display: grid;
+}
+.anti_legend {
+    padding-top: 1em;
 }
 
 </style>

@@ -1,5 +1,6 @@
 <script>
 
+import * as util from './util.js';
 let d3;
    
 /* props */
@@ -133,26 +134,14 @@ function assignYScaling(d3, histogramWorthyPopulations, yFunc,
     return true;
 }
 
-function addAlpha(color, alpha) {
-    const re = /rgb\((\d+),(\d+),(\d+)\)/;
-    const found = color.match(re);
-    if (!found) {
-        throw new Error("Color specification does not match pattern.");
-    }
-    let r = found[1];
-    let g = found[2];
-    let b = found[3];
-    return `rgba(${r},${g},${b},${alpha})`;
-}   
-
 function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, joy, alpha) {
     if (hasHighlight && (groupLabel != highlightedGroupLabel)) {
-        return addAlpha(color, 0.04);
+        return util.addAlpha(color, 0.04);
     }
     if (joy) {
         return color;
     }
-    return addAlpha(color, alpha);
+    return util.addAlpha(color, alpha);
 }
 /* For crude debugging: 
   $: console.log(`stagger: ${stagger}`);

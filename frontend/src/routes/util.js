@@ -45,3 +45,15 @@ export function linspace(start, stop, n) {
     return a;
 }
 
+export function addAlpha(color, alpha) {
+    const re = /rgb\((\d+),(\d+),(\d+)\)/;
+    const found = color.match(re);
+    if (!found) {
+        throw new Error("Color specification does not match pattern.");
+    }
+    let r = found[1];
+    let g = found[2];
+    let b = found[3];
+    return `rgba(${r},${g},${b},${alpha})`;
+}   
+

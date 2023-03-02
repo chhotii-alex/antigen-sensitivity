@@ -112,7 +112,7 @@ class PatientSplitSpecifier {
       this.modifier = row.modifier;
       this.adjective = row.adjective;
       this.whereClause = row.whereclause;
-      this._checked = row.initiallyChecked;
+      this._checked = row.initiallychecked;
    };
 }
 
@@ -122,7 +122,7 @@ let gSplits = null;
 async function getVariableSplits(splits) {
     const query = `SELECT variable, variableDisplayName,
                         value, valueDisplayName, noun, adjective, modifier, whereClause,
-                      "initiallyChecked"
+                      initiallyChecked
                     FROM UIVars ORDER BY sort`;
     let {rows} = await pool.query(query);
     for (const row of rows) {
@@ -451,7 +451,7 @@ async function runQuery(label, queryParts) {
                "mean" : mean_val,
                "count" : rawData.length,
                "comparisons" : []};
-    if (rawData.length >= 30) {
+    if (rawData.length >= 60) {
         let bins = bin(rawData);
         let d3 = await d3promise; // hack for importing the wrong kind of module
         let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);

@@ -669,6 +669,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
       below this threshold can be reasonably considered to be
       non-contagious.
         </p>
+
+      <!--
         <h3>Can I download the data?</h3>
         <p class="body_text">
       Yes. Fully de-identified data is available for
@@ -678,6 +680,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
       information such as dates is <span class="bold">not</span>
       available.
         </p>
+        -->
+        
         <h3>Who did this work?</h3>
         <p class="body_text">
       This work was led by Ramy Arnaout and carried out by Alex

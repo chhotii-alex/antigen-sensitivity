@@ -24,7 +24,7 @@ router.get('/api/assays', cors(), handlers.assays);
 
 router.get('/api/data/viralloads', cors(), handlers.datafetch);
 
-router.get('/dataset', cors(), handlers.dataset);
+/* NOPE router.get('/dataset', cors(), handlers.dataset);  */
 
 module.exports = router;
 

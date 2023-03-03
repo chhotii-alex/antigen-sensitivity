@@ -1,5 +1,6 @@
 const { pool } = require('./database.cjs');
 
+let seedrandom = require('seedrandom');
 let mwu_promise = import('./mannwhitneyu.js');
 
 let d3promise = import('d3');
@@ -433,12 +434,25 @@ function splitQueries(queries, splits, variableObj) {
     return [queries, splitDescription];
 }
 
+let salt = process.env.JITTER_SALT;
+if (!salt) {
+   console.error("Warning! Environment var JITTER_SALT not set!!!");
+   salt = '';
+}
+
+function getJitter(query) {
+    let rng = seedrandom(query+salt);
+    let jitter = Math.round(7*rng()-3.5);
+    return jitter;
+}
+
 async function runQuery(label, queryParts) {
     const bin = await makeBinFunction();
     let baseQuery = queryParts["base"];
     let whereClause = queryParts["where"];
     let query = `${baseQuery} ${whereClause}`;
-    query = query.trim(); 
+    query = query.trim();
+    let jitter = getJitter(query);
     let { rows } = await pool.query(query);
     if (rows.length < 4) {
         return null;
@@ -449,7 +463,7 @@ async function runQuery(label, queryParts) {
     let pop = {
                "label" : label,
                "mean" : mean_val,
-               "count" : rawData.length,
+               "count" : rawData.length + jitter,
                "comparisons" : []};
     if (rawData.length >= 60) {
         let bins = bin(rawData);

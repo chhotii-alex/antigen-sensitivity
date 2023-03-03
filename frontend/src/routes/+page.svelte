@@ -269,7 +269,7 @@ function mouseLeaveAction(event) {
     }
 }
 
-let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
+let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 4 });
 
 </script>
 
@@ -439,7 +439,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                                     was
                                 </span>
                                 <span class="comm_part4" style={`color:  ${pop.colors.negatives[0]}`}>
-                                    {numberFormatter.format(pop.mean)} copies/mL.
+                                    {@html util.formatSciNot(pop.mean, 1)}
+                                    copies/mL.
                                 </span>
                             </p>
                         {/each}

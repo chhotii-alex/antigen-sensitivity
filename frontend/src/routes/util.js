@@ -1,13 +1,26 @@
-export function expo(x) {
-    return Number.parseFloat(x).toExponential(1);
+export function expo(x, decimalPlaces = 1) {
+    return Number.parseFloat(x).toExponential(decimalPlaces);
 }
 
 export function formatPValue(p) {
-    let s = expo(p);
-    const r = /(\d\.\d)e([+-]\d+)/
+    let s = formatSciNot(p, 1);
+    return `(<em>p</em>=${s})`;
+}
+
+export function formatSciNot(num, places) {
+    let s = expo(num, places);
+    const r = /(\d\.\d)e([+-])(\d+)/
     const match = s.match(r);
     if (!match) return "";
-    let result = `(<em>p</em>=${match[1]}x10<sup>${match[2]}</sup>)`;
+    let exp = Number.parseInt(match[3]);
+    if (exp == 0) {
+        return Number.parseFloat(num).toFixed(places);
+    }
+    let sign = match[2];
+    if (sign == '+') {
+        sign = '';
+    }
+    let result = `${match[1]}x10<sup>${sign}${exp}</sup>`;
     return result;
 }
 

@@ -348,7 +348,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     </header>
     <div class="webapp" >
         <div class="pickgroup has_bottom_line">
-            <fieldset class:exploreGroupsOpen>
+            <fieldset class:exploreGroupsOpen >
                 <legend id="select_var_label" class="select_var_label"
                        on:click={toggleGroupsOpen}>Explore groups
                     <svg height="20px" width="20px" overflow="visible" >
@@ -358,13 +358,13 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                         </g>
                     </svg>
                 </legend>
-                <div id="select_var" class="select_var">
+                <div id="select_var" class="select_var" >
                     <div id="select_var_checks">
                         <strong>Group</strong>
                         <button id="resetChecks" class="bluebutton" on:click={resetChecks}>Reset</button>
                     </div>
                     {#if variablesDataStructure}
-                        {#each variablesDataStructure.items as item}
+                        {#each variablesDataStructure.items as item (item.id)}
                             <div class="group_variable_div">
                                 <input type="checkbox" id={item.id} class="variablename"
                                         bind:checked={item.checked}  />
@@ -372,7 +372,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                                     {item.displayName}
                                 </label>
                                 <br/>
-                                {#each item.splits as subItem}
+                                {#each item.splits as subItem (subItem.value)}
                                     <input type="checkbox" id={subItem.value} class="valuename"
                                           bind:checked={subItem.checked} />
                                     <label for={subItem.value} class="valuename" >
@@ -424,7 +424,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             <div class="meantext">
                 <div id="pvalue_text" >
                     <div id="commentary">
-                        {#each gData.populations as pop}
+                        {#each gData.populations as pop (pop.label)}
                             <p class="groupcomment" app_group_name={pop.label}
                                      on:mouseenter={mouseEnterAction}
                                      on:mouseleave={mouseLeaveAction} >
@@ -536,7 +536,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
            <select class="select_antigen" name="antigenTest" id="antigenTest"
                   bind:value={selectedAssay} >
                <option value="none">-- select one --</option>
-               {#each Object.keys(assayOptions) as assayId}
+               {#each Object.keys(assayOptions) as assayId (assayId) }
                    <option value={assayId}>
                        {@html assayOptions[assayId].displayName}
                    </option>
@@ -567,7 +567,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </div>
         <div class="group_radio" id="group_radio" >
             {#if gData.populations.filter(d => d.shouldPlot).length > 1}
-                {#each gData.populations.filter(d => d.shouldPlot) as pop}
+                {#each gData.populations.filter(d => d.shouldPlot) as pop (pop.label)}
                     <span>
                         <input type="radio" id={pop.label} name="group_for_performance"
                                  bind:group={selectedGroupLabel} value={pop.label} />

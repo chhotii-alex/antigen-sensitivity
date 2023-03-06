@@ -38,15 +38,11 @@ $: histogramWorthyPopulations = info.filter(d => d.shouldPlot);
 $: xScale = calculateXScale(d3, histogramWorthyPopulations, width);
 $: barWidth = calculateBarWidth(xScale, histogramWorthyPopulations);
 
-/* Note the placement of parentheses around the expression. This is the trick to
-   getting destructuring working in a Svelte reactive assignement. Thanks to
-   https://daveceddia.com/svelte-reactive-destructuring/   */
-$: ({stagger, heightAdjustment} = staggerForJoy(joy, histogramWorthyPopulations, height));
+$: heightAdjustment = calcHeightAdjustment(joy, histogramWorthyPopulations, height);
+$: stagger = staggerForJoy(joy, histogramWorthyPopulations, height, heightAdjustment);
 
-$: if (histogramWorthyPopulations) {
-       assignYScaling(d3, histogramWorthyPopulations, yFunc,
+$: yScaleFunc = assignYScaling(d3, histogramWorthyPopulations, yFunc,
            height, stagger, heightAdjustment);
-   }
 
 $: infectivityRegions = [
       {"title" : "", "color" : "#dbdbdb", "min" : 0, "max" : infectivityThreshold },
@@ -77,20 +73,23 @@ function calculateBarWidth(xScale, populations) {
     return xScale(firstBin.viralLoadLogMax) - xScale(firstBin.viralLoadLogMin);
 }
 
-function staggerForJoy(joy, histogramWorthyPopulations, height) {
-    let stagger = 0;
-    let heightAdjustment = 1.0;
+function calcHeightAdjustment(joy, histogramWorthyPopulations, height) {
+    let newHeightAdjustment = 1.0;
     if (joy && (histogramWorthyPopulations.length > 1)) {
-        heightAdjustment = 0.1 + 1/histogramWorthyPopulations.length;
-        if (heightAdjustment < 0.2) {
-            heightAdjustment = 0.2;
+        newHeightAdjustment = 0.1 + 1/histogramWorthyPopulations.length;
+        if (newHeightAdjustment < 0.2) {
+            newHeightAdjustment = 0.2;
         }
-        stagger = (1-heightAdjustment)*height/(histogramWorthyPopulations.length-1);
     }
-    return {
-        stagger: stagger,
-        heightAdjustment: heightAdjustment
-    };
+    return newHeightAdjustment;
+}
+
+function staggerForJoy(joy, histogramWorthyPopulations, height, heigtAdjustment) {
+    let newStagger = 0;
+    if (joy && (histogramWorthyPopulations.length > 1)) {
+        newStagger = (1-heightAdjustment)*height/(histogramWorthyPopulations.length-1);
+    }
+    return newStagger;
 }
 
 function findPeak(pop) {
@@ -105,11 +104,11 @@ function findPeak(pop) {
     }
     return peak;
 }
-     
 
 function assignYScaling(d3, histogramWorthyPopulations, yFunc,
-        height, stagger, heightAdjustment) {
-    if (!d3) return false;
+        height, theStagger, heightAdjustment) {
+    if (!d3) return null;
+    let yScaleFuncs = {}
     let maxPeak = 0;
     for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
         let pop = histogramWorthyPopulations[i];
@@ -117,21 +116,21 @@ function assignYScaling(d3, histogramWorthyPopulations, yFunc,
         if (peak > maxPeak) maxPeak = peak;
         if (yFunc == "yScale") {
             let yIndex = histogramWorthyPopulations.length-(i+1);
-            pop.yScale = d3.scaleLinear().domain([0,peak])
-                             .range([height-(yIndex*stagger),
-                                 height-(yIndex*stagger)-height*heightAdjustment]);
+            yScaleFuncs[pop.label] = d3.scaleLinear().domain([0,peak])
+                             .range([height-(yIndex*theStagger),
+                                 height-(yIndex*theStagger)-height*heightAdjustment]);
         }
     }
     if (yFunc == "yNorm") {
         for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
             let pop = histogramWorthyPopulations[i];
             let yIndex = histogramWorthyPopulations.length-(i+1);
-            pop.yNorm = d3.scaleLinear().domain([0, maxPeak])
-                             .range([height-(yIndex*stagger),
-                                 height-(yIndex*stagger)-height*heightAdjustment]);
+            yScaleFuncs[pop.label] = d3.scaleLinear().domain([0, maxPeak])
+                             .range([height-(yIndex*theStagger),
+                                 height-(yIndex*theStagger)-height*heightAdjustment]);
         }
     }
-    return true;
+    return yScaleFuncs;
 }
 
 function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, joy, alpha) {
@@ -143,8 +142,8 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
     }
     return util.addAlpha(color, alpha);
 }
+
 /* For crude debugging: 
-  $: console.log(`stagger: ${stagger}`);
   $: console.log(`width: ${width}`);
 */
 
@@ -200,7 +199,10 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
                                           pop.label,
                                           highlightedGroupLabel,
                                           joy, 0.4)}`}>
-                                <path d={d3.line().curve(d3.curveBasis).x(d => xScale(d.data.viralLoadLog)).y(d => pop[yFunc](d[1]))(layer) }
+                                <path d={d3.line().curve(d3.curveBasis)
+                                           .x(d => xScale(d.data.viralLoadLog))
+                                           .y(d => yScaleFunc[pop.label](d[1]))
+                                                    (layer) }
                                             style={`stroke: ${adjustedColor(pop.colors[layer.key][0],
                                                             hasHighlight,
                                                             pop.label,

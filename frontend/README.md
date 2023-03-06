@@ -26,7 +26,8 @@ an Apache container. Run these in the Terminal:
 
 ```npm run build
 docker build -t my-apache2 .
-docker run -dit --name my-running-app -p 8080:80 my-apache2```
+docker run -dit --name my-running-app -p 8080:80 my-apache2
+```
 
 The app will then be available at `http://localhost:8080/covid/`.
 

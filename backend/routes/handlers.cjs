@@ -8,12 +8,16 @@ let d3promise = import('d3');
 const { sanitizeDateInput } = require('./util.cjs');
 const colors  = require('./colors.cjs');
 
+let noisyLog = false;
+
 console.log("webapp routes launching...")
 
 exports.assays = function(req, res, next) {
-    console.log("Doing assays endpoint");
-    console.log(JSON.stringify(req.headers));
-
+    if (noisyLog) {
+        console.log("Doing assays endpoint");
+        console.log(JSON.stringify(req.headers));
+    }
+    
     let data = {
         "items":[
 	    {"id":"binax","displayName":"BinaxNOW&trade; COVID-19 Ag Card","coef":1.1843183,"intercept":-5.37500995},
@@ -258,9 +262,11 @@ async function fetchVars() {
 }
 
 exports.vars = async function(req, res, next) {
-    console.log("Doing vars endpoint");
-    console.log(JSON.stringify(req.headers));
-
+    if (noisyLog) {
+        console.log("Doing vars endpoint");
+        console.log(JSON.stringify(req.headers));
+    }
+    
     try {
         const { vars, splits } = await fetchVars();
         let retval = {
@@ -511,8 +517,10 @@ function peak(data) {
 }
 
 exports.datafetch = async function(req, res, next) {
-    console.log("Doing datafetch endpoint");
-    console.log(JSON.stringify(req.headers));
+    if (noisyLog) {
+        console.log("Doing datafetch endpoint");
+        console.log(JSON.stringify(req.headers));
+    }
 
     let tooManyQueries = false;
     let mwu = await mwu_promise;

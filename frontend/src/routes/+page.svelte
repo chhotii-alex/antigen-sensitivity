@@ -389,28 +389,28 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         <div id="grouphisto" class="grouphisto has_bottom_line">
             <h1 id="comparison_title" class="comparisons" >
                 {#if (gData.populations.length == 1) }
-                    Real-world viral loads, 2020&ndash;present
+                    Real-world Viral Loads, 2020&ndash;Present
                 {/if}
                 {#if (gData.populations.length > 1) }
-                    Viral loads
+                    Viral Loads
                     {#if hasSignificantDifferences(gData.populations) }
-                        vary
+                        Vary
                     {:else}
-                        are similar
+                        Are Similar
                     {/if}
                     {#if !(gData.splitDescription) }
                       <span class="acrossbetween">
                         {#if (gData.populations.length == 2) }
-                            between
+                            Between
                         {:else if (gData.populations.length > 2) }
-                            across
+                            Across
                          {/if}
                        </span>
                     {/if}
                     {#if gData.splitDescription }
                         {gData.splitDescription}
                     {:else}
-                        these {gData.populations.length} groups
+                        These {gData.populations.length} Groups
                     {/if}
                 {/if}
             </h1>

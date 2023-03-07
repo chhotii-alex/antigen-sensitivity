@@ -423,7 +423,7 @@ function splitQueries(queries, splits, variableObj) {
                 spec => values.indexOf(spec.value) >= 0 );
 	    if (groupsToFetch.length == split.splits.length) {
 	        fetchedAllGroups = true;
-		splitDescription = `across ${split.variableDisplayName}`;
+		splitDescription = `Across ${split.variableDisplayName}`;
 	    }
             queries = makeNewQueries(queries, groupsToFetch);
         }

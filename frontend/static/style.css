@@ -1,17 +1,12 @@
-
-.inline_style {
-    display: inline;
-}
-
 #loading { 
     position:fixed;
     z-index:99999;
- top: 0;
- bottom: 0;
- left: 0;
- right: 0;
- width: inherit;
- background-color: rgba(255, 255, 255, 0.5);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: inherit;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 #loading > img {
     //width: inherit;
@@ -23,10 +18,9 @@
 }
 
 body {
-  padding: 70px;
-  font-family: 'Roboto Flex', sans-serif;
-  text-align: left;
-  line-height: 1.5;
+    font-family: 'Roboto Flex', sans-serif;
+    text-align: left;
+    line-height: 1.5;
 }
 
 /* This menu is copied over from arnaoutlab.org and most
@@ -37,6 +31,7 @@ patched up here:
 div#menu {
     top: 0px;
     left: 0px;
+    z-index: 5000;
 }
 
 header, div.antigen_text {
@@ -94,19 +89,11 @@ p.body_text {
     padding-right: 40px;
     padding-bottom: 1.5em;
 }
-
-.webapp {
-    display: grid;
-    grid-template-columns: 1fr; 
-    grid-template-areas:
-	"pickgroup"
-	"grouphisto"
-}
 .too_many_groups {
     font-size: 20px;
     font-weight: 400;
     text-align: center;
-    grid-area: too_many_groups;
+    grid-area: max80emContent;
     padding-bottom: 10px;
 }
 .has_bottom_line {
@@ -133,58 +120,72 @@ p.body_text {
     border: 2px solid;
     background-color: #eee;
 }
-.select_var_closed {
-    border: none;
-}
-.select_var_closed > div {
-    display: none;
-}
-.select_var_open {
-    border: 2px solid;
-    padding-left: 30px;
-    padding-right: 40px;
-    padding-bottom: 50px;
-    background-color: #eee
-}
-.select_var_open > div {
-    display: block;
-}    
-.select_var_open svg {
-    transform: translateY(6px) translateX(6px) rotate(0.25turn);
-}
 #select_var > div {
     break-inside: avoid-column;
 }
-.grouphisto {
+
+.max80em {
     display: grid;
-    grid-template-columns: 1fr 60em 20em 1fr;
+    grid-template-columns: 1fr 80rem 1fr;
     grid-template-areas:
-	". comparisons comparisons ."
-	". too_many_groups too_many_groups ."
-	". displaybox meantext ."
-	". pyramid plegend .";
+        ". max80emContent .";
 }
 
-@media only screen and (max-width: 80em) {
-    .grouphisto {
-	grid-template-columns: 3fr 1fr;
-	grid-template-areas:
-	    "comparisons comparisons"
-	    "too_many_groups too_many_groups"
-	    "displaybox meantext"
-	    "pyramid plegend";
+@media only screen and (max-width: 82rem) {
+    .max80em {
+        grid-template-columns: 1fr 60rem 1fr;
     }
 }
+
+@media only screen and (max-width: 62rem) {
+    .max80em {
+        grid-template-columns: 1fr 40rem 1fr;
+    }
+}
+
+@media only screen and (max-width: 42rem) {
+    .max80em {
+        grid-template-columns: 30px 1fr 30px;
+    }
+}
+
+.max80emSplit {
+    display: grid;
+    grid-template-columns: 1fr 60rem 20rem 1fr;
+    grid-template-areas:
+        ". max80emLeftContent max80emRightContent .";
+}
+
+@media only screen and (max-width: 84rem) {
+    .max80emSplit {
+        grid-template-columns: 1fr 40rem 20rem 1fr;
+    }
+}
+
+@media only screen and (max-width: 64rem) {
+    .max80emSplit {
+        grid-template-columns: 1fr 40rem 1fr;
+        grid-template-areas:
+            ". max80emLeftContent ."
+            ". max80emRightContent .";
+    }
+}
+
+@media only screen and (max-width: 44rem) {
+    .max80emSplit {
+        grid-template-columns: 30px 1fr 30px;
+    }
+}
+    
 .comparisons {
     text-align: center;
-    grid-area: comparisons;
+    grid-area: max80emContent;
     padding-top: 10px;
 }
-.displaybox {
+.histogram {
+    grid-area: max80emLeftContent;
     width: 100%;
-    aspect-ratio: 1.6 / 1;
-    grid-area: displaybox;
-    margin-bottom: 20px;
+    min-height: 400px;
 }
 .ylabeldiv {
     transform: translate(-10px, 0px);
@@ -219,13 +220,18 @@ of displaybox changes!!!
     /* display:flex; */
     /* align-items:center; /* flex-end; */
     width: 100%;
-    aspect-ratio: 1.8 / 3; /* 1.6 / 3 */
-    overflow: auto; /* adds scrollbar when needed */
-    grid-area: meantext;
+    grid-area: max80emRightContent;
     padding-top: 10px;
     padding-left: 40px;
     padding-right: 40px;
 }
+
+@media only screen and (max-width: 60em) {
+    .meantext {
+        aspect-ratio: auto;
+    }
+}
+
 .meantext::-webkit-scrollbar {
   width: 5px;
   height: 8px;
@@ -236,16 +242,14 @@ of displaybox changes!!!
 }
 
 .pyramid {
-    grid-area: pyramid;
+    grid-area: max80emLeftContent;
 }
 .plegend {
     width: 100%;
-    aspect-ratio: 1.6 / 3;
-    overflow: scroll;
-    grid-area: meantext;
     padding-top: 20px;
     padding-left: 40px;
-    grid-area: plegend;
+    padding-right: 40px;
+    grid-area: max80emRightContent;
     font-size: 20px;
     padding-bottom: 1.5em;
     line-height: 1.7em;
@@ -264,9 +268,6 @@ of displaybox changes!!!
     font-size: 24px; 
     font-weight: 600;
     padding-right: 0.15em;
-}
-.savebuttons {
-    grid-area: savebuttons;
 }
 select {
   margin: 4px;
@@ -287,9 +288,6 @@ input.valuename {
 }
 .valuename {
     text-indent: -2em;
-}
-.lodisred {
-    color: red;
 }
 .pvalue {
     color: grey;
@@ -343,7 +341,7 @@ input.valuename {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
-	"select_antigen select_lod"
+        "select_antigen select_lod"
 }
 .select_antigen {
     grid-area: select_antigen;
@@ -358,33 +356,12 @@ input.valuename {
 .select_antigen {
     width: 80%;
 }
-.antihisto {
-    grid-area: antihisto;
-    display: grid;
-    grid-template-columns: 1fr 60em 20em 1fr;
-    grid-template-areas:
-	". antihisto_title antihisto_title ."
-	". group_radio group_radio ."
-	". antiperf performance_commentary .";
-}
-
-@media only screen and (max-width: 80em) {
-    .antihisto {
-	grid-template-columns: 3fr 1fr;
-	grid-template-areas:
-	"antihisto_title antihisto_title"
-	"group_radio group_radio"
-	"antiperf performance_commentary";
-    }
-}
-
 .antihisto_title {
-    grid-area: antihisto_title;
-    
+    grid-area: max80emContent;
 }
 
 .group_radio {
-    grid-area: group_radio;
+    grid-area: max80emContent;
     max-width: 46em;
     margin-left: auto;
     margin-right: auto;
@@ -394,15 +371,10 @@ input.valuename {
     margin-right: 1em;
 }
 .performance_commentary {
-    grid-area: performance_commentary;
+    grid-area: max80emRightContent;
     font-size: 20px;
     padding-bottom: 1.5em;
 /*     line-height: 1.7em;  */
-}
-.antiperf {
-    width: 100%;
-    height: 400px;
-    grid-area: antiperf;
 }
 
 #moresettings {
@@ -423,23 +395,8 @@ input.valuename {
   grid-area: select_antigen;
 }
 
-.drawlabel {
-  grid-area: drawlabel;
-  font-weight: bold;
-  font-size: large;
-}
-
-.notemean {
-  grid-area: notemean;
-}
-
 .histogram {
-  grid-area: histogram;
-}
-
-.sensitivity {
-  grid-area: sensitivity;
-  padding-bottom: 1em;
+  grid-area: max80emLeftContent;
 }
 
 .hidden_style {
@@ -451,56 +408,34 @@ footer {
     margin: auto;
     padding-bottom: 10em;
 }
-/* .antigen {
-    padding-top: 0;
-    padding-bottom: 10px;
-} */
-
-@media only screen and (min-width: 3000px) {
-    .webapp {
-	grid-template-columns: 1fr 2fr;
-	grid-template-areas:
-	    "pickgroup grouphisto"
-    }
-}
 
 @media only screen and (max-width: 1200px) {
     #select_var {
-	columns: 3;
+        columns: 3;
     }
 }
 
 @media only screen and (max-width: 900px) {
     #select_var {
-	columns: 2;
+        columns: 2;
     }
 }
 
 @media only screen and (max-width: 600px) {
     #select_var {
-	columns: 1;
+        columns: 1;
     }
 }
 
 @media only print {
     .pickgroup {
-	page-break-after: always;
+        page-break-after: always;
     }
-    .grouphisto {
-	page-break-after: always;
-	display: grid;
-	grid-template-columns: 1fr;
-	grid-template-areas:
-	    "comparisons"
-	    "displaybox"
-	    "meantext"
-	    "pyramid"
-    }
-    .displaybox {
-	page-break-after: always;
+    .histogram {
+        page-break-after: always;
     }
     .savebuttons {
-	display: none;
+        display: none;
     }
 }
 .conclusiontext {

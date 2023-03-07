@@ -1,5 +1,6 @@
 const { pool } = require('./database.cjs');
 
+let seedrandom = require('seedrandom');
 let mwu_promise = import('./mannwhitneyu.js');
 
 let d3promise = import('d3');
@@ -112,6 +113,7 @@ class PatientSplitSpecifier {
       this.modifier = row.modifier;
       this.adjective = row.adjective;
       this.whereClause = row.whereclause;
+      this._checked = row.initiallychecked;
    };
 }
 
@@ -120,7 +122,8 @@ let gSplits = null;
 
 async function getVariableSplits(splits) {
     const query = `SELECT variable, variableDisplayName,
-                        value, valueDisplayName, noun, adjective, modifier, whereClause
+                        value, valueDisplayName, noun, adjective, modifier, whereClause,
+                      initiallyChecked
                     FROM UIVars ORDER BY sort`;
     let {rows} = await pool.query(query);
     for (const row of rows) {
@@ -227,7 +230,6 @@ async function getComorbiditySplits(splits) {
 }
 
 async function fetchVars() {
-    console.log("Getting vars");
     if (!(cachedVars && gSplits)) {
         let splits = new Map();
 	await getVariableSplits(splits);
@@ -237,7 +239,10 @@ async function fetchVars() {
         splits.forEach( (split, variable, map) => {
           let divisions = [];
           for (const spec of split.splits) {
-              divisions.push({"value":spec.value, "valueDisplayName":spec.valueDisplayName});
+              divisions.push({"value":spec.value,
+                 "valueDisplayName":spec.valueDisplayName,
+                 "_checked":spec._checked,
+                });
           }
           items.push({id : split.variable,
                       displayName : split.variableDisplayName,
@@ -316,7 +321,6 @@ class QuerySet {
         this.descriptions = {};
     };
     addQuery(description, query) {
-        console.log("Adding query for: ", description, query);
         this.queries[description.toString()] = query;
         this.descriptions[description.toString()] = description;
     };
@@ -369,7 +373,8 @@ function compareArrays(arr1, arr2, mwu) {
         return null;
     }
     result = mwu.test(arr1, arr2);
-    return result.p;
+    p = result.p;
+    return Number.parseFloat(p.toPrecision(3));
 }
 
 // From MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#sequence_generator_range
@@ -418,7 +423,7 @@ function splitQueries(queries, splits, variableObj) {
                 spec => values.indexOf(spec.value) >= 0 );
 	    if (groupsToFetch.length == split.splits.length) {
 	        fetchedAllGroups = true;
-		splitDescription = `across ${split.variableDisplayName}`;
+		splitDescription = `Across ${split.variableDisplayName}`;
 	    }
             queries = makeNewQueries(queries, groupsToFetch);
         }
@@ -429,47 +434,61 @@ function splitQueries(queries, splits, variableObj) {
     return [queries, splitDescription];
 }
 
+let salt = process.env.JITTER_SALT;
+if (!salt) {
+   console.error("Warning! Environment var JITTER_SALT not set!!!");
+   salt = '';
+}
+
+function getJitter(query) {
+    let rng = seedrandom(query+salt);
+    let jitter = Math.round(7*rng()-3.5);
+    return jitter;
+}
+
 async function runQuery(label, queryParts) {
     const bin = await makeBinFunction();
     let baseQuery = queryParts["base"];
     let whereClause = queryParts["where"];
     let query = `${baseQuery} ${whereClause}`;
-    query = query.trim(); 
-    console.log(query);
+    query = query.trim();
+    let jitter = getJitter(query);
     let { rows } = await pool.query(query);
-    if (rows.length < 1) {
+    if (rows.length < 4) {
         return null;
     }
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
-    let bins = bin(rawData);
-    let d3 = await d3promise; // hack for importing the wrong kind of module
-    let densityPoints = d3.scaleLinear().domain([0, 10]).ticks(500);
-    let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
-    let mean_val = Math.pow(10, mean(rawData))
+    let mean_val = Math.pow(10, mean(rawData));
+    mean_val = Number.parseFloat(mean_val.toPrecision(4));
     let pop = {
                "label" : label,
                "mean" : mean_val,
-               "count" : rawData.length,
+               "count" : rawData.length + jitter,
                "comparisons" : []};
-    pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
-        return {
-            "viralLoadLog" : (r.x0+r.x1)/2,
-            "viralLoadLogMin" : r.x0,
-            "viralLoadLogMax" : r.x1,
-            "count" : r.length,
-        };
-    });
-    let densityBinWidth = density[2][0] - density[1][0];
-    let halfBin = densityBinWidth/2;
-    pop["data"] = density.map(a => {
-      return {
-         "viralLoadLog" : a[0],
-	 "viralLoadLogMin" : a[0] - halfBin,
-	 "viralLoadLogMax" : a[0] + halfBin,
-	 "count" : a[1]*rawData.length,
-	// "count" : Math.round(a[1]*rawData.length),
-      };
-    });
+    if (rawData.length >= 60) {
+        let bins = bin(rawData);
+        let d3 = await d3promise; // hack for importing the wrong kind of module
+        let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);
+        let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
+        pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
+                return {
+                    "viralLoadLog" : (r.x0+r.x1)/2,
+                    "viralLoadLogMin" : r.x0,
+                    "viralLoadLogMax" : r.x1,
+                    "count" : r.length,
+                };
+        });
+        let densityBinWidth = density[2][0] - density[1][0];
+        let halfBin = densityBinWidth/2;
+        pop["data"] = density.map(a => {
+             return {
+                    "viralLoadLog" : a[0],
+	            "viralLoadLogMin" : a[0] - halfBin,
+	            "viralLoadLogMax" : a[0] + halfBin,
+	            "count" : a[1]*rawData.length,
+             };
+        });
+    }
     return {rawData: rawData, pop: pop};
 }
 
@@ -512,8 +531,13 @@ exports.datafetch = async function(req, res, next) {
 
         for (let pop of results) {
             pop["catagories"] = { "count" : "Count" };
-	    pop["peak"] = peak(pop.data);
 	    pop["median"] = median(pop.rawData);
+            if (pop.data) {
+            	    pop["peak"] = peak(pop.data);
+            }
+            else {
+                 pop["peak"] = pop["median"];
+            }
         }
 	//results.sort((a, b) => a.peak - b.peak);
 	results.sort((a, b) => a.median - b.median);
@@ -594,7 +618,6 @@ exports.dataset = async function(req, res, next) {
 	}
     }
     query = `${query} ${stringJoin(", ", columns_for_query)} from DeidentResults \n ${joins}`;
-    console.log(query);
     let { rows } = await pool.query(query);
     let headers = null;
     let data = "";
@@ -603,7 +626,6 @@ exports.dataset = async function(req, res, next) {
             headers = Object.keys(row);
             for (const header of headers) {
 	        if (!spreadsheetColumnHeaders[header]) {
-		   console.log(`No header name given for: ${header}`);
 		   spreadsheetColumnHeaders[header] = header;
 		}
                 data += `"${spreadsheetColumnHeaders[header]}"`;
@@ -624,17 +646,3 @@ exports.dataset = async function(req, res, next) {
     res.status(200).send(data);
 }
 
-function intervalFunc() {
-    console.log('node app is running', new Date());
-    ++intervalCount;
-    if (intervalCount > 10) {
-        interval = interval * 2;
-        clearInterval(intervalID);
-        intervalID = setInterval(intervalFunc, interval);
-        intervalCount = 0;
-    }  
-}
-
-let interval = 4000;
-let intervalID = setInterval(intervalFunc, interval);
-let intervalCount = 0;

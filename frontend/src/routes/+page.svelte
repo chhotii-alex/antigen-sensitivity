@@ -346,7 +346,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </p>
     
     </header>
-    <div class="webapp" >
+    <div >
         <div class="pickgroup has_bottom_line">
             <fieldset class:exploreGroupsOpen >
                 <legend id="select_var_label" class="select_var_label"
@@ -386,7 +386,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 </div>
             </fieldset>
         </div>
-        <div id="grouphisto" class="grouphisto has_bottom_line">
+        <div class="max80em">
             <h1 id="comparison_title" class="comparisons" >
                 {#if (gData.populations.length == 1) }
                     Real-world Viral Loads, 2020&ndash;Present
@@ -414,10 +414,14 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     {/if}
                 {/if}
             </h1>
+        </div>
+        <div class="max80em">
             <p class="too_many_groups hidden_style" class:showingBlock={gData.tooManyQueries}
                       id="too_many_groups">
                 Displaying the first eight plots. Click subsets of the checkboxes to see more (eight at a time).
             </p>
+        </div>
+        <div class="max80emSplit" >
             <Histogram info={gData.populations} joy={true} highlightOne={true}
                            highlightedGroupLabel={highlightedGroupLabel}
                    y_scale={scaleOption} infectivityThreshold={infectivityThreshold} />
@@ -471,6 +475,24 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     {/if}
                 </div>
             </div>
+        </div>
+        <p class="spacer" />
+   <div class="antigen_text">
+       <p class="body_text">
+      To test whether between-group differences are significant, we
+      calculated the p-value for each pair of groups according to a
+      statistical test called the <a class="link"
+      href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
+      U test (MWU)</a>. MWU is a commonly used test when data do not
+      follow a bell-shaped curve. The MWU p-value measures how likely
+      it is that two distributions&mdash;here, the distributions of
+      viral loads for each pair of groups&mdash;are drawn from the
+      same underlying distribution. A large p-value means the two
+      groups in the pair are statistically indistinguishable; a low
+      value mean they differ more than would be expected by chance.
+        </p>
+  </div>
+        <div class="max80emSplit" >
             {#if (gData.populations.length > 2) }
                 <Pyramid info={gData.populations} />
             {/if}
@@ -492,20 +514,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             {/if}
         </div>
    </div>
-   <div class="antigen_text">
-       <p class="body_text">
-      To test whether between-group differences are significant, we
-      calculated the p-value for each pair of groups according to a
-      statistical test called the <a class="link"
-      href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
-      U test (MWU)</a>. MWU is a commonly used test when data do not
-      follow a bell-shaped curve. The MWU p-value measures how likely
-      it is that two distributions&mdash;here, the distributions of
-      viral loads for each pair of groups&mdash;are drawn from the
-      same underlying distribution. A large p-value means the two
-      groups in the pair are statistically indistinguishable; a low
-      value mean they differ more than would be expected by chance.
-        </p>
+   <div class="antigen_text">  
         <h3>How can specific antigen tests be expected to perform on the
              above groups?</h3>
         <p class="body_text">Antigen tests are less sensitive than PCR
@@ -554,7 +563,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
            {/if}
        </fieldset>
     </div>
-    <div class="antihisto hidden_style" class:showingAntigenPerformance id="antihisto">
+    <div class="max80em hidden_style" class:showingAntigenPerformance id="antihisto">
         <div class="antihisto_title">
             <h1 class="antigen">
                 Performance of
@@ -565,6 +574,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 {/if}
             </h1>
         </div>
+   </div>
+   <div class="max80em hidden_style" class:showingAntigenPerformance >
         <div class="group_radio" id="group_radio" >
             {#if gData.populations.filter(d => d.shouldPlot).length > 1}
                 {#each gData.populations.filter(d => d.shouldPlot) as pop (pop.label)}
@@ -577,6 +588,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 {/each}
             {/if}
         </div>
+   </div>
+   <div class="max80emSplit hidden_style" class:showingAntigenPerformance >
         {#if selectedGroup}
             <Histogram info={[selectedGroup]} catagories={["negatives", "positives"]}
                   joy={false} highlightOne={false}
@@ -625,7 +638,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         {/if}
     </div>
     <div class="antigen_text">
-    <details id="moresettings">
+      <details id="moresettings">
         <summary>Show More Settings</summary>
         <div class="indent">
             Scaling on y axes:
@@ -643,7 +656,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             <input type="range" min="0" max="12" bind:value={infectivityThreshold}
                  class="slider" id="infectivityThreshold">
         </div>
-    </details>
+      </details>
     </div>
     <footer>
         <h3>How did we estimate contagiousness?</h3>
@@ -751,6 +764,10 @@ fieldset.exploreGroupsOpen {
 }
 .anti_legend {
     padding-top: 1em;
+}
+
+.spacer {
+    padding-top: 2em;
 }
 
 </style>

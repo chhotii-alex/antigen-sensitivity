@@ -172,7 +172,7 @@ p.body_text {
 .histogram {
     grid-area: max80emLeftContent;
     width: 100%;
-    aspect-ratio: 1.6 / 1;
+    min-height: 400px;
 }
 .ylabeldiv {
     transform: translate(-10px, 0px);
@@ -207,8 +207,6 @@ of displaybox changes!!!
     /* display:flex; */
     /* align-items:center; /* flex-end; */
     width: 100%;
-    aspect-ratio: 1.8 / 3; /* 1.6 / 3 */
-    overflow: auto; /* adds scrollbar when needed */
     grid-area: max80emRightContent;
     padding-top: 10px;
     padding-left: 40px;
@@ -235,8 +233,6 @@ of displaybox changes!!!
 }
 .plegend {
     width: 100%;
-    aspect-ratio: 1.6 / 3;
-    overflow: scroll;
     padding-top: 20px;
     padding-left: 40px;
     padding-right: 40px;
@@ -249,11 +245,6 @@ of displaybox changes!!!
     flex-direction: column;
     /* align-items: flex-end; */
     /* justify-content:center; */
-}
-@media only screen and (max-width: 60em) {
-    .plegend {
-        aspect-ratio: auto;
-    }
 }
 #plegend { /* the colorbar */
     margin-left: auto;

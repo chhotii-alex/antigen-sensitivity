@@ -181,6 +181,8 @@ function hasSignificantDifferences(info, alpha=0.00125) {
     return false;
 }
 
+$: groupCommentSpace = (gData.populations.length < 4);
+
 let selectedAssay = 'none';
 $: if (selectedAssay) selectAntigenTest();
 
@@ -431,7 +433,9 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 <div id="pvalue_text" >
                     <div id="commentary">
                         {#each gData.populations as pop (pop.label)}
-                            <p class="groupcomment" app_group_name={pop.label}
+                            <p class="groupcomment"
+                                    class:groupCommentSpace
+                                    app_group_name={pop.label}
                                      on:mouseenter={mouseEnterAction}
                                      on:mouseleave={mouseLeaveAction} >
                                 <span class="comm_part1" >

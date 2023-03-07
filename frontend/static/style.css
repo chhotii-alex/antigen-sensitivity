@@ -185,7 +185,7 @@ p.body_text {
 .histogram {
     grid-area: max80emLeftContent;
     width: 100%;
-    min-height: 400px;
+    min-height: 500px;
 }
 .ylabeldiv {
     transform: translate(-10px, 0px);
@@ -446,8 +446,11 @@ footer {
 }
 .groupcomment {
     font-size: 20px;
+ /*   line-height: 1.5em; */
+    padding-bottom: 0.5em;
+}
+.groupCommentSpace {
     padding-bottom: 1.5em;
-    line-height: 1.7em;
 }
 .comm_part2 {
     font-size: 24px; 
@@ -472,6 +475,14 @@ footer {
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
+}
+@media only screen and (max-height: 900px) {
+    .comm_part2 {
+        font-size: inherit;
+    }
+    .comm_part4 {
+        font-size: inherit;
+    }
 }
 .nodata {
     font-size: 40px;

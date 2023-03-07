@@ -126,12 +126,12 @@ p.body_text {
 
 .max80em {
     display: grid;
-    grid-template-columns: 1fr 80em 1fr;
+    grid-template-columns: 1fr 80rem 1fr;
     grid-template-areas:
         ". max80emContent .";
 }
 
-@media only screen and (max-width: 80em) {
+@media only screen and (max-width: 82rem) {
     .max80em {
         grid-template-columns: 1fr;
         grid-template-areas:
@@ -142,12 +142,12 @@ p.body_text {
 
 .max80emSplit {
     display: grid;
-    grid-template-columns: 1fr 60em 20em 1fr;
+    grid-template-columns: 1fr 60rem 20rem 1fr;
     grid-template-areas:
         ". max80emLeftContent max80emRightContent .";
 }
 
-@media only screen and (max-width: 80em) {
+@media only screen and (max-width: 82rem) {
     .max80emSplit {
         grid-template-columns: 3fr 1fr;
         grid-template-areas:
@@ -155,7 +155,7 @@ p.body_text {
     }
 }
 
-@media only screen and (max-width: 50em) {
+@media only screen and (max-width: 60rem) {
     .max80emSplit {
         grid-template-columns: 1fr;
         grid-template-areas:
@@ -215,7 +215,7 @@ of displaybox changes!!!
     padding-right: 40px;
 }
 
-@media only screen and (max-width: 50em) {
+@media only screen and (max-width: 60em) {
     .meantext {
         aspect-ratio: auto;
     }
@@ -250,7 +250,7 @@ of displaybox changes!!!
     /* align-items: flex-end; */
     /* justify-content:center; */
 }
-@media only screen and (max-width: 50em) {
+@media only screen and (max-width: 60em) {
     .plegend {
         aspect-ratio: auto;
     }

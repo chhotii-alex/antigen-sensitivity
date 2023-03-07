@@ -347,6 +347,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     
     </header>
     <div >
+      <div class="pick_group_padding" >
         <div class="pickgroup has_bottom_line">
             <fieldset class:exploreGroupsOpen >
                 <legend id="select_var_label" class="select_var_label"
@@ -386,6 +387,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 </div>
             </fieldset>
         </div>
+     </div>
         <div class="max80em">
             <h1 id="comparison_title" class="comparisons" >
                 {#if (gData.populations.length == 1) }
@@ -719,8 +721,15 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 
 <style>
 
-.all_content {
-    padding: 70px;
+.pick_group_padding {
+    padding-left: 70px;
+    padding-right: 70px;
+}
+@media only screen and (max-width: 600px) {
+  .pick_group_padding {
+    padding-left: 30px;
+    padding-right: 0px;
+  }
 }
 
 .hideLoading {

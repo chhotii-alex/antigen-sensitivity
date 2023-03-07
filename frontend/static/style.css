@@ -93,7 +93,7 @@ p.body_text {
     font-size: 20px;
     font-weight: 400;
     text-align: center;
-    grid-area: too_many_groups;
+    grid-area: max80emContent;
     padding-bottom: 10px;
 }
 .has_bottom_line {

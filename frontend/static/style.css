@@ -133,12 +133,21 @@ p.body_text {
 
 @media only screen and (max-width: 82rem) {
     .max80em {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "max80emContent";
+        grid-template-columns: 1fr 60rem 1fr;
     }
 }
 
+@media only screen and (max-width: 62rem) {
+    .max80em {
+        grid-template-columns: 1fr 40rem 1fr;
+    }
+}
+
+@media only screen and (max-width: 42rem) {
+    .max80em {
+        grid-template-columns: 30px 1fr 30px;
+    }
+}
 
 .max80emSplit {
     display: grid;
@@ -147,20 +156,24 @@ p.body_text {
         ". max80emLeftContent max80emRightContent .";
 }
 
-@media only screen and (max-width: 82rem) {
+@media only screen and (max-width: 84rem) {
     .max80emSplit {
-        grid-template-columns: 3fr 1fr;
-        grid-template-areas:
-            "max80emLeftContent max80emRightContent";
+        grid-template-columns: 1fr 40rem 20rem 1fr;
     }
 }
 
-@media only screen and (max-width: 60rem) {
+@media only screen and (max-width: 64rem) {
     .max80emSplit {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 40rem 1fr;
         grid-template-areas:
-            "max80emLeftContent"
-            "max80emRightContent";
+            ". max80emLeftContent ."
+            ". max80emRightContent .";
+    }
+}
+
+@media only screen and (max-width: 44rem) {
+    .max80emSplit {
+        grid-template-columns: 30px 1fr 30px;
     }
 }
     

@@ -239,6 +239,7 @@ of displaybox changes!!!
     overflow: scroll;
     padding-top: 20px;
     padding-left: 40px;
+    padding-right: 40px;
     grid-area: max80emRightContent;
     font-size: 20px;
     padding-bottom: 1.5em;

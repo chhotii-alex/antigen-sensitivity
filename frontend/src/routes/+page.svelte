@@ -204,6 +204,7 @@ $: showingAntigenPerformance = ((lod >= 0) || (selectedAssay != 'none'));
 
 function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
     if (!pop) return {};
+    if (!pop.data) return {};
     pop.catagories["negatives"] = "Antigen Negatives";
     pop.catagories["positives"] = "Antigen Positives";
     if (lod >= 0) {

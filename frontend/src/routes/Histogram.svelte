@@ -54,7 +54,7 @@ function calculateXScale(d3, populations, width) {
     if (populations.length < 1) return null;
     if (!width) return null;
     const firstData = populations[0].data;
-    if (firstData.length < 1) return null;
+    if (!(firstData && firstData.length)) return null;
     const firstBin = firstData[0];
     const xValues = firstData.map( d => d["viralLoadLogMax"]);
     xValues.push(firstData["viralLoadLogMin"] - 1);
@@ -67,9 +67,9 @@ function calculateXScale(d3, populations, width) {
 
 function calculateBarWidth(xScale, populations) {
     if (populations.length < 1) return 1;
+    if (!xScale) return 0;
     const firstData = populations[0].data;
     const firstBin = firstData[0];
-    if (!xScale) return 0;
     return xScale(firstBin.viralLoadLogMax) - xScale(firstBin.viralLoadLogMin);
 }
 
@@ -93,6 +93,7 @@ function staggerForJoy(joy, histogramWorthyPopulations, height, heigtAdjustment)
 }
 
 function findPeak(pop) {
+    if (!pop.data) return 0;
     let peak = 0;
     for (let bin of pop.data) {
         let sum = 0;

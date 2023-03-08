@@ -240,9 +240,23 @@ of displaybox changes!!!
 .meantext::-webkit-scrollbar-thumb {
   background: #000;
 }
+.pyramid_placeholder {
+    grid-area: max80emLeftContent;
+    display: grid;
+    grid-template-columns: 2fr 40em 1fr;
+    grid-template-areas:
+        ". pyramid ."
+}
+@media only screen and (max-width: 44rem) {
+    .pyramid_placeholder {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "pyramid";
+    }
+}
 
 .pyramid {
-    grid-area: max80emLeftContent;
+    grid-area: pyramid;
 }
 .plegend {
     width: 100%;
@@ -294,12 +308,7 @@ input.valuename {
     font-weight: normal;
 }
 #pyramid_container {
-    margin-top: 20px;
-    margin-left: 21%;
-    margin-right: 21%;
-    margin-bottom: 0;
-    padding-bottom: 0;
-/*    border: solid;  */
+    margin: 1em;
 }
 #pyramid {
     aspect-ratio : 1;

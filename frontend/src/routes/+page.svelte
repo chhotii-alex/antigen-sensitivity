@@ -499,9 +499,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </p>
   </div>
         <div class="max80emSplit" >
-            {#if (gData.populations.length > 2) }
-                <Pyramid info={gData.populations} />
-            {/if}
+            <div class="pyramid_placeholder">
+              {#if (gData.populations.length > 2) }
+                  <Pyramid info={gData.populations} />
+              {/if}
+            </div>
             {#if (gData.populations.length > 2) }
                 <div class="plegend" >
                     <p class="plegend_text">

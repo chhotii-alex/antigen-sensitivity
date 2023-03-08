@@ -30,14 +30,14 @@ let x = i => 0;
 let y = i => 0;
 
 $: if (clientWidth) { x = makeXScaler(scale); }
-$: if (clientWidth) { y = makeYScaler(scale); }
+$: if (clientWidth && info) { y = makeYScaler(scale, info); }
 
 function makeXScaler(scale) {
     return (i) => {
         return scale*(outerMargin+totalWidth-(i+1)*rectSize);
     }
 }
-function makeYScaler(scale) {
+function makeYScaler(scale, info) {
     return (i) => {
         return scale*(labelWidth+rectSize*(info.length-1)+innerMargin+outerMargin-(i)*rectSize);
     }
@@ -134,10 +134,13 @@ function formatShortPValue(num) {
     }
 }
 
+$: marginBottom = `margin-bottom: ${y(-1)-clientWidth}px`;
+
 </script>
 
 <div id="pyramid_container" class="pyramid"
-          bind:clientWidth={clientWidth} bind:clientHeight={clientHeight}>
+          bind:clientWidth={clientWidth} bind:clientHeight={clientHeight}
+          style={marginBottom}>
     {#if scale}
         <svg id="pyramid" width="100%"
                 font-size={`${labelFontSize*scale}px`}>

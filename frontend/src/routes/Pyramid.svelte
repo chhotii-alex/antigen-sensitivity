@@ -44,7 +44,6 @@ function makeYScaler(scale, info) {
 }
 
 $: substitutionCount = findNeededSubstitutionCount(info, maxstr);
-$: console.log(substitutionCount);
 
 function findNeededSubstitutionCount(info, maxstr) {
    let count = 0;
@@ -66,13 +65,11 @@ function findNeededSubstitutionCount(info, maxstr) {
 }
 
 function shortLabelAtIndex(info, i, maxstr, substitutionCount) {
-    console.log("I will do this many subs:", substitutionCount);
     let s = info[i].label.toLowerCase();
     for (let j = 0; j < substitutionCount; ++j) {
         let subs = substitutions[j];
         s = s.replaceAll(subs[0].toLowerCase(), subs[1].toLowerCase());
         s = s.replaceAll("  ", " ");
-        console.log(s);
     }
     if (s.length > maxstr) {
         s = s.substring(0, maxstr-3) + "...";
@@ -160,8 +157,6 @@ const substitutions = [
     ["smoke" , "sm"],
     ["." , ""],
 ];
-
-console.log(substitutions.length);
 
 function colorForPValue(p) {
     let r = 90;

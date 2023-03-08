@@ -1,8 +1,10 @@
 <script>
 
 import * as util from './util.js';
-let d3;
-   
+import { extent } from 'd3-array';
+import { scaleLinear } from 'd3-scale';
+import { line, curveBasis, stack } from 'd3-shape';
+
 /* props */
 export let info;
 export let catagories = ["count"];
@@ -11,11 +13,6 @@ export let highlightedGroupLabel = null;
 export let joy = false;
 export let y_scale = 'scale_absolute';
 export let infectivityThreshold = 5;
-
-import { onMount } from 'svelte';
-onMount(async () => {
-    d3 = await import("https://cdn.skypack.dev/pin/d3@v7.6.1-1Q0NZ0WZnbYeSjDusJT3/mode=imports,min/optimized/d3.js");
-});
 
 const margin = {top: 10, right: 0, bottom: 60, left: 20};
 
@@ -26,8 +23,8 @@ let clientHeight;
 $: width = clientWidth - (margin.left + margin.right);
 $: height = clientHeight - (margin.top + margin.bottom);
 
-let stack;
-$: if (d3 && catagories) { stack = d3.stack().keys(catagories); }
+let stackFunc;
+$: if (catagories) { stackFunc = stack().keys(catagories); }
 
 $: hasHighlight = highlightOne && (highlightedGroupLabel != null);
 $: highlightedGroup = info.find(d => d.label == highlightedGroupLabel);
@@ -35,13 +32,13 @@ $: highlightedGroup = info.find(d => d.label == highlightedGroupLabel);
 $: yFunc = ((y_scale == 'scale_shared') ? "yNorm" : "yScale" ); 
 $: histogramWorthyPopulations = info.filter(d => (d.shouldPlot && d.data));
 
-$: xScale = calculateXScale(d3, histogramWorthyPopulations, width);
+$: xScale = calculateXScale(histogramWorthyPopulations, width);
 $: barWidth = calculateBarWidth(xScale, histogramWorthyPopulations);
 
 $: heightAdjustment = calcHeightAdjustment(joy, histogramWorthyPopulations, height);
 $: stagger = staggerForJoy(joy, histogramWorthyPopulations, height, heightAdjustment);
 
-$: yScaleFunc = assignYScaling(d3, histogramWorthyPopulations, yFunc,
+$: yScaleFunc = assignYScaling(histogramWorthyPopulations, yFunc,
            height, stagger, heightAdjustment);
 
 $: infectivityRegions = [
@@ -49,8 +46,7 @@ $: infectivityRegions = [
       {"title" : "CONTAGIOUS", "color" : "white", "min" : infectivityThreshold, "max" : 12},
    ];
  
-function calculateXScale(d3, populations, width) {
-    if (!d3) return null;
+function calculateXScale(populations, width) {
     if (!width) return null;
     let xValues = [0, 11.01]; // TECHDEBT this should not be hard-coded
     if (populations && populations.length) {
@@ -61,10 +57,10 @@ function calculateXScale(d3, populations, width) {
           xValues.push(firstData["viralLoadLogMin"] - 1);
       }
     }
-    let extent = d3.extent(xValues);
-    if (!extent) return null;
-    return d3.scaleLinear()
-        .domain(extent)
+    let theExtent = extent(xValues);
+    if (!theExtent) return null;
+    return scaleLinear()
+        .domain(theExtent)
         .range([0, width]);
 }
 
@@ -109,9 +105,8 @@ function findPeak(pop) {
     return peak;
 }
 
-function assignYScaling(d3, histogramWorthyPopulations, yFunc,
+function assignYScaling(histogramWorthyPopulations, yFunc,
         height, theStagger, heightAdjustment) {
-    if (!d3) return null;
     let yScaleFuncs = {}
     let maxPeak = 0;
     for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
@@ -120,7 +115,7 @@ function assignYScaling(d3, histogramWorthyPopulations, yFunc,
         if (peak > maxPeak) maxPeak = peak;
         if (yFunc == "yScale") {
             let yIndex = histogramWorthyPopulations.length-(i+1);
-            yScaleFuncs[pop.label] = d3.scaleLinear().domain([0,peak])
+            yScaleFuncs[pop.label] = scaleLinear().domain([0,peak])
                              .range([height-(yIndex*theStagger),
                                  height-(yIndex*theStagger)-height*heightAdjustment]);
         }
@@ -129,7 +124,7 @@ function assignYScaling(d3, histogramWorthyPopulations, yFunc,
         for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
             let pop = histogramWorthyPopulations[i];
             let yIndex = histogramWorthyPopulations.length-(i+1);
-            yScaleFuncs[pop.label] = d3.scaleLinear().domain([0, maxPeak])
+            yScaleFuncs[pop.label] = scaleLinear().domain([0, maxPeak])
                              .range([height-(yIndex*theStagger),
                                  height-(yIndex*theStagger)-height*heightAdjustment]);
         }
@@ -194,16 +189,16 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
                 </g>
 
                 <!-- now for the actual histograms -->
-                {#if stack}
+                {#if stackFunc}
                     {#each histogramWorthyPopulations as pop}
-                        {#each stack(pop.data) as layer}
+                        {#each stackFunc(pop.data) as layer}
                             <g class="series"
                                   style={`fill: ${adjustedColor(pop.colors[layer.key][1],
                                           hasHighlight,
                                           pop.label,
                                           highlightedGroupLabel,
                                           joy, 0.4)}`}>
-                                <path d={d3.line().curve(d3.curveBasis)
+                                <path d={line().curve(curveBasis)
                                            .x(d => xScale(d.data.viralLoadLog))
                                            .y(d => yScaleFunc[pop.label](d[1]))
                                                     (layer) }

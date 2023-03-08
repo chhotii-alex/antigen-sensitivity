@@ -186,6 +186,7 @@ p.body_text {
     grid-area: max80emLeftContent;
     width: 100%;
     min-height: 500px;
+    max-height: 800px; 
 }
 .ylabeldiv {
     transform: translate(-10px, 0px);

@@ -33,7 +33,7 @@ $: hasHighlight = highlightOne && (highlightedGroupLabel != null);
 $: highlightedGroup = info.find(d => d.label == highlightedGroupLabel);
 
 $: yFunc = ((y_scale == 'scale_shared') ? "yNorm" : "yScale" ); 
-$: histogramWorthyPopulations = info.filter(d => d.shouldPlot);
+$: histogramWorthyPopulations = info.filter(d => (d.shouldPlot && d.data));
 
 $: xScale = calculateXScale(d3, histogramWorthyPopulations, width);
 $: barWidth = calculateBarWidth(xScale, histogramWorthyPopulations);
@@ -51,13 +51,16 @@ $: infectivityRegions = [
  
 function calculateXScale(d3, populations, width) {
     if (!d3) return null;
-    if (populations.length < 1) return null;
     if (!width) return null;
-    const firstData = populations[0].data;
-    if (!(firstData && firstData.length)) return null;
-    const firstBin = firstData[0];
-    const xValues = firstData.map( d => d["viralLoadLogMax"]);
-    xValues.push(firstData["viralLoadLogMin"] - 1);
+    let xValues = [0, 11.01]; // TECHDEBT this should not be hard-coded
+    if (populations && populations.length) {
+       const firstData = populations[0].data;
+       if (firstData && firstData.length) {
+          const firstBin = firstData[0];
+          xValues = firstData.map( d => d["viralLoadLogMax"]);
+          xValues.push(firstData["viralLoadLogMin"] - 1);
+      }
+    }
     let extent = d3.extent(xValues);
     if (!extent) return null;
     return d3.scaleLinear()
@@ -172,7 +175,7 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
                 {/each}
             </g>
 
-            {#if highlightedGroup && !(highlightedGroup.shouldPlot)}
+            {#if (histogramWorthyPopulations.length == 0) || (highlightedGroup && !(highlightedGroup.shouldPlot))}
                 <text class="nodata" text-anchor="middle" x={`${xScale(5)}px`}
                        y={`${(height/2)+margin.top}`}>
                     Insufficient data to plot

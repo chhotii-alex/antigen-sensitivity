@@ -550,7 +550,7 @@ exports.datafetch = async function(req, res, next) {
             pop["catagories"] = { "count" : "Count" };
 	    pop["median"] = median(pop.rawData);
             if (pop.data) {
-            	    pop["peak"] = peak(pop.data);
+            	 pop["peak"] = peak(pop.data);
             }
             else {
                  pop["peak"] = pop["median"];
@@ -572,13 +572,13 @@ exports.datafetch = async function(req, res, next) {
 
 	let colorIndex = 0;
 	for (let pop of results) {
-	   /* TODO: decision of whether there's enough data to plot, and color assignment,
-	      should move to the front end. */
-	   pop.shouldPlot = false;
-	   pop.colors = colors.getPlainColors();
-	   if (pop.count >= 60) {
+           if (pop.data) {
 	       pop.shouldPlot = true;
 	       pop.colors = colors.getColorSchema(colorIndex++);
+           }
+           else {
+               pop.shouldPlot = false;
+	       pop.colors = colors.getPlainColors();
 	   }
 	   delete pop.peak;
 	   delete pop.median;

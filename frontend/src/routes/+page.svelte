@@ -3,6 +3,7 @@
 import * as util from './util.js';
 import Histogram from './Histogram.svelte';
 import Pyramid from './Pyramid.svelte';
+import PValueLegend from './PValueLegend.svelte';
 
 let isLoading = true;
 
@@ -302,7 +303,6 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 
     <header>
         <h1>Learning from COVID-19 Viral Loads</h1>
-
         <h2>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
                  of antigen tests in different groups</h2>
 
@@ -515,7 +515,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                         Brighter entries indicate smaller p-values and therefore  more statistically significant differences.
                         Note that differences can be highly significant, but still small. Scale for p-values:
                     </p>
-                    <img id="plegend" src="plegend.jpg" width="200px" />
+                    <PValueLegend />
                     <p class="plegend_text">
                        See the main text for more regarding this statistical approach.
                     </p>

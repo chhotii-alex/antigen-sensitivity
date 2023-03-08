@@ -1,3 +1,22 @@
+
+export function colorForPValue(p) {
+    let r = 90;
+    let g = 90;
+    let b = 90;
+    p = -Math.log10(p);
+    if (p < 0.0) {
+        p = 0.0;
+    }
+    p = p * 20;
+    r += p;
+    if (r > 255.0) {
+        r = 255.0;
+    }
+    r = Math.floor(r);
+    let s = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
+    return s;
+}
+
 export function expo(x, decimalPlaces = 1) {
     return Number.parseFloat(x).toExponential(decimalPlaces);
 }

@@ -158,24 +158,6 @@ const substitutions = [
     ["." , ""],
 ];
 
-function colorForPValue(p) {
-    let r = 90;
-    let g = 90;
-    let b = 90;
-    p = -Math.log10(p);
-    if (p < 0.0) {
-        p = 0.0;
-    }
-    p = p * 20;
-    r += p;
-    if (r > 255.0) {
-        r = 255.0;
-    }
-    r = Math.floor(r);
-    let s = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
-    return s;
-}
-
 function retrievePValue(info, i, j) {
     return info[i].comparisons[j];
 }
@@ -208,7 +190,7 @@ $: marginBottom = `margin-bottom: ${y(-1)-clientWidth}px`;
                 <g class="pyramidrow">
                     {#each util.range(0, i) as j}
                         <rect x={x(j)} y={y(i)} width={scale*rectSize} height={scale*rectSize}
-                                 fill={colorForPValue(retrievePValue(info, i, j))}
+                                 fill={util.colorForPValue(retrievePValue(info, i, j))}
                         />
                         <text x={x(j-0.5)} y={y(i-0.5)} fill="white" text-anchor="middle"
                                 font-size={`${baseFontSize*scale}px`}>

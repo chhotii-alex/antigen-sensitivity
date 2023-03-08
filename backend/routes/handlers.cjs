@@ -477,7 +477,7 @@ async function runQuery(label, queryParts) {
                "mean" : mean_val,
                "count" : rawData.length + jitter,
                "comparisons" : []};
-    if (rawData.length >= 60) {
+    if (pop.count >= 60) {
         let bins = bin(rawData);
         let d3 = await d3promise; // hack for importing the wrong kind of module
         let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);

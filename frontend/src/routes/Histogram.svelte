@@ -42,8 +42,16 @@ $: yScaleFunc = assignYScaling(histogramWorthyPopulations, yFunc,
            height, stagger, heightAdjustment);
 
 $: infectivityRegions = [
-      {"title" : "", "color" : "#dbdbdb", "min" : 0, "max" : infectivityThreshold },
-      {"title" : "CONTAGIOUS", "color" : "white", "min" : infectivityThreshold, "max" : 12},
+      {"title" : "NON-CONTAGIOUS", "color" : "#dbdbdb", "min" : 0,
+          "max" : infectivityThreshold,
+          "text_anchor" : "end",
+          "text_x" : infectivityThreshold - 0.5
+          },
+      {"title" : "CONTAGIOUS", "color" : "white", "min" : infectivityThreshold,
+          "max" : 12,
+          "text_anchor" : "start",
+          "text_x" : infectivityThreshold + 0.5
+          },
    ];
  
 function calculateXScale(populations, width) {
@@ -152,23 +160,6 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
       bind:clientWidth={clientWidth} bind:clientHeight={clientHeight}>
     <svg>
         {#if xScale}
-            <!-- show what range of values represents non-contagious/contagious -->
-            <g class="regiongroup" transform="translate({margin.left}, {margin.top})">
-                {#each infectivityRegions as region}
-                    <g class="i_region">
-                        <rect class="region" y="0" height={height} x={xScale(region.min)}
-                              width={xScale(region.max)-xScale(region.min)}
-                              fill={region.color}>
-                        </rect>
-                        <text class="i_label" text-anchor="end" y="30" x={20+xScale(region.min)}
-                               transform="rotate(-90 {20+xScale(region.min)} 30)">
-                            {region.title}
-                        </text>
-                        <polygon class="triangle"
-                            points={`${xScale(region.min)+8} 28 ${xScale(region.min)+18} 22 ${xScale(region.min)+8} 16`} />
-                    </g>
-                {/each}
-            </g>
 
             {#if (histogramWorthyPopulations.length == 0) || (highlightedGroup && !(highlightedGroup.shouldPlot))}
                 <text class="nodata" text-anchor="middle" x={`${xScale(5)}px`}
@@ -228,6 +219,25 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
                     Viral load (copies of mRNA/mL)
                 </text>
             </g>
+
+            <!-- show what range of values represents non-contagious/contagious -->
+            <g class="regiongroup" transform="translate({margin.left}, {margin.top})">
+                {#each infectivityRegions as region}
+                    <g class="i_region">
+                        {#if region.min > 0}
+                            <line x1={xScale(region.min)} y1="0" x2={xScale(region.min)} y2={height}
+                               stroke-dasharray="10,10" 
+                               stroke="black" />
+                        {/if}
+                        <text class="i_label" y="10"
+                                 text-anchor={region.text_anchor}
+                                 x={xScale(region.text_x)}
+                               >
+                            {region.title}
+                        </text>
+                    </g>
+                {/each}
+            </g>
         {/if}
     </svg>
 </div>
@@ -243,7 +253,7 @@ svg {
     overflow: visible;
 }
 .i_label {
-    fill: #b8b8b8;
+    fill: black;
 }
 .triangle {
     fill: #dbdbdb;

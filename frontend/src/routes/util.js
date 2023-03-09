@@ -1,20 +1,23 @@
 
-export function colorForPValue(p) {
-    let r = 90;
-    let g = 90;
-    let b = 90;
-    p = -Math.log10(p);
+import { interpolateViridis, interpolateInferno,
+         interpolateBuGn } from 'd3-scale-chromatic';
+
+function scalePValue(p) {
     if (p < 0.0) {
         p = 0.0;
     }
-    p = p * 20;
-    r += p;
-    if (r > 255.0) {
-        r = 255.0;
-    }
-    r = Math.floor(r);
-    let s = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
-    return s;
+    p = -Math.log10(p)/10;
+    if (p < 0.0) p = 0.0;
+    if (p > 1.0) p = 1.0;
+    return p;
+}
+
+export function colorForPValue(p) {
+    return interpolateInferno(scalePValue(p));
+}
+
+export function textColorForPValue(p) {
+    return interpolateBuGn(scalePValue(p));
 }
 
 export function expo(x, decimalPlaces = 1) {

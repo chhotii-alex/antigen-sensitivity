@@ -192,7 +192,9 @@ $: marginBottom = `margin-bottom: ${y(-1)-clientWidth}px`;
                         <rect x={x(j)} y={y(i)} width={scale*rectSize} height={scale*rectSize}
                                  fill={util.colorForPValue(retrievePValue(info, i, j))}
                         />
-                        <text x={x(j-0.5)} y={y(i-0.5)} fill="white" text-anchor="middle"
+                        <text x={x(j-0.5)} y={y(i-0.5)}
+                                fill={util.textColorForPValue(retrievePValue(info, i, j))} 
+                                text-anchor="middle"
                                 font-size={`${baseFontSize*scale}px`}>
                             {shortPValue(info, i, j)}
                         </text>

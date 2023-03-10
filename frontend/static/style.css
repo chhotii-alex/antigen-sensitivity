@@ -225,6 +225,7 @@ of displaybox changes!!!
     padding-top: 10px;
     padding-left: 40px;
     padding-right: 40px;
+    line-height: 20px;
 }
 
 @media only screen and (max-width: 60em) {
@@ -265,9 +266,9 @@ of displaybox changes!!!
     padding-left: 40px;
     padding-right: 40px;
     grid-area: max80emRightContent;
-    font-size: 20px;
+    font-size: 18px;
     padding-bottom: 1.5em;
-    line-height: 1.7em;
+    line-height: 1.4em;
 
     display: flex;
     flex-direction: column;
@@ -382,9 +383,8 @@ input.valuename {
 }
 .performance_commentary {
     grid-area: max80emRightContent;
-    font-size: 20px;
+    font-size: 18px;
     padding-bottom: 1.5em;
-/*     line-height: 1.7em;  */
 }
 
 #moresettings {
@@ -455,33 +455,33 @@ footer {
     line-height: 1.7em;
 }
 .groupcomment {
-    font-size: 20px;
- /*   line-height: 1.5em; */
-    padding-bottom: 0.5em;
+    font-size: 18px;
+    line-height: 1.2em;
+    padding-bottom: 0.7em;
 }
 .groupCommentSpace {
     padding-bottom: 1.5em;
 }
 .comm_part2 {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
 }
 .group1noun {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
 }
 .group2noun {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
 }
 .comm_part4 {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
@@ -527,19 +527,19 @@ a.download:hover {
     color: #fff;
 }
 .ag_test_group {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
 }
 .senspec_label {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;
 }
 .senspec_value {
-    font-size: 24px; 
+    font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;
     padding-right: 0.15em;

@@ -634,11 +634,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 {/if}
                 {#each ["positive", "negative"] as cat}
                   <p class="anti_legend" >
-                    <svg height="1em" width="2em" 
+                    <svg height="1em" width="1em" 
                       fill={util.addAlpha(selectedGroup.colors[`${cat}s`][0],0.4)}
                       stroke={selectedGroup.colors[`${cat}s`][0]}
                       stroke-width="4" >
-                        <ellipse cx="50%" cy="50%" rx="43%" ry="40%" />
+                        <rect width="100%" height="100%" />
                     </svg>
                     Predicted to test {cat} on the antigen test
                   </p>

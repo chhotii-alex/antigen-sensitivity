@@ -5,7 +5,7 @@ if (process.env.DATABASE_URL) {
    console.log("Found DATABASE_URL");
    connectionString = process.env.DATABASE_URL;
    credentials = {connectionString,};
-   console.log("Using: ", credentials);
+   console.log("Using a connection string ");
 }
 else {
    credentials = require(`./credentials.${env}.json`);

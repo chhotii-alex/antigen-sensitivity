@@ -5,6 +5,12 @@ import Histogram from './Histogram.svelte';
 import Pyramid from './Pyramid.svelte';
 import PValueLegend from './PValueLegend.svelte';
 
+let ownerSite = ""; 
+
+function makeLink(page, tag) {
+   return `${page}#${tag}`;
+}
+
 let isLoading = true;
 
 let gData = {
@@ -18,6 +24,7 @@ $: selectedGroup = gData.populations.find(pop => pop.label == selectedGroupLabel
 
 import { onMount } from 'svelte';
 onMount(async () => {
+    ownerSite = "https://www.arnaoutlab.org/index.html";
     fetch(URLforEndpoint("assays"))
         .then(response => response.json())
         .then(data => loadAssayOptions(data));
@@ -285,17 +292,17 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     <div id="menu">
         <ul id="menu">
             <li>
-                <a class="no-change" href="https://www.arnaoutlab.org/#top" target="_blank" >Arnaout Laboratory for Immunomics and Informatics</a>
+                <a class="no-change" href={makeLink(ownerSite, "top")} target="_blank" >Arnaout Laboratory for Immunomics and Informatics</a>
             </li>
             <ul id="topmenu">
                 <li>
-                    <a href="https://www.arnaoutlab.org/#publications" target="_blank" >Publications</a>
+                    <a href={makeLink(ownerSite, "publications")} target="_blank" >Publications</a>
                 </li>
                 <li>
-                    <a href="https://www.arnaoutlab.org/#team" target="_blank" >Team</a>
+                    <a href={makeLink(ownerSite, "team")} target="_blank" >Team</a>
                 </li>
                 <li>
-                    <a href="https://www.arnaoutlab.org/#contribute" target="_blank" >Contribute</a>
+                    <a href={makeLink(ownerSite, "contribute")} target="_blank" >Contribute</a>
                 </li>
             </ul>
         </ul>

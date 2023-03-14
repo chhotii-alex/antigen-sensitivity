@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+    <title>Predicted COVID Test Performance</title>
+    
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="content-security-policy" content="">
+		<link href="./_app/immutable/assets/_page.1406d11c.css" rel="stylesheet">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/entry/start.f6d46693.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/chunks/index.82d815d5.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/chunks/singletons.10fb5f9b.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/entry/app.17777959.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/entry/_layout.svelte.4323f5f7.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/entry/_layout.js.fb1865a6.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/chunks/_layout.da46b06b.mjs">
+		<link rel="preload" as="script" crossorigin="anonymous" href="./_app/immutable/entry/_page.svelte.003e1401.mjs">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://arnaoutlab.org/style4.css" rel="stylesheet" />
+    <link rel='stylesheet' href='./style.css'>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100;8..144,300;8..144,400;8..144,500;8..144,600;8..144,700;8..144,800&display=swap');
+    </style>
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">
+
+
+<div class="all_content"><div id="loading" class="hideLoading svelte-jvjk58 isLoading"><img src="virus.gif"></div>
+
+    <div id="menu"><ul id="menu"><li><a class="no-change" href="https://www.example.com/index.HTM#top" target="_blank">Arnaout Laboratory for Immunomics and Informatics</a></li>
+            <ul id="topmenu"><li><a href="https://www.example.com/index.HTM#publications" target="_blank">Publications</a></li>
+                <li><a href="https://www.example.com/index.HTM#team" target="_blank">Team</a></li>
+                <li><a href="https://www.example.com/index.HTM#contribute" target="_blank">Contribute</a></li></ul></ul></div>
+
+    <header><h1>Learning from COVID-19 Viral Loads</h1>
+        <h2>How viral loads vary—or don&#39;t—across patients can predict the performance
+                 of antigen tests in different groups</h2>
+
+        <p class="body_text">COVID-19 test results are usually reported simply as
+      “positive” or “negative.” However, the
+      amount of virus a person produces—<span class="bold">the
+      viral load</span>—can vary. As clinical microbiologists
+      responsible for COVID-19 testing at a major medical center,
+      we <a class="link" href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">estimated</a>
+      viral load for over <span class="bold">40,000 patients</span>
+      who had a positive PCR test at our hospital from 2020-2023 so
+      you can see how viral loads vary—or
+      don&#39;t—across age, sex, and so on.
+        </p>
+        <h3>How do viral loads vary across patient groups?</h3>
+        <p class="body_text">COVID-19 viral loads can vary <a class="link" href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
+      billion fold</a> from person to person. Within each person, it
+      starts low, reaches a peak (often preceding symptoms), and then
+      falls again as the infection comes under control. Based on our
+      observations, we hypothesized that most groups exhibit the same
+      range of viral loads. If true, then antigen tests (see below),
+      which a person can take at home, would be equally effective for
+      most groups. If not, then certain groups might require separate
+      trials to get the most benefit from antigen tests.
+        </p>
+        <p class="body_text">A generous grant from the
+            <a class="link" href="https://reaganudall.org/">Reagan-Udall Foundation for
+        the FDA</a> allowed us to test this hypothesis. We used fully
+        anonymized data to protect patient privacy. Instead of simply
+        reporting our own observations, we have made the results
+        available here to everyone, so you can explore and compare
+        whatever group or groups that may be of interest to you. This
+        can include comparison of complex subgroups, such as
+        healthy-weight vs. overweight &gt;60-year-old inpatients or sick-
+        vs. well-appearing patients with presumed early vs. delta
+        vs. omicron variants.
+            <span class="bold">Please explore for yourself!
+            </span></p></header>
+    <div><div class="pick_group_padding svelte-jvjk58"><div class="pickgroup has_bottom_line"><fieldset class="svelte-jvjk58"><legend id="select_var_label" class="select_var_label">Explore groups
+                    <svg height="20px" width="20px" overflow="visible" class="svelte-jvjk58"><g transform="translate(4,8)"><line x1="0" y1="0" x2="6" y2="6" stroke="black" stroke-width="3" stroke-linecap="round"></line><line x1="6" y1="6" x2="0" y2="12" stroke="black" stroke-width="3" stroke-linecap="round"></line></g></svg></legend>
+                <div id="select_var" class="select_var svelte-jvjk58"><div id="select_var_checks"><strong>Group</strong>
+                        <button id="resetChecks" class="bluebutton">Reset</button></div>
+                    </div></fieldset></div></div>
+        <div class="max80em"><h1 id="comparison_title" class="comparisons">
+                </h1></div>
+        <div class="max80em"><p class="too_many_groups hidden_style svelte-jvjk58" id="too_many_groups">Displaying the first eight plots. Click subsets of the checkboxes to see more (eight at a time).
+            </p></div>
+        <div class="max80emSplit"><div class="histogram"><svg class="svelte-mzidch"></svg>
+</div>
+            <div class="meantext"><div id="pvalue_text"><div id="commentary"></div>
+                    </div></div></div>
+        <p class="spacer svelte-jvjk58"></p>
+   <div class="antigen_text"><p class="body_text">To test whether between-group differences are significant, we
+      calculated the p-value for each pair of groups according to a
+      statistical test called the <a class="link" href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
+      U test (MWU)</a>. MWU is a commonly used test when data do not
+      follow a bell-shaped curve. The MWU p-value measures how likely
+      it is that two distributions—here, the distributions of
+      viral loads for each pair of groups—are drawn from the
+      same underlying distribution. A large p-value means the two
+      groups in the pair are statistically indistinguishable; a low
+      value mean they differ more than would be expected by chance.
+        </p></div>
+        <div class="max80emSplit"><div class="pyramid_placeholder"></div>
+            </div></div>
+   <div class="antigen_text"><h3>How can specific antigen tests be expected to perform on the
+             above groups?</h3>
+        <p class="body_text">Antigen tests are less sensitive than PCR
+      tests but have the advantage that they can be self-administered
+      and used at home. For the antigen tests in the pulldown menu
+      below on the left, the antigen test and a PCR test have been run
+      at the same time on the same people. This real-world data
+      can <span class="bold">predict how well these antigen tests will
+      perform</span> on different groups <span class="bold">without
+      having to run time-consuming and expensive trials</span> on each
+      group selected above. <span class="bold">Select each group using
+      the radio buttons below to compare expected antigen-test
+      performance.</span></p>
+        <p class="body_text">When paired trials that directly compare an
+        antigen test to PCR have not been performed, we can still
+        predict how sensitive an antigen test is for detecting
+        contagiousness by using the antigen test’s limit of detection
+        (LOD), which you can set below on the right. If the antigen
+        test you’re looking for does not appear in the
+        dropdown, <span class="bold">set the LOD to see how sensitive
+        your antigen test is.</span></p></div>
+    <div class="pickanti has_bottom_line"><fieldset class="select_test no_border svelte-jvjk58"><legend class="select_label_antigen">Antigen Test</legend>
+           <select class="select_antigen" name="antigenTest" id="antigenTest"><option value="none">-- select one --</option></select></fieldset>
+       <fieldset class="select_lod no_border svelte-jvjk58"><legend>Limit of detection (LOD)</legend>
+           <input type="range" min="-1" max="12" class="slider" id="lod_slider" value="-1">
+           </fieldset></div>
+    <div class="max80em hidden_style svelte-jvjk58" id="antihisto"><div class="antihisto_title"><h1 class="antigen">Performance of
+                </h1></div></div>
+   <div class="max80em hidden_style svelte-jvjk58"><div class="group_radio" id="group_radio"></div></div>
+   <div class="max80emSplit hidden_style svelte-jvjk58"></div>
+    <div class="antigen_text"><details id="moresettings"><summary>Show More Settings</summary>
+        <div class="indent">Scaling on y axes:
+            <input type="radio" id="scale_absolute" name="y_scale" value="scale_absolute" checked>
+            <label for="scale_absolute">Normalize fractions across groups (recommended)</label>
+            <input type="radio" id="scale_shared" name="y_scale" value="scale_shared">
+            <label for="scale_shared">No normalization</label></div>
+        <div class="indent"><label for="infectivityThreshold" name="infectivityThreshold">Infectivity Threshold (copies viral mRNA/mL):
+            </label>
+            <input type="range" min="0" max="12" class="slider" id="infectivityThreshold" value="5"></div></details></div>
+    <footer><h3>How did we estimate contagiousness?</h3>
+        <p class="body_text">Managing a pandemic requires being able to determine not only
+      who is infected, but who is likely to be infectious
+      or <span class="bold">contagious</span>. Note that
+      contagiousness depends on many factors, including proximity,
+      exposure time, and protection (both physical barriers such as
+      masks and immunological defenses such as vaccination or recent
+      infection), and can vary over time as viral load rises and
+      falls.
+        </p>
+        <p class="body_text">Fortunately, <a class="link" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9293398/">in
+      vitro experiments</a>—growing a patient&#39;s virus on cells
+      in a petri dish—can provide a clinically useful lower
+      bound: if virus at a given viral load fails to replicate under
+      these ideal laboratory conditions, in which there is no immune
+      response or medication to combat it, that viral load is highly
+      unlikely to result in infectious transmission under imperfect
+      real-world conditions. Therefore, a person with a viral load
+      below this threshold can be reasonably considered to be
+      non-contagious.
+        </p>
+
+      
+        
+        <h3>Who did this work?</h3>
+        <p class="body_text">This work was led by Ramy Arnaout and carried out by Alex
+      Morgan, Elisa Contreras, Michie Yasuda, Sanjucta Dutta, James
+      E. Kirby, and Stefan Riedel at the Beth Israel Deaconess Medical
+      Center and Don Hamel and Phyllis Kanki at the Harvard T.H. Chan
+      School of Public Health, both in Boston, Massachusetts,
+      USA.
+        </p>    
+        <h3>How do I cite this work?</h3>
+        <p class="body_text">Arnaout, R.A. et al. Learning from COVID-19 Viral Loads. 2023
+        </p>
+        <h3>What if I have other questions, comments, or suggestions?</h3>
+        <p class="body_text">We appreciate your feedback. Please email us
+            at
+            <a class="email" href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
+        </p></footer>
+</div>
+
+
+			
+			<script>
+				{
+					__sveltekit_1ui74pg = {
+						env: {},
+						assets: new URL(".", location.href).pathname.replace(/^\/$/, ''),
+						element: document.currentScript.parentElement
+					};
+
+					const data = [null,null];
+
+					Promise.all([
+						import("./_app/immutable/entry/start.f6d46693.mjs"),
+						import("./_app/immutable/entry/app.17777959.mjs")
+					]).then(([kit, app]) => {
+						kit.start(app, __sveltekit_1ui74pg.element, {
+							node_ids: [0, 2],
+							data,
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>

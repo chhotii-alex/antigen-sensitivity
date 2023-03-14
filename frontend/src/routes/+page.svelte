@@ -5,7 +5,7 @@ import Histogram from './Histogram.svelte';
 import Pyramid from './Pyramid.svelte';
 import PValueLegend from './PValueLegend.svelte';
 
-let ownerSite = ""; 
+let ownerSite = "https://www.example.com/index.HTM";  //nonsense, will be overridden 
 
 function makeLink(page, tag) {
    return `${page}#${tag}`;
@@ -24,7 +24,6 @@ $: selectedGroup = gData.populations.find(pop => pop.label == selectedGroupLabel
 
 import { onMount } from 'svelte';
 onMount(async () => {
-    ownerSite = "https://www.arnaoutlab.org/index.html";
     fetch(URLforEndpoint("assays"))
         .then(response => response.json())
         .then(data => loadAssayOptions(data));
@@ -170,6 +169,7 @@ function loadData(data) {
         }
     }
     gData = data;
+    ownerSite = "https://www.arnaoutlab.org/index.html";
     isLoading = false;
 }
 

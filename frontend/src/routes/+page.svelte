@@ -5,12 +5,6 @@ import Histogram from './Histogram.svelte';
 import Pyramid from './Pyramid.svelte';
 import PValueLegend from './PValueLegend.svelte';
 
-let ownerSite = "https://www.example.com/index.HTM";  //nonsense, will be overridden 
-
-function makeLink(page, tag) {
-   return `${page}#${tag}`;
-}
-
 let isLoading = true;
 
 let gData = {
@@ -169,7 +163,6 @@ function loadData(data) {
         }
     }
     gData = data;
-    ownerSite = "https://www.arnaoutlab.org/index.html";
     isLoading = false;
 }
 
@@ -292,17 +285,17 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     <div id="menu">
         <ul id="menu">
             <li>
-                <a class="no-change" href={makeLink(ownerSite, "top")} target="_blank" >Arnaout Laboratory for Immunomics and Informatics</a>
+                <a class="no-change" rel="external" href="https://www.arnaoutlab.org/index.html#top" target="_blank" >Arnaout Laboratory for Immunomics and Informatics</a>
             </li>
             <ul id="topmenu">
                 <li>
-                    <a href={makeLink(ownerSite, "publications")} target="_blank" >Publications</a>
+                    <a  rel="external" href="https://www.arnaoutlab.org/index.html#publications" target="_blank" >Publications</a>
                 </li>
                 <li>
-                    <a href={makeLink(ownerSite, "team")} target="_blank" >Team</a>
+                    <a  rel="external" href="https://www.arnaoutlab.org/index.html#team" target="_blank" >Team</a>
                 </li>
                 <li>
-                    <a href={makeLink(ownerSite, "contribute")} target="_blank" >Contribute</a>
+                    <a rel="external" href="https://www.arnaoutlab.org/index.html#contribute" target="_blank" >Contribute</a>
                 </li>
             </ul>
         </ul>

@@ -427,33 +427,45 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </p>
         </div>
         <div class="max80emSplit" >
+          <div class="histogram all_groups" >
             <Histogram info={gData.populations} joy={true} highlightOne={true}
                            highlightedGroupLabel={highlightedGroupLabel}
                    y_scale={scaleOption} infectivityThreshold={infectivityThreshold} />
+              </div>
             <div class="meantext">
                 <div id="pvalue_text" >
                     <div id="commentary">
                         {#each gData.populations as pop (pop.label)}
-                            <p class="groupcomment"
+                            <div class="groupcomment legend"
                                     class:groupCommentSpace
                                     app_group_name={pop.label}
                                      on:mouseenter={mouseEnterAction}
                                      on:mouseleave={mouseLeaveAction} >
-                                <span class="comm_part1" >
-                                     The mean viral load across
-                                </span>
-                                <span class="comm_part2" style={`color: ${pop.colors.negatives[0]}`}>
-                                     &sim;{numberFormatter.format(pop.count)}
-                                    {pop.label.trim()}
-                                </span>
-                                <span class="comm_part3" >
-                                    was
-                                </span>
-                                <span class="comm_part4" style={`color:  ${pop.colors.negatives[0]}`}>
-                                    {@html util.formatSciNot(pop.mean, 1)}
-                                    copies/mL.
-                                </span>
-                            </p>
+                                <svg class="legendmark" height="1em" width="1em"
+                                  fill={pop.colors.count[1]}
+                                  stroke={pop.colors.count[0]}
+                                  stroke-width="4" 
+                                >
+                                   <rect width="100%"
+                                         height="100%" />
+                                </svg>
+                                <p class="legendtext" >
+                                    <span class="comm_part1" >
+                                         The mean viral load across    
+                                    </span>
+                                    <span class="comm_part2" style={`color: ${pop.colors.negatives[0]}`}>
+                                          &sim;{numberFormatter.format(pop.count)}
+                                        {pop.label.trim()}
+                                    </span>
+                                    <span class="comm_part3" >
+                                        was
+                                    </span>
+                                    <span class="comm_part4" style={`color:  ${pop.colors.negatives[0]}`}>
+                                        {@html util.formatSciNot(pop.mean, 1)}
+                                        copies/mL.
+                                    </span>
+                                </p>
+                            </div>
                         {/each}
                     </div>
                     {#if (gData.populations.length == 2) }
@@ -524,7 +536,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </div>
    </div>
    <div class="antigen_text">  
-        <h3>How can specific antigen tests be expected to perform on the
+        <h3>How can specific COVID-19 antigen tests be expected to perform on the
              above groups?</h3>
         <p class="body_text">Antigen tests are less sensitive than PCR
       tests but have the advantage that they can be self-administered
@@ -600,9 +612,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
    </div>
    <div class="max80emSplit hidden_style" class:showingAntigenPerformance >
         {#if selectedGroup}
+          <div class="histogram one_group">
             <Histogram info={[selectedGroup]} catagories={["negatives", "positives"]}
                   joy={false} highlightOne={false}
-                infectivityThreshold={infectivityThreshold} /> 
+                infectivityThreshold={infectivityThreshold} />
+          </div>
             <div class="performance_commentary">
                 In
                 {#if gData.populations.length == 1}
@@ -633,15 +647,18 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     </span>
                 {/if}
                 {#each ["positive", "negative"] as cat}
-                  <p class="anti_legend" >
-                    <svg height="1em" width="1em" 
+                  <div class="anti_legend legend" >
+                    <svg height="1em" width="1em"
+                       class="legendmark"
                       fill={util.addAlpha(selectedGroup.colors[`${cat}s`][0],0.4)}
                       stroke={selectedGroup.colors[`${cat}s`][0]}
                       stroke-width="4" >
                         <rect width="100%" height="100%" />
                     </svg>
-                    Predicted to test {cat} on the antigen test
-                  </p>
+                    <p class="legendtext"> 
+                        Predicted to test {cat} on the antigen test
+                    </p>
+                  </div>
                 {/each}
             </div>
         {/if}
@@ -668,7 +685,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
       </details>
     </div>
     <footer>
-        <h3>How did we estimate contagiousness?</h3>
+        <h3>How did we estimate SARS-CoV-2 contagiousness?</h3>
         <p class="body_text">
       Managing a pandemic requires being able to determine not only
       who is infected, but who is likely to be infectious
@@ -728,6 +745,39 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 
 <style>
 
+/* Needs the :global directive to penetrate into @html strings: */
+:global(sup.exponent) {
+    vertical-align: baseline;
+    position: relative;
+    top: -0.4em;
+}
+
+.histogram {
+    width: 100%;
+}
+.all_groups {
+    grid-area: max80emLeftContent;
+    min-height: 500px;
+    max-height: 800px; 
+}
+.one_group {
+    grid-area: max80emLeftContent;
+    aspect-ratio: 1.618 / 1;
+}
+@media only print {
+    .histogram {
+        page-break-after: always;
+    }
+}
+.groupcomment {
+    font-size: 18px;
+    line-height: 1.2em;
+    padding-bottom: 0.7em;
+}
+.groupCommentSpace {
+    padding-bottom: 1.5em;
+}
+
 .pick_group_padding {
     padding-left: 70px;
     padding-right: 70px;
@@ -784,6 +834,20 @@ fieldset.exploreGroupsOpen {
 
 .spacer {
     padding-top: 2em;
+}
+
+.legend {
+    display: grid;
+    grid-template-columns: 1.75em 1fr;
+    grid-template-areas:
+       "legendmark legendtext";
+}
+.legendmark {
+    grid-area: legendmark;
+    padding: 0.25em; 
+}
+.legendtext {
+    grid-area: legendtext;
 }
 
 </style>

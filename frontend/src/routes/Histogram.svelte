@@ -156,7 +156,7 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
 
 </script>
 
-<div class="histogram"
+<div class="sizer"
       bind:clientWidth={clientWidth} bind:clientHeight={clientHeight}>
     <svg>
         {#if xScale}
@@ -226,7 +226,7 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
                     <g class="i_region">
                         {#if region.min > 0}
                             <line x1={xScale(region.min)} y1="0" x2={xScale(region.min)} y2={height}
-                               stroke-dasharray="10,10" 
+                               stroke-width="0.25px"
                                stroke="black" />
                         {/if}
                         <text class="i_label" y="10"
@@ -243,6 +243,12 @@ function adjustedColor(color, hasHighlight, groupLabel, highlightedGroupLabel, j
 </div>
 
 <style>
+
+div.sizer {
+   width: 100%;
+   height: 100%;
+}
+
 svg {
     width: 100%;
     height: 100%;

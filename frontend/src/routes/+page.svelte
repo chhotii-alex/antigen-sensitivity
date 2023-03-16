@@ -441,14 +441,16 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                                     app_group_name={pop.label}
                                      on:mouseenter={mouseEnterAction}
                                      on:mouseleave={mouseLeaveAction} >
-                                <svg class="legendmark" height="1em" width="1em"
-                                  fill={pop.colors.count[1]}
-                                  stroke={pop.colors.count[0]}
-                                  stroke-width="4" 
-                                >
-                                   <rect width="100%"
+                                {#if pop.shouldPlot}
+                                  <svg class="legendmark" height="1em" width="1em"
+                                    fill={pop.colors.count[1]}
+                                    stroke={pop.colors.count[0]}
+                                    stroke-width="4" 
+                                  >
+                                     <rect width="100%"
                                          height="100%" />
-                                </svg>
+                                  </svg>
+                                {/if}
                                 <p class="legendtext" >
                                     <span class="comm_part1" >
                                          The mean viral load across    

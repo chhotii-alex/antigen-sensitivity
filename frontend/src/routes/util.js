@@ -36,6 +36,9 @@ export function formatPValue(p) {
 }
 
 export function formatSciNot(num, places) {
+    if (num >= 0.01) {
+        return num.toFixed(2);
+    }
     let s = expo(num, places);
     const r = /(\d\.\d)e([+-])(\d+)/
     const match = s.match(r);

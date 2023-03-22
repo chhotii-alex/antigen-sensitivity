@@ -299,10 +299,6 @@ input.valuename {
 .valuename {
     text-indent: -2em;
 }
-.pvalue {
-    color: grey;
-    font-weight: normal;
-}
 #pyramid_container {
     margin: 1em;
 }

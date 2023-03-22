@@ -398,18 +398,9 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 {/if}
                 {#if (gData.populations.length > 1) }
                     Viral Loads
-                    {#if hasSignificantDifferences(gData.populations) }
-                        Vary
-                    {:else}
-                        Are Similar
-                    {/if}
                     {#if !(gData.splitDescription) }
                       <span class="acrossbetween">
-                        {#if (gData.populations.length == 2) }
-                            Between
-                        {:else if (gData.populations.length > 2) }
-                            Across
-                         {/if}
+                        In
                        </span>
                     {/if}
                     {#if gData.splitDescription }
@@ -473,24 +464,12 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     {#if (gData.populations.length == 2) }
                         <div class="conclusiontext" >
                             <span class="vl_prefix" >
-                                <strong>Statistics.</strong> Viral loads for
-                            </span>
-                            <span class="group1noun" >
-                                {gData.populations[0].label}
-                            </span>
-                            and
-                            <span class="group2noun" >
-                                 {gData.populations[1].label}
-                            </span>
-                            <span class="conclusion">
-                                {#if hasSignificantDifferences(gData.populations) }
-                                    differ
-                                {:else}
-                                    are statistically indistinguishable
-                                {/if}
+                                <strong>Statistics.</strong>
+                                The probability of viral loads for two groups differing
+                                this much by chance is                                
                             </span>
                             <span class="pvalue">
-                                {@html util.formatPValue(gData.populations[1].comparisons[0])}
+                                {@html util.formatSciNot(gData.populations[1].comparisons[0], 1)}
                             </span><span class="period">.</span>
                         </div>
                     {/if}

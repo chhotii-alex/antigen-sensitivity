@@ -182,12 +182,6 @@ p.body_text {
     grid-area: max80emContent;
     padding-top: 10px;
 }
-.histogram {
-    grid-area: max80emLeftContent;
-    width: 100%;
-    min-height: 500px;
-    max-height: 800px; 
-}
 .ylabeldiv {
     transform: translate(-10px, 0px);
 }
@@ -305,10 +299,6 @@ input.valuename {
 .valuename {
     text-indent: -2em;
 }
-.pvalue {
-    color: grey;
-    font-weight: normal;
-}
 #pyramid_container {
     margin: 1em;
 }
@@ -405,10 +395,6 @@ input.valuename {
   grid-area: select_antigen;
 }
 
-.histogram {
-  grid-area: max80emLeftContent;
-}
-
 .hidden_style {
     display: none;
 }
@@ -441,9 +427,6 @@ footer {
     .pickgroup {
         page-break-after: always;
     }
-    .histogram {
-        page-break-after: always;
-    }
     .savebuttons {
         display: none;
     }
@@ -453,14 +436,6 @@ footer {
     padding-top: 1.5em;
     padding-bottom: 1.5em;
     line-height: 1.7em;
-}
-.groupcomment {
-    font-size: 18px;
-    line-height: 1.2em;
-    padding-bottom: 0.7em;
-}
-.groupCommentSpace {
-    padding-bottom: 1.5em;
 }
 .comm_part2 {
     font-size: 18px; 

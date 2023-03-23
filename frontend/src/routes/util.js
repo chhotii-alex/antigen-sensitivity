@@ -17,7 +17,13 @@ export function colorForPValue(p) {
 }
 
 export function textColorForPValue(p) {
-    return interpolateBuGn(scalePValue(p));
+    p = scalePValue(p);
+    if (p < 0.75) {
+        return 'white';
+    }
+    else {
+        return 'black';
+    }
 }
 
 export function expo(x, decimalPlaces = 1) {
@@ -30,6 +36,9 @@ export function formatPValue(p) {
 }
 
 export function formatSciNot(num, places) {
+    if (num >= 0.01 && num <= 1) {
+        return num.toFixed(2);
+    }
     let s = expo(num, places);
     const r = /(\d\.\d)e([+-])(\d+)/
     const match = s.match(r);
@@ -42,7 +51,7 @@ export function formatSciNot(num, places) {
     if (sign == '+') {
         sign = '';
     }
-    let result = `${match[1]}x10<sup>${sign}${exp}</sup>`;
+    let result = `${match[1]}x10<sup class="exponent">${sign}${exp}</sup>`;
     return result;
 }
 

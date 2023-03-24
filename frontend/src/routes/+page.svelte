@@ -331,38 +331,12 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
       who had a positive PCR test at our hospital from 2020-2023 so
       you can see how viral loads vary&mdash;or
       don&apos;t&mdash;across age, sex, and so on.
-        </p>
-        <h3>How do viral loads vary across patient groups?</h3>
-        <p class="body_text">
-      COVID-19 viral loads can vary <a class="link"
-      href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
-      billion fold</a> from person to person. Within each person, it
-      starts low, reaches a peak (often preceding symptoms), and then
-      falls again as the infection comes under control. Based on our
-      observations, we hypothesized that most groups exhibit the same
-      range of viral loads. If true, then antigen tests (see below),
-      which a person can take at home, would be equally effective for
-      most groups. If not, then certain groups might require separate
-      trials to get the most benefit from antigen tests.
-        </p>
-        <p class="body_text">
-            A generous grant from the
-            <a class="link" href="https://reaganudall.org/">Reagan-Udall Foundation for
-        the FDA</a> allowed us to test this hypothesis. We used fully
-        anonymized data to protect patient privacy. Instead of simply
-        reporting our own observations, we have made the results
-        available here to everyone, so you can explore and compare
-        whatever group or groups that may be of interest to you. This
-        can include comparison of complex subgroups, such as
-        healthy-weight vs. overweight >60-year-old inpatients or sick-
-        vs. well-appearing patients with presumed early vs. delta
-        vs. omicron variants.
             <span class="bold">
                 Please explore for yourself!
             </span>
         </p>
-    
     </header>
+
     {#if errorState}
         <h1 class="errorText" >
           <em ><strong>Sorry, an error occured. Please try re-loading the page.</strong></em>
@@ -495,22 +469,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 </div>
             </div>
         </div>
-        <p class="spacer" />
-   <div class="antigen_text">
-       <p class="body_text">
-      To test whether between-group differences are significant, we
-      calculated the p-value for each pair of groups according to a
-      statistical test called the <a class="link"
-      href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
-      U test (MWU)</a>. MWU is a commonly used test when data do not
-      follow a bell-shaped curve. The MWU p-value measures how likely
-      it is that two distributions&mdash;here, the distributions of
-      viral loads for each pair of groups&mdash;are drawn from the
-      same underlying distribution. A large p-value means the two
-      groups in the pair are statistically indistinguishable; a low
-      value mean they differ more than would be expected by chance.
-        </p>
-  </div>
+
         <div class="max80emSplit" >
             <div class="pyramid_placeholder">
               {#if (gData.populations.length > 2) }
@@ -529,12 +488,61 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     </p>
                     <PValueLegend />
                     <p class="plegend_text">
-                       See the main text for more regarding this statistical approach.
+                       See the main text for <a href="#statistics">
+                          more regarding this statistical approach.
+                       </a>
                     </p>
                 </div>
             {/if}
         </div>
    </div>
+
+      <header>
+        <h3>How do viral loads vary across patient groups?</h3>
+        <p class="body_text">
+      COVID-19 viral loads can vary <a class="link"
+      href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
+      billion fold</a> from person to person. Within each person, it
+      starts low, reaches a peak (often preceding symptoms), and then
+      falls again as the infection comes under control. Based on our
+      observations, we hypothesized that most groups exhibit the same
+      range of viral loads. If true, then antigen tests
+      <a href="#antigentests">(see below)</a>,
+      which a person can take at home, would be equally effective for
+      most groups. If not, then certain groups might require separate
+      trials to get the most benefit from antigen tests.
+        </p>
+        <p class="body_text">
+            A generous grant from the
+            <a class="link" href="https://reaganudall.org/">Reagan-Udall Foundation for
+        the FDA</a> allowed us to test this hypothesis. We used fully
+        anonymized data to protect patient privacy. Instead of simply
+        reporting our own observations, we have made the results
+        available here to everyone, so you can explore and compare
+        whatever group or groups that may be of interest to you. This
+        can include comparison of complex subgroups, such as
+        healthy-weight vs. overweight >60-year-old inpatients or sick-
+        vs. well-appearing patients with presumed early vs. delta
+        vs. omicron variants.
+        </p>
+    
+    </header>
+   <div class="antigen_text">
+       <p class="body_text">
+       <a class="anchor-inner" id="statistics"></a>
+      To help you assess whether between-group differences are significant, we
+      calculated the p-value for each pair of groups according to a
+      statistical test called the <a class="link"
+      href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
+      U test (MWU)</a>. MWU is a commonly used test when data do not
+      follow a bell-shaped curve. The MWU p-value measures how likely
+      it is that two distributions&mdash;here, the distributions of
+      viral loads for each pair of groups&mdash;are drawn from the
+      same underlying distribution. A large p-value means the two
+      groups in the pair are statistically indistinguishable; a low
+      value mean they differ more than would be expected by chance.
+        </p>
+  </div>
    <div class="antigen_text">  
         <h3>How can specific COVID-19 antigen tests be expected to perform on the
              above groups?</h3>
@@ -585,6 +593,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
        </fieldset>
     </div>
     <div class="max80em hidden_style" class:showingAntigenPerformance id="antihisto">
+        <a class="anchor-inner" id="antigentests"></a>
         <div class="antihisto_title">
             <h1 class="antigen">
                 Performance of

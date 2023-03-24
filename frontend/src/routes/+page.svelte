@@ -6,6 +6,7 @@ import Pyramid from './Pyramid.svelte';
 import PValueLegend from './PValueLegend.svelte';
 
 let isLoading = true;
+let errorState = false;
 
 let gData = {
     populations: [],
@@ -20,10 +21,18 @@ import { onMount } from 'svelte';
 onMount(async () => {
     fetch(URLforEndpoint("assays"))
         .then(response => response.json())
-        .then(data => loadAssayOptions(data));
+        .then(data => loadAssayOptions(data))
+        .catch((error) => {
+          errorState = true;
+          console.log(error);
+        });
     fetch(URLforEndpoint("variables"))
         .then(response => response.json())
-        .then(data => loadVariableOptions(data));
+        .then(data => loadVariableOptions(data))
+        .catch((error) => {
+          errorState = true;
+          console.log(error);
+        });
 });
 
 import { urlPrefix } from "./server_url.js";
@@ -149,7 +158,11 @@ function doQuery(variablesDataStructure) {
     }
     fetch(url)
         .then(response => response.json())
-        .then(data => loadData(data));
+        .then(data => loadData(data))
+        .catch((error) => {
+          errorState = true;
+          console.log(error);
+        });
 }
 
 function loadData(data) {
@@ -278,10 +291,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 </script>
 
 <div on:click={closeExploreGroups} class="all_content">
-    <div id="loading" class="hideLoading" class:isLoading >
+   {#if !errorState}
+      <div id="loading" class="hideLoading" class:isLoading >
         <img src="virus.gif" >
-    </div>
-
+      </div>
+    {/if}
     <div id="menu">
         <ul id="menu">
             <li>
@@ -349,6 +363,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </p>
     
     </header>
+    {#if errorState}
+        <h1 class="errorText" >
+          <em ><strong>Sorry, an error occured. Please try re-loading the page.</strong></em>
+        </h1>
+    {:else}
     <div >
       <div class="pick_group_padding" >
         <div class="pickgroup has_bottom_line">
@@ -665,6 +684,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </div>
       </details>
     </div>
+    {/if}
     <footer>
         <h3>How did we estimate SARS-CoV-2 contagiousness?</h3>
         <p class="body_text">
@@ -725,6 +745,14 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 </div>
 
 <style>
+
+.errorText {
+  color: red;
+  margin: auto;
+  border: 3px solid red;
+  border-radius: 4em;
+  max-width: 16em;
+}
 
 /* Needs the :global directive to penetrate into @html strings: */
 :global(sup.exponent) {

@@ -331,14 +331,26 @@ class QuerySet {
     constructor() {
         this.queries = {};
         this.descriptions = {};
+        this.sizeLimit = 32;
+        this.count = 0;
     };
     addQuery(description, query) {
+        if (this.isAtMaxSize()) {
+           return;
+        }
         this.queries[description.toString()] = query;
         this.descriptions[description.toString()] = description;
+        this.count++;
     };
     getLabels() {
         return Object.keys(this.queries);
     };
+    getCount() {
+       return this.count;
+    };
+    isAtMaxSize() {
+       return (this.count >= this.sizeLimit);
+    }
 } 
     
 function makeNewQueries(queries, updaterList) {
@@ -428,6 +440,9 @@ function splitQueries(queries, splits, variableObj) {
     let splitDescription = null;
     for (const variable in variableObj) {
         if (splits.get(variable)) {
+            if (queries.isAtMaxSize() && splitVariableCount > 10) {
+               return [ new QuerySet(), null];
+            }
 	    ++splitVariableCount;
             let values = variableObj[variable];
 	    let split = splits.get(variable);
@@ -468,6 +483,9 @@ async function runQuery(label, queryParts) {
     let { rows } = await pool.query(query);
     if (rows.length < 4) {
         return null;
+    }
+    if (rows.length + jitter < 4) {
+       return null;
     }
     let rawData = rows.map(r => parseFloat(r["viralloadlog"]));
     let mean_val = Math.pow(10, mean(rawData));
@@ -534,12 +552,14 @@ exports.datafetch = async function(req, res, next) {
 
     let results = [];
     try {
+        let numberOfQueriesAttempted = 0;
         for (let label of queries.getLabels()) {
-	    if (results.length >= 8) {
+	    if (results.length >= 8 || numberOfQueriesAttempted >= 32) {
 	        tooManyQueries = true;
 	        break;
 	    }
 	    result = await runQuery(label, queries.queries[label]);
+            ++numberOfQueriesAttempted;
             if (result) {
 	        result.pop.rawData = result.rawData;
                 results.push(result.pop);
@@ -586,6 +606,7 @@ exports.datafetch = async function(req, res, next) {
 	}
 
         res.json({"populations":results, "tooManyQueries":tooManyQueries,
+               "tooManyVariables":queries.isAtMaxSize(),
 	       "splitDescription":splitDescription, });
     }
     catch (error) {

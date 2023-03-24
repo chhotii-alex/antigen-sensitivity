@@ -8,6 +8,8 @@ The front-end is implemented in Svelte. See https://svelte.dev/
 
 ## HOW-TO, for development
 
+Note that there's two "master" branches. "master-frontend" reflects what's either currently on or should soon go up on the website. "master" is auto-deployed to entrop.ai. Front-end changes are much more frequent than back-end changes, and it's very annoying to have the back-end re-deploy when nothing changed in the backend. These should be sync'd up occassionally, though.
+
 ### Set-up
 * You need node and npm to run this. On a Mac, try `brew install node`
 * Current development is with node version 19.1.0. Check the node version using `node -v`

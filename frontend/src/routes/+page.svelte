@@ -316,16 +316,16 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     </div>
 
     <header>
-        <h1>Learning from COVID-19 Viral Loads</h1>
+        <h1>Learning from COVID&#8209;19 Viral Loads</h1>
         <h2>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
                  of antigen tests in different groups</h2>
 
         <p class="body_text" >
-      COVID-19 test results are usually reported simply as
+      COVID&#8209;19 test results are usually reported simply as
       &ldquo;positive&rdquo; or &ldquo;negative.&rdquo; However, the
       amount of virus a person produces&mdash;<span class="bold">the
       viral load</span>&mdash;can vary. As clinical microbiologists
-      responsible for COVID-19 testing at a major medical center,
+      responsible for COVID&#8209;19 testing at a major medical center,
       we <a class="link" href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">estimated</a>
       viral load for over <span class="bold">40,000 patients</span>
       who had a positive PCR test at our hospital from 2020-2023 so
@@ -470,7 +470,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </div>
         </div>
 
-        <div class="max80emSplit" >
+        <div class="max80emSplit rightContentFirst" >
             <div class="pyramid_placeholder">
               {#if (gData.populations.length > 2) }
                   <Pyramid info={gData.populations} />
@@ -500,7 +500,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
       <header>
         <h3>How do viral loads vary across patient groups?</h3>
         <p class="body_text">
-      COVID-19 viral loads can vary <a class="link"
+      COVID&#8209;19 viral loads can vary <a class="link"
       href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
       billion fold</a> from person to person. Within each person, it
       starts low, reaches a peak (often preceding symptoms), and then
@@ -544,7 +544,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </p>
   </div>
    <div class="antigen_text">  
-        <h3>How can specific COVID-19 antigen tests be expected to perform on the
+        <h3>How can specific COVID&#8209;19 antigen tests be expected to perform on the
              above groups?</h3>
         <p class="body_text">Antigen tests are less sensitive than PCR
       tests but have the advantage that they can be self-administered
@@ -794,6 +794,12 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 }
 .groupCommentSpace {
     padding-bottom: 1.5em;
+}
+@media only screen and (max-width: 72em) {
+  .groupcomment {
+    font-size: 14px;
+    padding-bottom: 0.3em;
+  }
 }
 
 .pick_group_padding {

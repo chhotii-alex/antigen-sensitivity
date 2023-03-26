@@ -49,10 +49,17 @@ div {
     font-weight: bold;
 }
 .legend_box {
-  margin: auto;
+  width: 100%;
+  min-height: 4em;
+  margin: -20px auto 10px;
   margin-bottom: 1.7em;
   max-width: 200px;
   max-height: 40px;
+}
+@media only screen and (max-width: 440px) {
+  .legend_box {
+     margin: 10px;
+  }
 }
 
 </style>

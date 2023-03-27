@@ -316,7 +316,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     </div>
 
     <header>
-        <h1>Learning from COVID&#8209;19 Viral Loads</h1>
+        <h1 class="page-top" >Learning from COVID&#8209;19 Viral Loads</h1>
         <h2>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
                  of antigen tests in different groups</h2>
 
@@ -384,7 +384,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </fieldset>
         </div>
      </div>
-        <div class="max80em">
+        <div class="max80em print-page-top">
             <h1 id="comparison_title" class="comparisons" >
                 {#if (gData.populations.length == 1) }
                     Real-world Viral Loads, 2020&ndash;Present
@@ -470,7 +470,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </div>
         </div>
 
-        <div class="max80emSplit rightContentFirst" >
+        <div class="max80emSplit rightContentFirst print-page-top" >
             <div class="pyramid_placeholder">
               {#if (gData.populations.length > 2) }
                   <Pyramid info={gData.populations} />
@@ -497,7 +497,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         </div>
    </div>
 
-      <header>
+      <header class="print-page-top" >
         <h3>How do viral loads vary across patient groups?</h3>
         <p class="body_text">
       COVID&#8209;19 viral loads can vary <a class="link"
@@ -543,7 +543,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
       value mean they differ more than would be expected by chance.
         </p>
   </div>
-   <div class="antigen_text">  
+   <div class="antigen_text print-page-top">  
         <h3>How can specific COVID&#8209;19 antigen tests be expected to perform on the
              above groups?</h3>
         <p class="body_text">Antigen tests are less sensitive than PCR
@@ -592,7 +592,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
            {/if}
        </fieldset>
     </div>
-    <div class="max80em hidden_style" class:showingAntigenPerformance id="antihisto">
+    <div class="max80em hidden_style print-page-top" class:showingAntigenPerformance id="antihisto">
         <a class="anchor-inner" id="antigentests"></a>
         <div class="antihisto_title">
             <h1 class="antigen">
@@ -745,7 +745,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         <p class="body_text">
             Arnaout, R.A. et al. Learning from COVID-19 Viral Loads. 2023
         </p>
-        <h3>What if I have other questions, comments, or suggestions?</h3>
+        <h3 class="print-page-top" >What if I have other questions, comments, or suggestions?</h3>
         <p class="body_text">We appreciate your feedback. Please email us
             at
             <a class="email" href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
@@ -761,6 +761,24 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
   border: 3px solid red;
   border-radius: 4em;
   max-width: 16em;
+}
+
+.page-top {
+    padding-top: 120px;
+}
+.print-page-top {
+    padding-top: 0.5em;
+    break-before: page;
+}
+@media only print {
+   .print-page-top {
+       padding-top: 120px;
+   }
+}
+@media only print {
+    .savebuttons {
+        display: none;
+    }
 }
 
 /* Needs the :global directive to penetrate into @html strings: */

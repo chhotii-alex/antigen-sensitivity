@@ -105,7 +105,32 @@ function findPeak(pop) {
     for (let bin of pop.data) {
         let sum = 0;
         for (let key of catagories) { sum += bin[key]; }
-        sum *= 1.1;
+        if (sum > peak) {
+            peak = sum;
+        }
+    }
+    return peak;
+}
+
+function findArea(pop) {
+   if (!pop.data) return 1;
+   let area = 0;
+   for (let bin of pop.data) {
+      for (let key of catagories) {
+         area += bin[key];
+      }
+   }
+   return area;
+}
+
+function findDensityPeak(pop) {
+    if (!pop.data) return 0;
+    let area = findArea(pop);
+    let peak = 0;
+    for (let bin of pop.data) {
+        let sum = 0;
+        for (let key of catagories) { sum += bin[key]; }
+        sum = sum/area;
         if (sum > peak) {
             peak = sum;
         }
@@ -115,17 +140,28 @@ function findPeak(pop) {
 
 function assignYScaling(histogramWorthyPopulations, yFunc,
         height, theStagger, heightAdjustment) {
-    let yScaleFuncs = {}
+    let maxDensityPeak = 0;
     let maxPeak = 0;
     for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
         let pop = histogramWorthyPopulations[i];
-        let peak = findPeak(pop);
+        let peak = findDensityPeak(pop);
+        if (peak > maxDensityPeak) {
+           maxDensityPeak = peak;
+        }
+        peak = findPeak(pop);
         if (peak > maxPeak) maxPeak = peak;
-        if (yFunc == "yScale") {
+    }
+    let yScaleFuncs = {}
+    if (yFunc == "yScale") {
+        let plotHeight = (height*heightAdjustment/1.1);
+        for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
+            let pop = histogramWorthyPopulations[i];
+            let area = findArea(pop);
             let yIndex = histogramWorthyPopulations.length-(i+1);
-            yScaleFuncs[pop.label] = scaleLinear().domain([0,peak])
-                             .range([height-(yIndex*theStagger),
-                                 height-(yIndex*theStagger)-height*heightAdjustment]);
+            let yBase = height-(yIndex*theStagger);
+            yScaleFuncs[pop.label] = scaleLinear().domain([0,area*maxDensityPeak])
+                             .range([yBase,
+                                 yBase-plotHeight]);
         }
     }
     if (yFunc == "yNorm") {

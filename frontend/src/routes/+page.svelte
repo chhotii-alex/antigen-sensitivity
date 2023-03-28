@@ -405,9 +405,14 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </h1>
         </div>
         <div class="max80em">
-            <p class="too_many_groups hidden_style" class:showingBlock={gData.tooManyQueries}
-                      id="too_many_groups">
-                Displaying the first eight plots. Click subsets of the checkboxes to see more (eight at a time).
+            <p class="too_many_groups">
+              {#if gData.tooManyVariables}
+                <strong>Did not attempt all queries.</strong>
+                Too many checkboxes selected at once. Please uncheck some checkboxes above.
+              {:else if gData.tooManyQueries}
+                Displaying data for the first eight groups. Click subsets of the checkboxes to see
+                  more (eight at a time).
+              {/if}
             </p>
         </div>
         <div class="max80emSplit" >

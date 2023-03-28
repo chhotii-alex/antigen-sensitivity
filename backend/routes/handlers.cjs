@@ -328,14 +328,16 @@ class PatientSetDescription {
 }
 
 class QuerySet {
-    constructor() {
+    constructor(limitHit=false) {
         this.queries = {};
         this.descriptions = {};
         this.sizeLimit = 32;
         this.count = 0;
+        this.limitHit = limitHit;
     };
     addQuery(description, query) {
         if (this.isAtMaxSize()) {
+           this.limitHit = true;
            return;
         }
         this.queries[description.toString()] = query;
@@ -435,19 +437,23 @@ function makeBaseWhereClause(variableObj) {
 }
 
 function splitQueries(queries, splits, variableObj) {
+    let variableCount = 0;
     let splitVariableCount = 0;
     let fetchedAllGroups = false;
     let splitDescription = null;
     for (const variable in variableObj) {
         if (splits.get(variable)) {
-            if (queries.isAtMaxSize() && splitVariableCount > 10) {
-               return [ new QuerySet(), null];
-            }
-	    ++splitVariableCount;
             let values = variableObj[variable];
 	    let split = splits.get(variable);
             let groupsToFetch = split.splits.filter(
                 spec => values.indexOf(spec.value) >= 0 );
+            ++variableCount;
+            if (groupsToFetch.length > 1) {
+                ++splitVariableCount;
+            }
+            if (splitVariableCount > 5) {
+               return [ new QuerySet(true), null];
+            }
 	    if (groupsToFetch.length == split.splits.length) {
 	        fetchedAllGroups = true;
 		splitDescription = `Across ${split.variableDisplayName}`;
@@ -455,7 +461,7 @@ function splitQueries(queries, splits, variableObj) {
             queries = makeNewQueries(queries, groupsToFetch);
         }
     }
-    if (splitVariableCount != 1 || !fetchedAllGroups) {
+    if (variableCount != 1 || !fetchedAllGroups) {
         splitDescription = null;
     }
     return [queries, splitDescription];
@@ -606,7 +612,7 @@ exports.datafetch = async function(req, res, next) {
 	}
 
         res.json({"populations":results, "tooManyQueries":tooManyQueries,
-               "tooManyVariables":queries.isAtMaxSize(),
+               "tooManyVariables":queries.limitHit,
 	       "splitDescription":splitDescription, });
     }
     catch (error) {

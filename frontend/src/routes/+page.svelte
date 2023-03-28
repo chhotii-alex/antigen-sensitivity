@@ -407,7 +407,12 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         <div class="max80em">
             <p class="too_many_groups">
               {#if gData.tooManyVariables}
-                <strong>Did not attempt all queries.</strong>
+                <strong>Did not attempt
+                  {#if gData.populations.length}
+                      all
+                  {/if}
+                  queries.
+                </strong>
                 Too many checkboxes selected at once. Please uncheck some checkboxes above.
               {:else if gData.tooManyQueries}
                 Displaying data for the first eight groups. Click subsets of the checkboxes to see

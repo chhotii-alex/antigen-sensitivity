@@ -14,7 +14,7 @@ export let joy = false;
 export let y_scale = 'scale_absolute';
 export let infectivityThreshold = 5;
 
-const margin = {top: 10, right: 0, bottom: 60, left: 20};
+const margin = {top: 10, right: 10, bottom: 60, left: 50};
 
 /* These are bound to the client dimensions of the element containing the svg, below: */
 let clientWidth;
@@ -292,7 +292,6 @@ svg {
       top menu banner: */
     position: relative;
     z-index: -1;
-    overflow: visible;
 }
 .i_label {
     fill: black;

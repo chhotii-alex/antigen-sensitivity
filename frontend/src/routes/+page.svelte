@@ -655,8 +655,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                         {sensitivity.toFixed(2)}
                     </span>
                 {/if}
+                {#if (specificity != undefined) && (sensitivity != undefined) }
+                    and 
+                {/if}
                 {#if (specificity != undefined) }
-                    and the
+                    the
                     <span class="senspec_label">
                         specificity
                     </span>
@@ -698,7 +701,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             <label for="infectivityThreshold" name="infectivityThreshold">
                 Infectivity Threshold (copies viral mRNA/mL):
             </label>
-            <input type="range" min="0" max="12" bind:value={infectivityThreshold}
+            <input type="range" min="0" max="11" bind:value={infectivityThreshold}
                  class="slider" id="infectivityThreshold">
         </div>
       </details>
@@ -839,6 +842,9 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     padding-left: 30px;
     padding-right: 0px;
   }
+}
+.performance_commentary {
+   margin-left: 10px;
 }
 
 .hideLoading {

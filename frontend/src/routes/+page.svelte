@@ -198,50 +198,50 @@ function hasSignificantDifferences(info, alpha=0.00125) {
 $: groupCommentSpace = (gData.populations.length < 4);
 
 let selectedAssay = 'none';
-$: if (selectedAssay) selectAntigenTest();
 
-function selectAntigenTest() {
-    if (selectedAssay != 'none') {
-        lod = -1;
-    }
+let lod = 8;
+let ld50 = 5;
+
+$: adjustLOD(lod);
+$: adjustLD50(ld50);
+
+function adjustLOD(lod) {
+   if (lod <= ld50+0.05) {
+      ld50 = lod - 0.1;
+   }
 }
 
-let lod = -1;
-$: if (lod >= 0) setLOD();
-
-function setLOD() {
-    if (lod >= 0) {
-        selectedAssay = 'none';
-    }
+function adjustLD50(ld50) {
+   if (lod <= ld50+0.05) {
+     lod = ld50 + 0.1;
+   }
 }
-$: showingAntigenPerformance = ((lod >= 0) || (selectedAssay != 'none'));
 
-function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
+$: showingAntigenPerformance = true;
+
+function applyAntigenTest(lod, ld50, assay, pop, infectivityThreshold) {
     if (!pop) return {};
     if (!pop.data) return {};
     pop.catagories["negatives"] = "Antigen Negatives";
     pop.catagories["positives"] = "Antigen Positives";
-    if (lod >= 0) {
-        for (let bin of pop.data) {
-            if (bin.viralLoadLog < lod) {
-                bin["negatives"] = bin["count"];
-                bin["positives"] = 0;
-            }
-            else {
-                bin["negatives"] = 0;
-                bin["positives"] = bin["count"];
-            }
+    let coef;
+    if (assay) {
+        coef = assay.coef;
+        ld50 = assay.ld50;
+        if (ld50 == undefined) {
+            let intercept = assay.intercept;
+            ld50 = -(intercept/coef);
         }
     }
-    else if (assay) {
-        let coef = assay.coef;
-        let intercept = assay.intercept;
-        for (let bin of pop.data) {
-            let p = 1/(1 + Math.exp(-coef * bin.viralLoadLog - intercept))
-            bin["positives"] = p*bin["count"];
-            bin["negatives"] = bin["count"] - bin["positives"];
-        }
+    else {
+        coef = Math.log(19)/(lod - ld50);
     }
+    for (let bin of pop.data) {
+        let p = 1/(1 + Math.exp(-coef * (bin.viralLoadLog - ld50)))
+        bin["positives"] = p*bin["count"];
+        bin["negatives"] = bin["count"] - bin["positives"];
+    }
+    
     // Confusion matrix for classifying infectivity
     pop.tp = 0;
     pop.fn = 0;
@@ -281,7 +281,7 @@ function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
          infectivitySpecificity: pop.infectivitySpecificity};
 }
 
-$: ({sensitivity, infectivitySensitivity, infectivitySpecificity} = applyAntigenTest(lod, assayOptions[selectedAssay],
+$: ({sensitivity, infectivitySensitivity, infectivitySpecificity} = applyAntigenTest(lod, ld50, assayOptions[selectedAssay],
                                    selectedGroup, infectivityThreshold));
 
 let highlightedGroupLabel;
@@ -593,24 +593,38 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
            <legend class="select_label_antigen" >Antigen Test</legend>
            <select class="select_antigen" name="antigenTest" id="antigenTest"
                   bind:value={selectedAssay} >
-               <option value="none">-- select one --</option>
                {#each Object.keys(assayOptions) as assayId (assayId) }
                    <option value={assayId}>
                        {@html assayOptions[assayId].displayName}
                    </option>
                {/each}
+               <option value="none">other test...</option>
            </select>
        </fieldset>
-       <fieldset class="select_lod no_border" >
-           <legend>Limit of detection (LOD)</legend>
-           <input type="range" min="-1" max="12" bind:value={lod} 
+       {#if !assayOptions[selectedAssay]}
+        <div class="select_lod">
+         <fieldset class="no_border" >
+           <legend>Limit of detection (LOD):</legend>
+           Viral load level at which test is positive 95% of the time
+           <input type="range" min="1.1" max="11" step="0.1"
+                 bind:value={lod} 
                  class="slider" id="lod_slider" />
-           {#if lod >= 0 }
                <span>
-                   10<sup>{lod}</sup> copies of viral mRNA/mL
+                   10<sup>{lod.toFixed(1)}</sup> copies of viral mRNA/mL
                </span>
-           {/if}
-       </fieldset>
+         </fieldset>
+         <fieldset class="no_border" >
+           <legend>50% detection threshold:</legend>
+           Viral load level at which test is positive 50% of the time
+           <input type="range" min="1" max="10.9" step="0.1"
+                 bind:value={ld50} 
+                 class="slider" id="lod_slider" />
+               <span>
+                   10<sup>{ld50.toFixed(1)}</sup> copies of viral mRNA/mL
+               </span>
+         </fieldset>
+        </div>
+       {/if}
     </div>
     <div class="max80em hidden_style print-page-top" class:showingAntigenPerformance id="antihisto">
         <a class="anchor-inner" id="antigentests"></a>
@@ -619,8 +633,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 Performance of
                 {#if assayOptions[selectedAssay]}
                     {@html assayOptions[selectedAssay].displayName}
-                {:else if lod >= 0}
-                    antigen test with an LOD of 10<sup>{lod}</sup>        
+                {:else}
+                    other antigen test  
                 {/if}
             </h1>
         </div>
@@ -690,7 +704,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 <strong>
                    presence
                 </strong>
-                of any amount of COVID-10 virus
+                of any amount of COVID-19 virus
                 in
                 {#if gData.populations.length == 1}
                     all

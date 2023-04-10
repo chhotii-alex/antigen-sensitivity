@@ -242,11 +242,17 @@ function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
             bin["negatives"] = bin["count"] - bin["positives"];
         }
     }
+    // Confusion matrix for classifying infectivity
     pop.tp = 0;
     pop.fn = 0;
     pop.fp = 0;
     pop.tn = 0;
+    // Confusion matrix for classifying presence of virus at all
+    pop.allPositives = 0;
+    pop.allNegatives = 0;
     for (let bin of pop.data) {
+        pop.allPositives += bin.positives;
+        pop.allNegatives += bin.negatives;
         if (bin.viralLoadLog >= infectivityThreshold) {
             pop.tp += bin.positives;
             pop.fn += bin.negatives;
@@ -256,22 +262,26 @@ function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
             pop.fp += bin.positives;
         }
     }
+    if ((pop.allPositives + pop.allNegatives) > 0) {
+        pop.sensitivity = pop.allPositives/(pop.allPositives + pop.allNegatives);
+    }
     if ((pop.tp + pop.fn) > 0) {
-        pop.sensitivity = pop.tp/(pop.tp+pop.fn);
+        pop.infectivitySensitivity = pop.tp/(pop.tp+pop.fn);
     }
     else {
-        pop.sensitivity = null;
+        pop.infectivitySensitivity = null;
     }
     if ((pop.tn + pop.fp) > 0) {
-        pop.specificity = pop.tn/(pop.tn+pop.fp);
+        pop.infectivitySpecificity = pop.tn/(pop.tn+pop.fp);
     }
     else {
-        pop.specificity = null;
+        pop.infectivitySpecificity = null;
     }
-    return {sensitivity: pop.sensitivity, specificity: pop.specificity};
+    return {sensitivity: pop.sensitivity, infectivitySensitivity: pop.infectivitySensitivity,
+         infectivitySpecificity: pop.infectivitySpecificity};
 }
 
-$: ({sensitivity, specificity} = applyAntigenTest(lod, assayOptions[selectedAssay],
+$: ({sensitivity, infectivitySensitivity, infectivitySpecificity} = applyAntigenTest(lod, assayOptions[selectedAssay],
                                    selectedGroup, infectivityThreshold));
 
 let highlightedGroupLabel;
@@ -637,7 +647,13 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 infectivityThreshold={infectivityThreshold} />
           </div>
             <div class="performance_commentary">
-                In
+              <p class="cm">
+                For detecting
+                <strong>
+                    contagious
+                </strong>
+                cases of COVID-19
+                in
                 {#if gData.populations.length == 1}
                     all
                 {/if}
@@ -645,29 +661,55 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                    style={`color: ${selectedGroup.colors.negatives[0]}`}>
                     {selectedGroup.label}
                 </span>
-                {#if (sensitivity != undefined) } 
+                {#if (infectivitySensitivity != undefined) } 
                     the
                     <span class="senspec_label">
                         sensitivity
                     </span>
-                    for detecting contagiousness is
-                    <span class="senspec_value"g>
-                        {sensitivity.toFixed(2)}
+                    is
+                    <span class="senspec_value">
+                        {infectivitySensitivity.toFixed(2)}
                     </span>
                 {/if}
-                {#if (specificity != undefined) && (sensitivity != undefined) }
+                {#if (infectivitySpecificity != undefined) && (infectivitySensitivity != undefined) }
                     and 
                 {/if}
-                {#if (specificity != undefined) }
+                {#if (infectivitySpecificity != undefined) }
                     the
                     <span class="senspec_label">
                         specificity
                     </span>
                     is
                     <span class="senspec_value">
-                        {specificity.toFixed(2)}.
+                        {infectivitySpecificity.toFixed(2)}.
                     </span>
                 {/if}
+              </p>
+              <p class="cm">
+                For detecting the
+                <strong>
+                   presence
+                </strong>
+                of any amount of COVID-10 virus
+                in
+                {#if gData.populations.length == 1}
+                    all
+                {/if}
+                <span class="ag_test_group"
+                   style={`color: ${selectedGroup.colors.negatives[0]}`}>
+                    {selectedGroup.label}
+                </span>
+                {#if (sensitivity != undefined) }
+                   the
+                   <span class="senspec_label">
+                       sensitivity
+                   </span>
+                   is
+                   <span class="senspec_value">
+                       {sensitivity.toFixed(2)}.
+                   </span>
+                {/if}
+              </p>
                 {#each ["positive", "negative"] as cat}
                   <div class="anti_legend legend" >
                     <svg height="1em" width="1em"
@@ -906,6 +948,12 @@ fieldset.exploreGroupsOpen {
 }
 .legendtext {
     grid-area: legendtext;
+}
+.senspec_value {
+   font-weight: 600;
+}
+.cm {
+  padding-bottom: 0.5em;
 }
 
 </style>

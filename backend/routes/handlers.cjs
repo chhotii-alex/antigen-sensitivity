@@ -24,6 +24,9 @@ exports.assays = function(req, res, next) {
 	    {"id":"ginko","displayName":"CareStart COVID-19 Antigen Home Test","coef":1.14230231,"intercept":-5.70535991}
 	    ]
 	  };
+    for (let j = 0; j < data.items.length; ++j) {
+       data.items[j].ld50 = -(data.items[j].intercept/data.items[j].coef);
+    }
     res.json(data);
 }
 

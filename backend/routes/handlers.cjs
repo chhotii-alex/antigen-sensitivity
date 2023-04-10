@@ -502,7 +502,7 @@ async function runQuery(label, queryParts) {
     let pop = {
                "label" : label,
                "mean" : mean_val,
-               "count" : rawData.length + jitter,
+               "count" : rawData.length,
                "comparisons" : []};
     if (pop.count >= 60) {
         let bins = bin(rawData);

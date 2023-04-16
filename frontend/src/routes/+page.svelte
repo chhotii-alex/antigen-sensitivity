@@ -552,10 +552,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
        <a class="anchor-inner" id="statistics"></a>
       To help you assess whether between-group differences are significant, we
       calculated the p-value for each pair of groups according to a
-      statistical test called the <a class="link"
-      href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
-      U test (MWU)</a>. MWU is a commonly used test when data do not
-      follow a bell-shaped curve. The MWU p-value measures how likely
+      statistical test called the
+      <a class="link" href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">
+      Kolmogorov–Smirnov test (KS test)
+      </a>. The KS test is a commonly used test when data do not
+      follow a bell-shaped curve. The p-value measures how likely
       it is that two distributions&mdash;here, the distributions of
       viral loads for each pair of groups&mdash;are drawn from the
       same underlying distribution. A large p-value means the two

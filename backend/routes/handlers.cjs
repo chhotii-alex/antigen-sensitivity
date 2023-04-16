@@ -417,13 +417,13 @@ async function makeBinFunction() {
 }
 
 function makeBaseQuery() {
-    return `SELECT log(viral_load) viralloadlog
+    return `SELECT viral_load_log viralloadlog
                      FROM DeidentResults `;
 }
 
 function makeBaseWhereClause(variableObj) {
     // TODO: how many results does this upper limit trim off? Do we believe this upper limit?
-    let whereClause =` WHERE viral_load IS NOT NULL AND log(viral_load) < 10 `;
+    let whereClause =` WHERE viral_load_log IS NOT NULL `;
     if ('minDate' in variableObj) {
         let minDate = sanitizeDateInput(variableObj.minDate);
         if (minDate) {
@@ -505,18 +505,18 @@ async function runQuery(label, queryParts) {
                "count" : rawData.length,
                "comparisons" : []};
     if (pop.count >= 60) {
-        let bins = bin(rawData);
+        //let bins = bin(rawData);
         let d3 = await d3promise; // hack for importing the wrong kind of module
         let densityPoints = d3.scaleLinear().domain([0, 11]).ticks(500);
         let density = kernelDensityEstimator(kernelEpanechnikov(0.5), densityPoints, d3)(rawData);
-        pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
+        /*pop["data"] = bins.filter( r => r.x1 > r.x0 ).map(r => {
                 return {
                     "viralLoadLog" : (r.x0+r.x1)/2,
                     "viralLoadLogMin" : r.x0,
                     "viralLoadLogMax" : r.x1,
                     "count" : r.length,
                 };
-        });
+        });*/
         let densityBinWidth = density[2][0] - density[1][0];
         let halfBin = densityBinWidth/2;
         pop["data"] = density.map(a => {

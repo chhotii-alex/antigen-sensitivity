@@ -390,7 +390,7 @@ function median(values) {
 	return values[mid];
     }
     else {
-        let mid = (values.length)/2;
+        let mid = (values.length-1)/2;
 	let low = Math.floor(mid);
 	let high = Math.ceil(mid);
 	return (values[low]+values[high])/2;

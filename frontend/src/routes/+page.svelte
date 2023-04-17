@@ -587,12 +587,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         The commonly reported measure of a test's performance is the
         limit of detection (LOD), defined as how high the viral load
         must be to be detected by the test 95% of the time.
-        However, to model how the test performs at any viral load, it
-        helps to know an additional threshold&mdash;such as the viral load
-        that is detected 50% of the time.
-        If the antigen test you’re looking for does not specifically appear in the
-        dropdown, the "other test..." option allows you to specify these parameters
-        to see how sensitive your antigen test is.
+        However, without another datapoint, our estimate of the performance
+        will be conservative.
+        Therefore if you choose "other test..." you will be able to set a
+        second datapoint, the 50% detection threshold, which is the viral
+        load at which the test will be positive half the time.
         </p>
     </div>
     <div class="pickanti has_bottom_line">

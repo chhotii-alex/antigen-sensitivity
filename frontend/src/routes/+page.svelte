@@ -6,6 +6,7 @@ import Pyramid from './Pyramid.svelte';
 import PValueLegend from './PValueLegend.svelte';
 
 let isLoading = true;
+let errorState = false;
 
 let gData = {
     populations: [],
@@ -20,10 +21,18 @@ import { onMount } from 'svelte';
 onMount(async () => {
     fetch(URLforEndpoint("assays"))
         .then(response => response.json())
-        .then(data => loadAssayOptions(data));
+        .then(data => loadAssayOptions(data))
+        .catch((error) => {
+          errorState = true;
+          console.log(error);
+        });
     fetch(URLforEndpoint("variables"))
         .then(response => response.json())
-        .then(data => loadVariableOptions(data));
+        .then(data => loadVariableOptions(data))
+        .catch((error) => {
+          errorState = true;
+          console.log(error);
+        });
 });
 
 import { urlPrefix } from "./server_url.js";
@@ -149,7 +158,11 @@ function doQuery(variablesDataStructure) {
     }
     fetch(url)
         .then(response => response.json())
-        .then(data => loadData(data));
+        .then(data => loadData(data))
+        .catch((error) => {
+          errorState = true;
+          console.log(error);
+        });
 }
 
 function loadData(data) {
@@ -185,55 +198,61 @@ function hasSignificantDifferences(info, alpha=0.00125) {
 $: groupCommentSpace = (gData.populations.length < 4);
 
 let selectedAssay = 'none';
-$: if (selectedAssay) selectAntigenTest();
 
-function selectAntigenTest() {
-    if (selectedAssay != 'none') {
-        lod = -1;
-    }
+let lod = 8;
+let ld50 = 5;
+
+$: adjustLOD(lod);
+$: adjustLD50(ld50);
+
+function adjustLOD(lod) {
+   if (lod <= ld50+0.05) {
+      ld50 = lod - 0.1;
+   }
 }
 
-let lod = -1;
-$: if (lod >= 0) setLOD();
-
-function setLOD() {
-    if (lod >= 0) {
-        selectedAssay = 'none';
-    }
+function adjustLD50(ld50) {
+   if (lod <= ld50+0.05) {
+     lod = ld50 + 0.1;
+   }
 }
-$: showingAntigenPerformance = ((lod >= 0) || (selectedAssay != 'none'));
 
-function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
+$: showingAntigenPerformance = true;
+
+function applyAntigenTest(lod, ld50, assay, pop, infectivityThreshold) {
     if (!pop) return {};
     if (!pop.data) return {};
     pop.catagories["negatives"] = "Antigen Negatives";
     pop.catagories["positives"] = "Antigen Positives";
-    if (lod >= 0) {
-        for (let bin of pop.data) {
-            if (bin.viralLoadLog < lod) {
-                bin["negatives"] = bin["count"];
-                bin["positives"] = 0;
-            }
-            else {
-                bin["negatives"] = 0;
-                bin["positives"] = bin["count"];
-            }
+    let coef;
+    if (assay) {
+        coef = assay.coef;
+        ld50 = assay.ld50;
+        if (ld50 == undefined) {
+            let intercept = assay.intercept;
+            ld50 = -(intercept/coef);
         }
     }
-    else if (assay) {
-        let coef = assay.coef;
-        let intercept = assay.intercept;
-        for (let bin of pop.data) {
-            let p = 1/(1 + Math.exp(-coef * bin.viralLoadLog - intercept))
-            bin["positives"] = p*bin["count"];
-            bin["negatives"] = bin["count"] - bin["positives"];
-        }
+    else {
+        coef = Math.log(19)/(lod - ld50);
     }
+    for (let bin of pop.data) {
+        let p = 1/(1 + Math.exp(-coef * (bin.viralLoadLog - ld50)))
+        bin["positives"] = p*bin["count"];
+        bin["negatives"] = bin["count"] - bin["positives"];
+    }
+    
+    // Confusion matrix for classifying infectivity
     pop.tp = 0;
     pop.fn = 0;
     pop.fp = 0;
     pop.tn = 0;
+    // Confusion matrix for classifying presence of virus at all
+    pop.allPositives = 0;
+    pop.allNegatives = 0;
     for (let bin of pop.data) {
+        pop.allPositives += bin.positives;
+        pop.allNegatives += bin.negatives;
         if (bin.viralLoadLog >= infectivityThreshold) {
             pop.tp += bin.positives;
             pop.fn += bin.negatives;
@@ -243,22 +262,26 @@ function applyAntigenTest(lod, assay, pop, infectivityThreshold) {
             pop.fp += bin.positives;
         }
     }
+    if ((pop.allPositives + pop.allNegatives) > 0) {
+        pop.sensitivity = pop.allPositives/(pop.allPositives + pop.allNegatives);
+    }
     if ((pop.tp + pop.fn) > 0) {
-        pop.sensitivity = pop.tp/(pop.tp+pop.fn);
+        pop.infectivitySensitivity = pop.tp/(pop.tp+pop.fn);
     }
     else {
-        pop.sensitivity = null;
+        pop.infectivitySensitivity = null;
     }
     if ((pop.tn + pop.fp) > 0) {
-        pop.specificity = pop.tn/(pop.tn+pop.fp);
+        pop.infectivitySpecificity = pop.tn/(pop.tn+pop.fp);
     }
     else {
-        pop.specificity = null;
+        pop.infectivitySpecificity = null;
     }
-    return {sensitivity: pop.sensitivity, specificity: pop.specificity};
+    return {sensitivity: pop.sensitivity, infectivitySensitivity: pop.infectivitySensitivity,
+         infectivitySpecificity: pop.infectivitySpecificity};
 }
 
-$: ({sensitivity, specificity} = applyAntigenTest(lod, assayOptions[selectedAssay],
+$: ({sensitivity, infectivitySensitivity, infectivitySpecificity} = applyAntigenTest(lod, ld50, assayOptions[selectedAssay],
                                    selectedGroup, infectivityThreshold));
 
 let highlightedGroupLabel;
@@ -278,10 +301,11 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 </script>
 
 <div on:click={closeExploreGroups} class="all_content">
-    <div id="loading" class="hideLoading" class:isLoading >
+   {#if !errorState}
+      <div id="loading" class="hideLoading" class:isLoading >
         <img src="virus.gif" >
-    </div>
-
+      </div>
+    {/if}
     <div id="menu">
         <ul id="menu">
             <li>
@@ -302,53 +326,32 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     </div>
 
     <header>
-        <h1>Learning from COVID-19 Viral Loads</h1>
+        <h1 class="page-top" >Learning from COVID&#8209;19 Viral Loads</h1>
         <h2>How viral loads vary&mdash;or don&apos;t&mdash;across patients can predict the performance
                  of antigen tests in different groups</h2>
 
         <p class="body_text" >
-      COVID-19 test results are usually reported simply as
+      COVID&#8209;19 test results are usually reported simply as
       &ldquo;positive&rdquo; or &ldquo;negative.&rdquo; However, the
       amount of virus a person produces&mdash;<span class="bold">the
       viral load</span>&mdash;can vary. As clinical microbiologists
-      responsible for COVID-19 testing at a major medical center,
+      responsible for COVID&#8209;19 testing at a major medical center,
       we <a class="link" href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">estimated</a>
       viral load for over <span class="bold">40,000 patients</span>
       who had a positive PCR test at our hospital from 2020-2023 so
       you can see how viral loads vary&mdash;or
       don&apos;t&mdash;across age, sex, and so on.
-        </p>
-        <h3>How do viral loads vary across patient groups?</h3>
-        <p class="body_text">
-      COVID-19 viral loads can vary <a class="link"
-      href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
-      billion fold</a> from person to person. Within each person, it
-      starts low, reaches a peak (often preceding symptoms), and then
-      falls again as the infection comes under control. Based on our
-      observations, we hypothesized that most groups exhibit the same
-      range of viral loads. If true, then antigen tests (see below),
-      which a person can take at home, would be equally effective for
-      most groups. If not, then certain groups might require separate
-      trials to get the most benefit from antigen tests.
-        </p>
-        <p class="body_text">
-            A generous grant from the
-            <a class="link" href="https://reaganudall.org/">Reagan-Udall Foundation for
-        the FDA</a> allowed us to test this hypothesis. We used fully
-        anonymized data to protect patient privacy. Instead of simply
-        reporting our own observations, we have made the results
-        available here to everyone, so you can explore and compare
-        whatever group or groups that may be of interest to you. This
-        can include comparison of complex subgroups, such as
-        healthy-weight vs. overweight >60-year-old inpatients or sick-
-        vs. well-appearing patients with presumed early vs. delta
-        vs. omicron variants.
             <span class="bold">
                 Please explore for yourself!
             </span>
         </p>
-    
     </header>
+
+    {#if errorState}
+        <h1 class="errorText" >
+          <em ><strong>Sorry, an error occured. Please try re-loading the page.</strong></em>
+        </h1>
+    {:else}
     <div >
       <div class="pick_group_padding" >
         <div class="pickgroup has_bottom_line">
@@ -391,7 +394,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </fieldset>
         </div>
      </div>
-        <div class="max80em">
+        <div class="max80em print-page-top">
             <h1 id="comparison_title" class="comparisons" >
                 {#if (gData.populations.length == 1) }
                     Real-world Viral Loads, 2020&ndash;Present
@@ -412,9 +415,19 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             </h1>
         </div>
         <div class="max80em">
-            <p class="too_many_groups hidden_style" class:showingBlock={gData.tooManyQueries}
-                      id="too_many_groups">
-                Displaying the first eight plots. Click subsets of the checkboxes to see more (eight at a time).
+            <p class="too_many_groups">
+              {#if gData.tooManyVariables}
+                <strong>Did not attempt
+                  {#if gData.populations.length}
+                      all
+                  {/if}
+                  queries.
+                </strong>
+                Too many checkboxes selected at once. Please uncheck some checkboxes above.
+              {:else if gData.tooManyQueries}
+                Displaying data for the first eight groups. Click subsets of the checkboxes to see
+                  more (eight at a time).
+              {/if}
             </p>
         </div>
         <div class="max80emSplit" >
@@ -476,23 +489,8 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 </div>
             </div>
         </div>
-        <p class="spacer" />
-   <div class="antigen_text">
-       <p class="body_text">
-      To test whether between-group differences are significant, we
-      calculated the p-value for each pair of groups according to a
-      statistical test called the <a class="link"
-      href="https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test">Mann-Whitney
-      U test (MWU)</a>. MWU is a commonly used test when data do not
-      follow a bell-shaped curve. The MWU p-value measures how likely
-      it is that two distributions&mdash;here, the distributions of
-      viral loads for each pair of groups&mdash;are drawn from the
-      same underlying distribution. A large p-value means the two
-      groups in the pair are statistically indistinguishable; a low
-      value mean they differ more than would be expected by chance.
-        </p>
-  </div>
-        <div class="max80emSplit" >
+
+        <div class="max80emSplit rightContentFirst print-page-top" >
             <div class="pyramid_placeholder">
               {#if (gData.populations.length > 2) }
                   <Pyramid info={gData.populations} />
@@ -510,14 +508,64 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                     </p>
                     <PValueLegend />
                     <p class="plegend_text">
-                       See the main text for more regarding this statistical approach.
+                       See the main text for <a href="#statistics">
+                          more regarding this statistical approach.
+                       </a>
                     </p>
                 </div>
             {/if}
         </div>
    </div>
-   <div class="antigen_text">  
-        <h3>How can specific COVID-19 antigen tests be expected to perform on the
+
+      <header class="print-page-top" >
+        <h3>How do viral loads vary across patient groups?</h3>
+        <p class="body_text">
+      COVID&#8209;19 viral loads can vary <a class="link"
+      href="https://www.biorxiv.org/content/10.1101/2022.06.20.496929v1">a
+      billion fold</a> from person to person. Within each person, it
+      starts low, reaches a peak (often preceding symptoms), and then
+      falls again as the infection comes under control. Based on our
+      observations, we hypothesized that most groups exhibit the same
+      range of viral loads. If true, then antigen tests
+      <a href="#antigentests">(see below)</a>,
+      which a person can take at home, would be equally effective for
+      most groups. If not, then certain groups might require separate
+      trials to get the most benefit from antigen tests.
+        </p>
+        <p class="body_text">
+            A generous grant from the
+            <a class="link" href="https://reaganudall.org/">Reagan-Udall Foundation for
+        the FDA</a> allowed us to test this hypothesis. We used fully
+        anonymized data to protect patient privacy. Instead of simply
+        reporting our own observations, we have made the results
+        available here to everyone, so you can explore and compare
+        whatever group or groups that may be of interest to you. This
+        can include comparison of complex subgroups, such as
+        healthy-weight vs. overweight >60-year-old inpatients or sick-
+        vs. well-appearing patients with presumed early vs. delta
+        vs. omicron variants.
+        </p>
+    
+    </header>
+   <div class="antigen_text">
+       <p class="body_text">
+       <a class="anchor-inner" id="statistics"></a>
+      To help you assess whether between-group differences are significant, we
+      calculated the p-value for each pair of groups according to a
+      statistical test called the
+      <a class="link" href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">
+      Kolmogorov–Smirnov test (KS test)
+      </a>. The KS test is a commonly used test when data do not
+      follow a bell-shaped curve. The p-value measures how likely
+      it is that two distributions&mdash;here, the distributions of
+      viral loads for each pair of groups&mdash;are drawn from the
+      same underlying distribution. A large p-value means the two
+      groups in the pair are statistically indistinguishable; a low
+      value mean they differ more than would be expected by chance.
+        </p>
+  </div>
+   <div class="antigen_text print-page-top">  
+        <h3>How can specific COVID&#8209;19 antigen tests be expected to perform on the
              above groups?</h3>
         <p class="body_text">Antigen tests are less sensitive than PCR
       tests but have the advantage that they can be self-administered
@@ -534,11 +582,16 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         <p class="body_text">When paired trials that directly compare an
         antigen test to PCR have not been performed, we can still
         predict how sensitive an antigen test is for detecting
-        contagiousness by using the antigen test’s limit of detection
-        (LOD), which you can set below on the right. If the antigen
-        test you’re looking for does not appear in the
-        dropdown, <span class="bold">set the LOD to see how sensitive
-        your antigen test is.</span>
+        contagiousness by using some measures of the test's analytical
+        performance.
+        The commonly reported measure of a test's performance is the
+        limit of detection (LOD), defined as how high the viral load
+        must be to be detected by the test 95% of the time.
+        However, without another datapoint, our estimate of the performance
+        will be conservative.
+        Therefore if you choose "other test..." you will be able to set a
+        second datapoint, the 50% detection threshold, which is the viral
+        load at which the test will be positive half the time.
         </p>
     </div>
     <div class="pickanti has_bottom_line">
@@ -546,33 +599,48 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
            <legend class="select_label_antigen" >Antigen Test</legend>
            <select class="select_antigen" name="antigenTest" id="antigenTest"
                   bind:value={selectedAssay} >
-               <option value="none">-- select one --</option>
                {#each Object.keys(assayOptions) as assayId (assayId) }
                    <option value={assayId}>
                        {@html assayOptions[assayId].displayName}
                    </option>
                {/each}
+               <option value="none">other test...</option>
            </select>
        </fieldset>
-       <fieldset class="select_lod no_border" >
-           <legend>Limit of detection (LOD)</legend>
-           <input type="range" min="-1" max="12" bind:value={lod} 
+       {#if !assayOptions[selectedAssay]}
+        <div class="select_lod">
+         <fieldset class="no_border" >
+           <legend>Limit of detection (LOD):</legend>
+           Viral load level at which test is positive 95% of the time
+           <input type="range" min="1.1" max="11" step="0.1"
+                 bind:value={lod} 
                  class="slider" id="lod_slider" />
-           {#if lod >= 0 }
                <span>
-                   10<sup>{lod}</sup> copies of viral mRNA/mL
+                   10<sup>{lod.toFixed(1)}</sup> copies of viral mRNA/mL
                </span>
-           {/if}
-       </fieldset>
+         </fieldset>
+         <fieldset class="no_border" >
+           <legend>50% detection threshold:</legend>
+           Viral load level at which test is positive 50% of the time
+           <input type="range" min="1" max="10.9" step="0.1"
+                 bind:value={ld50} 
+                 class="slider" id="lod_slider" />
+               <span>
+                   10<sup>{ld50.toFixed(1)}</sup> copies of viral mRNA/mL
+               </span>
+         </fieldset>
+        </div>
+       {/if}
     </div>
-    <div class="max80em hidden_style" class:showingAntigenPerformance id="antihisto">
+    <div class="max80em hidden_style print-page-top" class:showingAntigenPerformance id="antihisto">
+        <a class="anchor-inner" id="antigentests"></a>
         <div class="antihisto_title">
             <h1 class="antigen">
                 Performance of
                 {#if assayOptions[selectedAssay]}
                     {@html assayOptions[selectedAssay].displayName}
-                {:else if lod >= 0}
-                    antigen test with an LOD of 10<sup>{lod}</sup>        
+                {:else}
+                    other antigen test  
                 {/if}
             </h1>
         </div>
@@ -599,7 +667,13 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                 infectivityThreshold={infectivityThreshold} />
           </div>
             <div class="performance_commentary">
-                In
+              <p class="cm">
+                For detecting
+                <strong>
+                    contagious
+                </strong>
+                cases of COVID-19
+                in
                 {#if gData.populations.length == 1}
                     all
                 {/if}
@@ -607,26 +681,55 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
                    style={`color: ${selectedGroup.colors.negatives[0]}`}>
                     {selectedGroup.label}
                 </span>
-                {#if (sensitivity != undefined) } 
+                {#if (infectivitySensitivity != undefined) } 
                     the
                     <span class="senspec_label">
                         sensitivity
                     </span>
-                    for detecting contagiousness is
-                    <span class="senspec_value"g>
-                        {sensitivity.toFixed(2)}
+                    is
+                    <span class="senspec_value">
+                        {infectivitySensitivity.toFixed(2)}
                     </span>
                 {/if}
-                {#if (specificity != undefined) }
-                    and the
+                {#if (infectivitySpecificity != undefined) && (infectivitySensitivity != undefined) }
+                    and 
+                {/if}
+                {#if (infectivitySpecificity != undefined) }
+                    the
                     <span class="senspec_label">
                         specificity
                     </span>
                     is
                     <span class="senspec_value">
-                        {specificity.toFixed(2)}.
+                        {infectivitySpecificity.toFixed(2)}.
                     </span>
                 {/if}
+              </p>
+              <p class="cm">
+                For detecting the
+                <strong>
+                   presence
+                </strong>
+                of any amount of COVID-19 virus
+                in
+                {#if gData.populations.length == 1}
+                    all
+                {/if}
+                <span class="ag_test_group"
+                   style={`color: ${selectedGroup.colors.negatives[0]}`}>
+                    {selectedGroup.label}
+                </span>
+                {#if (sensitivity != undefined) }
+                   the
+                   <span class="senspec_label">
+                       sensitivity
+                   </span>
+                   is
+                   <span class="senspec_value">
+                       {sensitivity.toFixed(2)}.
+                   </span>
+                {/if}
+              </p>
                 {#each ["positive", "negative"] as cat}
                   <div class="anti_legend legend" >
                     <svg height="1em" width="1em"
@@ -660,11 +763,12 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
             <label for="infectivityThreshold" name="infectivityThreshold">
                 Infectivity Threshold (copies viral mRNA/mL):
             </label>
-            <input type="range" min="0" max="12" bind:value={infectivityThreshold}
+            <input type="range" min="0" max="11" bind:value={infectivityThreshold}
                  class="slider" id="infectivityThreshold">
         </div>
       </details>
     </div>
+    {/if}
     <footer>
         <h3>How did we estimate SARS-CoV-2 contagiousness?</h3>
         <p class="body_text">
@@ -716,7 +820,7 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
         <p class="body_text">
             Arnaout, R.A. et al. Learning from COVID-19 Viral Loads. 2023
         </p>
-        <h3>What if I have other questions, comments, or suggestions?</h3>
+        <h3 class="print-page-top" >What if I have other questions, comments, or suggestions?</h3>
         <p class="body_text">We appreciate your feedback. Please email us
             at
             <a class="email" href="mailto:rarnaout@bidmc.harvard.edu">rarnaout@bidmc.harvard.edu</a>.
@@ -725,6 +829,32 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 </div>
 
 <style>
+
+.errorText {
+  color: red;
+  margin: auto;
+  border: 3px solid red;
+  border-radius: 4em;
+  max-width: 16em;
+}
+
+.page-top {
+    padding-top: 120px;
+}
+.print-page-top {
+    padding-top: 0.5em;
+    break-before: page;
+}
+@media only print {
+   .print-page-top {
+       padding-top: 120px;
+   }
+}
+@media only print {
+    .savebuttons {
+        display: none;
+    }
+}
 
 /* Needs the :global directive to penetrate into @html strings: */
 :global(sup.exponent) {
@@ -758,6 +888,12 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
 .groupCommentSpace {
     padding-bottom: 1.5em;
 }
+@media only screen and (max-width: 72em) {
+  .groupcomment {
+    font-size: 14px;
+    padding-bottom: 0.3em;
+  }
+}
 
 .pick_group_padding {
     padding-left: 70px;
@@ -768,6 +904,9 @@ let numberFormatter = new Intl.NumberFormat('en-US', { maximumSignificantDigits:
     padding-left: 30px;
     padding-right: 0px;
   }
+}
+.performance_commentary {
+   margin-left: 10px;
 }
 
 .hideLoading {
@@ -829,6 +968,12 @@ fieldset.exploreGroupsOpen {
 }
 .legendtext {
     grid-area: legendtext;
+}
+.senspec_value {
+   font-weight: 600;
+}
+.cm {
+  padding-bottom: 0.5em;
 }
 
 </style>

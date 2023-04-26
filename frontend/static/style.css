@@ -22,6 +22,11 @@ body {
     text-align: left;
     line-height: 1.5;
 }
+@media only screen and (max-width: 450px) {
+    body {
+        line-height: 1.2;
+    }
+}
 
 /* This menu is copied over from arnaoutlab.org and most
 of its styling is governed by the stylesheet there.
@@ -43,19 +48,16 @@ h1 {
     font-weight: 700;
     font-size: 42px;
     text-align: center;
-    padding-top: 120px;
     padding-bottom: 10px;
     margin: 0;
 }
 
 h1.comparisons {
-    padding-top: 0.5em;
     font-weight: 300;
     fint-size: 36px;
 }
 
 h1.antigen {
-    padding-top: 0.5em;
     font-weight: 300;
     fint-size: 36px;
 }
@@ -88,6 +90,13 @@ p.body_text {
     padding-left: 40px;
     padding-right: 40px;
     padding-bottom: 1.5em;
+}
+
+@media only screen and (max-width: 40em) {
+    .h3, p.body_text, h1 {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
 }
 .too_many_groups {
     font-size: 20px;
@@ -156,18 +165,24 @@ p.body_text {
         ". max80emLeftContent max80emRightContent .";
 }
 
-@media only screen and (max-width: 84rem) {
+@media only screen and (max-width: 92rem) {
     .max80emSplit {
         grid-template-columns: 1fr 40rem 20rem 1fr;
     }
 }
 
-@media only screen and (max-width: 64rem) {
+@media only screen and (max-width: 68rem) {
     .max80emSplit {
         grid-template-columns: 1fr 40rem 1fr;
         grid-template-areas:
             ". max80emLeftContent ."
             ". max80emRightContent .";
+    }
+    .rightContentFirst {
+        grid-template-areas:
+            ". max80emRightContent ."
+            ". max80emLeftContent ."
+        ;
     }
 }
 
@@ -192,6 +207,11 @@ p.body_text {
 .xlabel {
     font-size: 24px;
     font-weight: 200;
+}
+@media only screen and (max-width: 440px) {
+    .ylabel, .xlabel {
+        font-size: 12px;
+    }
 }
 .exponentlabel {
     font-size: 16px;
@@ -222,20 +242,14 @@ of displaybox changes!!!
     line-height: 20px;
 }
 
-@media only screen and (max-width: 60em) {
+@media only screen and (max-width: 72em) {
     .meantext {
         aspect-ratio: auto;
+        padding-left: 0px;
+        padding-right: 0px;
     }
 }
 
-.meantext::-webkit-scrollbar {
-  width: 5px;
-  height: 8px;
-  background-color: #aaa; /* or add it to the track */
-}
-.meantext::-webkit-scrollbar-thumb {
-  background: #000;
-}
 .pyramid_placeholder {
     grid-area: max80emLeftContent;
     display: grid;
@@ -261,13 +275,20 @@ of displaybox changes!!!
     padding-right: 40px;
     grid-area: max80emRightContent;
     font-size: 18px;
-    padding-bottom: 1.5em;
+    /* padding-bottom: 1.5em; */
     line-height: 1.4em;
 
     display: flex;
     flex-direction: column;
     /* align-items: flex-end; */
     /* justify-content:center; */
+}
+@media only screen and (max-width: 72em) {
+    .plegend {
+        padding-left: 0px;
+        padding-right: 0px;
+        font-size: 14px;
+    }
 }
 #plegend { /* the colorbar */
     margin-left: auto;
@@ -278,6 +299,11 @@ of displaybox changes!!!
     font-size: 24px; 
     font-weight: 600;
     padding-right: 0.15em;
+}
+@media only screen and (max-width: 72em) {
+    .statistics {
+        font-size: 16px;
+    }
 }
 select {
   margin: 4px;
@@ -423,14 +449,6 @@ footer {
     }
 }
 
-@media only print {
-    .pickgroup {
-        page-break-after: always;
-    }
-    .savebuttons {
-        display: none;
-    }
-}
 .conclusiontext {
     font-size: 20px;
     padding-top: 1.5em;
@@ -477,12 +495,6 @@ footer {
     color: #000;
     font-weight: 600;
 }
-.row_labels {
-    font-size: 20px;
-}
-.col_labels {
-    font-size: 20px;
-}
 summary {
     padding-bottom: 1em;
 }
@@ -502,18 +514,6 @@ a.download:hover {
     color: #fff;
 }
 .ag_test_group {
-    font-size: 18px; 
-    font-weight: 600;
-    padding-left: 0.15em;
-    padding-right: 0.15em;
-}
-.senspec_label {
-    font-size: 18px; 
-    font-weight: 600;
-    padding-left: 0.15em;
-    padding-right: 0.15em;
-}
-.senspec_value {
     font-size: 18px; 
     font-weight: 600;
     padding-left: 0.15em;

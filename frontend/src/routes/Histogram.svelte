@@ -14,7 +14,7 @@ export let joy = false;
 export let y_scale = 'scale_absolute';
 export let infectivityThreshold = 5;
 
-const margin = {top: 10, right: 0, bottom: 60, left: 20};
+const margin = {top: 10, right: 10, bottom: 60, left: 50};
 
 /* These are bound to the client dimensions of the element containing the svg, below: */
 let clientWidth;
@@ -105,7 +105,32 @@ function findPeak(pop) {
     for (let bin of pop.data) {
         let sum = 0;
         for (let key of catagories) { sum += bin[key]; }
-        sum *= 1.1;
+        if (sum > peak) {
+            peak = sum;
+        }
+    }
+    return peak;
+}
+
+function findArea(pop) {
+   if (!pop.data) return 1;
+   let area = 0;
+   for (let bin of pop.data) {
+      for (let key of catagories) {
+         area += bin[key];
+      }
+   }
+   return area;
+}
+
+function findDensityPeak(pop) {
+    if (!pop.data) return 0;
+    let area = findArea(pop);
+    let peak = 0;
+    for (let bin of pop.data) {
+        let sum = 0;
+        for (let key of catagories) { sum += bin[key]; }
+        sum = sum/area;
         if (sum > peak) {
             peak = sum;
         }
@@ -115,17 +140,28 @@ function findPeak(pop) {
 
 function assignYScaling(histogramWorthyPopulations, yFunc,
         height, theStagger, heightAdjustment) {
-    let yScaleFuncs = {}
+    let maxDensityPeak = 0;
     let maxPeak = 0;
     for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
         let pop = histogramWorthyPopulations[i];
-        let peak = findPeak(pop);
+        let peak = findDensityPeak(pop);
+        if (peak > maxDensityPeak) {
+           maxDensityPeak = peak;
+        }
+        peak = findPeak(pop);
         if (peak > maxPeak) maxPeak = peak;
-        if (yFunc == "yScale") {
+    }
+    let yScaleFuncs = {}
+    if (yFunc == "yScale") {
+        let plotHeight = (height*heightAdjustment/1.1);
+        for (let i = 0; i < histogramWorthyPopulations.length; ++i) {
+            let pop = histogramWorthyPopulations[i];
+            let area = findArea(pop);
             let yIndex = histogramWorthyPopulations.length-(i+1);
-            yScaleFuncs[pop.label] = scaleLinear().domain([0,peak])
-                             .range([height-(yIndex*theStagger),
-                                 height-(yIndex*theStagger)-height*heightAdjustment]);
+            let yBase = height-(yIndex*theStagger);
+            yScaleFuncs[pop.label] = scaleLinear().domain([0,area*maxDensityPeak])
+                             .range([yBase,
+                                 yBase-plotHeight]);
         }
     }
     if (yFunc == "yNorm") {
@@ -256,7 +292,6 @@ svg {
       top menu banner: */
     position: relative;
     z-index: -1;
-    overflow: visible;
 }
 .i_label {
     fill: black;

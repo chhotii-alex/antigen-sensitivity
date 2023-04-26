@@ -14,10 +14,13 @@ const innerMargin = 10;
 const outerMargin = 0;
 const totalWidth = rectSize*(maxGroups-1);
 const labelWidth = totalWidth-innerMargin;
-let maxstr = (totalWidth - 2*innerMargin)/(labelFontSize*fontWidthRatio);
-if (maxstr < 15) {
+$: maxstr = (totalWidth - 2*innerMargin)/(labelFontSize*fontWidthRatio);
+$: if (maxstr < 15) {
     maxstr = 15;
     labelFontSize = (totalWidth - innerMargin)/(maxstr*fontWidthRatio);
+}
+else {
+   labelFontSize = 10;
 }
 
 /* These are bound to the client dimensions of the element containing the svg, below: */
@@ -25,6 +28,7 @@ let clientWidth;
 let clientHeight;
 
 $: scale = clientWidth/(totalWidth+labelWidth+innerMargin+2*outerMargin);
+$: scaledLabelFontSize = scale*labelFontSize;
 
 let x = i => 0;
 let y = i => 0;
@@ -185,7 +189,7 @@ $: marginBottom = `margin-bottom: ${y(-1)-clientWidth}px`;
           style={marginBottom}>
     {#if scale}
         <svg id="pyramid" width="100%"
-                font-size={`${labelFontSize*scale}px`}>
+                font-size={`${scaledLabelFontSize}px`}>
             {#each util.range(1, info.length) as i}
                 <g class="pyramidrow">
                     {#each util.range(0, i) as j}
@@ -203,6 +207,7 @@ $: marginBottom = `margin-bottom: ${y(-1)-clientWidth}px`;
             {/each}
             {#each util.range(1, info.length) as i}
                 <text class="row_labels"
+                         font-size={`${scaledLabelFontSize}px`}
                          x={ scale*(outerMargin+totalWidth+innerMargin)}
                          y={scale*(outerMargin+labelWidth+innerMargin+(info.length-(i+0.25))*rectSize)}>
                     {shortLabelAtIndex(info, i, maxstr, substitutionCount)}
@@ -213,6 +218,7 @@ $: marginBottom = `margin-bottom: ${y(-1)-clientWidth}px`;
                        x={scale*(totalWidth-(i+0.25)*rectSize+outerMargin)}
                        y={scale*(outerMargin+labelWidth)}
                        text-anchor="start"
+                       font-size={`${scaledLabelFontSize}px`}
                        transform={`rotate(-90 ${scale*(totalWidth-(i+0.25)*rectSize+outerMargin)} ${scale*(outerMargin+labelWidth)})`}>
                     {shortLabelAtIndex(info, i, maxstr, substitutionCount)}
                 </text> 
